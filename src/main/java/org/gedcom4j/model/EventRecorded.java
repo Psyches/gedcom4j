@@ -178,9 +178,9 @@ public class EventRecorded extends AbstractElement {
             builder.append(jurisdiction);
             builder.append(", ");
         }
-        if (customTags != null) {
+        if (getCustomTags() != null) {
             builder.append("customTags=");
-            builder.append(customTags);
+            builder.append(getCustomTags());
         }
         builder.append("]");
         return builder.toString();

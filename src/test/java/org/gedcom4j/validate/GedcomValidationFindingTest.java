@@ -26,6 +26,7 @@
  */
 package org.gedcom4j.validate;
 
+import org.gedcom4j.model.ValidatedElement;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,9 +36,9 @@ import org.junit.Test;
  * @author frizbog1
  * 
  */
-public class GedcomValidationFindingTest {
+public class GedcomValidationFindingTest implements ValidatedElement {
 
-    /**
+	/**
      * Test for {@link GedcomValidationFinding#GedcomValidationFinding(String, Severity, Object)} - nulls as parameters
      */
     @Test
@@ -67,8 +68,16 @@ public class GedcomValidationFindingTest {
      */
     @Test
     public void testToString() {
-        GedcomValidationFinding gvf = new GedcomValidationFinding("testing 1 2 3", Severity.ERROR, Integer.valueOf(4));
-        Assert.assertEquals("ERROR: testing 1 2 3 (4)", gvf.toString());
+        GedcomValidationFinding gvf = new GedcomValidationFinding("testing 1 2 3", Severity.ERROR, this /*Integer.valueOf(4)*/);
+        Assert.assertEquals("ERROR: testing 1 2 3 (uh yeah...four)", gvf.toString());
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     * until ValidatedItem enforces wider semantics for problem location determination 
+     */
+    @Override
+    public String toString() {
+    	return "uh yeah...four";
+    }
 }

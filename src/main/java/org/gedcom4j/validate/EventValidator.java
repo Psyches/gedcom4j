@@ -55,7 +55,7 @@ class EventValidator extends AbstractValidator {
      *            the event beign validated
      */
     public EventValidator(GedcomValidator rootValidator, AbstractEvent e) {
-        this.rootValidator = rootValidator;
+        super(rootValidator);
         this.e = e;
     }
 
@@ -70,7 +70,7 @@ class EventValidator extends AbstractValidator {
             return;
         }
         if (e.getAddress() != null) {
-            new AddressValidator(rootValidator, e.getAddress()).validate();
+            new AddressValidator(getRootValidator(), e.getAddress()).validate();
         }
         checkOptionalString(e.getAge(), "age", e);
         checkOptionalString(e.getCause(), "cause", e);
@@ -78,12 +78,12 @@ class EventValidator extends AbstractValidator {
         checkCustomTags(e);
         checkOptionalString(e.getDate(), "date", e);
         if (e.getDescription() != null && e.getDescription().trim().length() != 0) {
-            rootValidator.addError("Event has description, which is non-standard. Remove this value, or move it (perhaps to a Note).", e);
+            getRootValidator().addError("Event has description, which is non-standard. Remove this value, or move it (perhaps to a Note).", e);
         }
         checkEmails();
         checkFaxNumbers();
         checkMultimedia();
-        new NotesValidator(rootValidator, e, e.getNotes()).validate();
+        new NotesValidator(getRootValidator(), e, e.getNotes()).validate();
         checkPhoneNumbers();
         checkOptionalString(e.getReligiousAffiliation(), "religious affiliation", e);
         checkOptionalString(e.getRespAgency(), "responsible agency", e);
@@ -99,22 +99,22 @@ class EventValidator extends AbstractValidator {
     private void checkCitations() {
         List<AbstractCitation> citations = e.getCitations();
         if (citations == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 e.getCitations(true).clear();
-                rootValidator.addInfo("Event had null list of citations - repaired", e);
+                getRootValidator().addInfo("Event had null list of citations - repaired", e);
             } else {
-                rootValidator.addError("Event has null list of citations", e);
+                getRootValidator().addError("Event has null list of citations", e);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate source citations found and removed", e);
+                    getRootValidator().addInfo(dups + " duplicate source citations found and removed", e);
                 }
             }
             if (citations != null) {
                 for (AbstractCitation c : citations) {
-                    new CitationValidator(rootValidator, c).validate();
+                    new CitationValidator(getRootValidator(), c).validate();
                 }
             }
         }
@@ -126,17 +126,17 @@ class EventValidator extends AbstractValidator {
     private void checkEmails() {
         List<StringWithCustomTags> emails = e.getEmails();
         if (emails == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 e.getEmails(true).clear();
-                rootValidator.addInfo("Event had null list of emails - repaired", e);
+                getRootValidator().addInfo("Event had null list of emails - repaired", e);
             } else {
-                rootValidator.addError("Event has null list of emails", e);
+                getRootValidator().addError("Event has null list of emails", e);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<StringWithCustomTags>(emails).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate emails found and removed", e);
+                    getRootValidator().addInfo(dups + " duplicate emails found and removed", e);
                 }
             }
             if (emails != null) {
@@ -153,17 +153,17 @@ class EventValidator extends AbstractValidator {
     private void checkFaxNumbers() {
         List<StringWithCustomTags> faxNumbers = e.getFaxNumbers();
         if (faxNumbers == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 e.getFaxNumbers(true).clear();
-                rootValidator.addInfo("Event had null list of fax numbers - repaired", e);
+                getRootValidator().addInfo("Event had null list of fax numbers - repaired", e);
             } else {
-                rootValidator.addError("Event has null list of fax numbers", e);
+                getRootValidator().addError("Event has null list of fax numbers", e);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<StringWithCustomTags>(faxNumbers).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate fax numbers found and removed", e);
+                    getRootValidator().addInfo(dups + " duplicate fax numbers found and removed", e);
                 }
             }
             if (faxNumbers != null) {
@@ -180,22 +180,22 @@ class EventValidator extends AbstractValidator {
     private void checkMultimedia() {
         List<Multimedia> multimedia = e.getMultimedia();
         if (multimedia == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 e.getMultimedia(true).clear();
-                rootValidator.addInfo("Event had null list of multimedia - repaired", e);
+                getRootValidator().addInfo("Event had null list of multimedia - repaired", e);
             } else {
-                rootValidator.addError("Event has null list of multimedia", e);
+                getRootValidator().addError("Event has null list of multimedia", e);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<Multimedia>(multimedia).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate multimedia found and removed", e);
+                    getRootValidator().addInfo(dups + " duplicate multimedia found and removed", e);
                 }
             }
             if (multimedia != null) {
                 for (Multimedia m : multimedia) {
-                    new MultimediaValidator(rootValidator, m).validate();
+                    new MultimediaValidator(getRootValidator(), m).validate();
                 }
             }
         }
@@ -207,17 +207,17 @@ class EventValidator extends AbstractValidator {
     private void checkPhoneNumbers() {
         List<StringWithCustomTags> phoneNumbers = e.getPhoneNumbers();
         if (phoneNumbers == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 e.getPhoneNumbers(true).clear();
-                rootValidator.addInfo("Event had null list of phone numbers - repaired", e);
+                getRootValidator().addInfo("Event had null list of phone numbers - repaired", e);
             } else {
-                rootValidator.addError("Event has null list of phone numbers", e);
+                getRootValidator().addError("Event has null list of phone numbers", e);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<StringWithCustomTags>(phoneNumbers).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate phone numbers found and removed", e);
+                    getRootValidator().addInfo(dups + " duplicate phone numbers found and removed", e);
                 }
             }
             if (phoneNumbers != null) {
@@ -227,7 +227,7 @@ class EventValidator extends AbstractValidator {
             }
         }
         if (e.getPlace() != null) {
-            new PlaceValidator(rootValidator, e.getPlace()).validate();
+            new PlaceValidator(getRootValidator(), e.getPlace()).validate();
         }
     }
 
@@ -237,17 +237,17 @@ class EventValidator extends AbstractValidator {
     private void checkWwwUrls() {
         List<StringWithCustomTags> wwwUrls = e.getWwwUrls();
         if (wwwUrls == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 e.getWwwUrls(true).clear();
-                rootValidator.addInfo("Event had null list of www urls - repaired", e);
+                getRootValidator().addInfo("Event had null list of www urls - repaired", e);
             } else {
-                rootValidator.addError("Event has null list of www url", e);
+                getRootValidator().addError("Event has null list of www url", e);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<StringWithCustomTags>(wwwUrls).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate web URLs found and removed", e);
+                    getRootValidator().addInfo(dups + " duplicate web URLs found and removed", e);
                 }
             }
             if (wwwUrls != null) {

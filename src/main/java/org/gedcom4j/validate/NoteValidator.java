@@ -61,7 +61,7 @@ class NoteValidator extends AbstractValidator {
      *            the note being validated
      */
     public NoteValidator(GedcomValidator rootValidator, int i, Note n) {
-        this.rootValidator = rootValidator;
+        super(rootValidator);
         this.i = i;
         this.n = n;
     }
@@ -73,7 +73,7 @@ class NoteValidator extends AbstractValidator {
     protected void validate() {
 
         if (Options.isCollectionInitializationEnabled() && n.getLines() == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 n.getLines(true).clear();
                 addInfo("Lines of text collection on note was null - autorepaired");
             } else {
@@ -89,27 +89,27 @@ class NoteValidator extends AbstractValidator {
         checkOptionalString(n.getRecIdNumber(), "automated record id", n);
         List<AbstractCitation> citations = n.getCitations();
         if (citations == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 n.getCitations(true).clear();
                 addInfo("Source citations collection on note was null - autorepaired");
             } else {
                 addError("Source citations collection on note is null", n);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate citations found and removed", n);
+                    getRootValidator().addInfo(dups + " duplicate citations found and removed", n);
                 }
             }
             if (citations != null) {
                 for (AbstractCitation c : citations) {
-                    new CitationValidator(rootValidator, c).validate();
+                    new CitationValidator(getRootValidator(), c).validate();
                 }
             }
         }
         if (n.getUserReferences() == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 n.getUserReferences(true).clear();
                 addInfo("User references collection on note was null - autorepaired");
             } else {

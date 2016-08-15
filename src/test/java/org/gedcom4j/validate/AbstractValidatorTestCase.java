@@ -76,8 +76,9 @@ public abstract class AbstractValidatorTestCase extends TestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        gedcom = new Gedcom();
-        rootValidator = new GedcomValidator(gedcom);
+        // Allow key instances to be overridden for special creations during sub-class setUp()
+        if (gedcom == null) gedcom = new Gedcom();
+        if (rootValidator == null) rootValidator = new GedcomValidator(gedcom);
     }
 
     /**

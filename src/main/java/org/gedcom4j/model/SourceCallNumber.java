@@ -140,9 +140,9 @@ public class SourceCallNumber extends AbstractElement {
             builder.append(mediaType);
             builder.append(", ");
         }
-        if (customTags != null) {
+        if (getCustomTags() != null) {
             builder.append("customTags=");
-            builder.append(customTags);
+            builder.append(getCustomTags());
         }
         builder.append("]");
         return builder.toString();

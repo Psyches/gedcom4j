@@ -38,7 +38,7 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog
  */
-public abstract class AbstractElement implements Serializable {
+public abstract class AbstractElement implements Serializable, HasCustomTags {
     /**
      * Serial Version UID
      */
@@ -47,7 +47,7 @@ public abstract class AbstractElement implements Serializable {
     /**
      * A list of custom tags on this item.
      */
-    protected List<StringTree> customTags = getCustomTags(Options.isCollectionInitializationEnabled());
+    private List<StringTree> customTags = getCustomTags(Options.isCollectionInitializationEnabled());
 
     @Override
     public boolean equals(Object obj) {
@@ -117,4 +117,12 @@ public abstract class AbstractElement implements Serializable {
         return builder.toString();
     }
 
+    /**
+     * Set the custom tags
+     * 
+     * @param theCustomTags the custom tags
+     */
+    protected void setCustomTags(List<StringTree> theCustomTags) {
+    	customTags = theCustomTags;
+    }
 }

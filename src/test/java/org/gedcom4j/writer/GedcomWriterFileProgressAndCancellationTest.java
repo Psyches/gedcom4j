@@ -530,5 +530,4 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             }
         }
     }
-
 }

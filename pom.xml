@@ -4,7 +4,7 @@
 
 	<groupId>org.gedcom4j</groupId>
 	<artifactId>gedcom4j</artifactId>
-	<version>3.1.0-SNAPSHOT</version>
+	<version>3.1.1-SNAPSHOT</version>
 
 	<!-- Derived from project name and README -->
 	<name>gedcom4j</name>
@@ -21,15 +21,15 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/frizbog/gedcom4j</url>
-		<connection>scm:git:git://github.com/frizbog/gedcom4j.git</connection>
-		<developerConnection>scm:git:git@github.com:frizbog/gedcom4j.git</developerConnection>
+		<url>https://github.com/Psyches/gedcom4j</url>
+		<connection>scm:git:git://github.com/Psyches/gedcom4j.git</connection>
+		<developerConnection>scm:git:git@github.com:Psyches/gedcom4j.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/frizbog/gedcom4j/issues</url>
+		<url>https://github.com/Psyches/gedcom4j/issues</url>
 	</issueManagement>
 
 	<developers>
@@ -41,6 +41,15 @@
 				<role>Project Owner</role>
 			</roles>
 			<timezone>-5</timezone>
+		</developer>
+		<developer>
+			<id>Psyches</id>
+			<name>Mark A Sikes</name>
+			<email>markasikes@gmail.com</email>
+			<roles>
+				<role>Project Contributor</role>
+			</roles>
+			<timezone>-8</timezone>
 		</developer>
 	</developers>
 
@@ -104,7 +113,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.10.4</version>
 				<configuration>
-					<javadocVersion>1.6</javadocVersion>
+					<javadocVersion>1.8</javadocVersion>
 					<show>private</show>
 					<source>1.6</source>
 				</configuration>
@@ -174,8 +183,9 @@
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>3.6</version>
 				<configuration>
-					<!-- PMD defaults to 1.8, need to specify that we're using 1.6 -->
+					<!-- PMD defaults to 1.8, need to specify that we're using 1.6
 					<targetJdk>1.6</targetJdk>
+					 -->
 					<!-- Adding the PMD configuration file in root directory -->
 					<rulesets>
 						<ruleset>pmd-config.xml</ruleset>
@@ -198,7 +208,11 @@
 				<artifactId>license-maven-plugin</artifactId>
 				<version>3.0.rc1</version>
 				<configuration>
+				    <!-- Hopefully we can clean this up and simplify -->
 					<header>licenses/LICENSE-gedcom4j.txt</header>
+					<validHeaders>
+                        <header>licenses/LICENSE-gedcom4jx.txt</header>
+                    </validHeaders>
 					<includes>
 						<include>src/test/java/**</include>
 						<include>src/main/java/**</include>

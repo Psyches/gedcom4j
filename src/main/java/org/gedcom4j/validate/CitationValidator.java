@@ -56,7 +56,7 @@ class CitationValidator extends AbstractValidator {
      *            the citation being validated
      */
     public CitationValidator(GedcomValidator rootValidator, AbstractCitation citation) {
-        this.rootValidator = rootValidator;
+        super(rootValidator);
         this.citation = citation;
     }
 
@@ -86,17 +86,17 @@ class CitationValidator extends AbstractValidator {
             checkStringList(c.getDescription(), "description on a citation without a source", true);
             List<List<String>> textFromSource = c.getTextFromSource();
             if (textFromSource == null && Options.isCollectionInitializationEnabled()) {
-                if (rootValidator.isAutorepairEnabled()) {
+                if (getRootValidator().isAutorepairEnabled()) {
                     c.getTextFromSource(true).clear();
                     addInfo("Text from source collection (the list of lists) was null in CitationWithoutSource - autorepaired", citation);
                 } else {
                     addError("Text from source collection (the list of lists) is null in CitationWithoutSource", citation);
                 }
             } else {
-                if (rootValidator.isAutorepairEnabled()) {
+                if (getRootValidator().isAutorepairEnabled()) {
                     int dups = new DuplicateEliminator<List<String>>(textFromSource).process();
                     if (dups > 0) {
-                        rootValidator.addInfo(dups + " duplicate texts from source found and removed", citation);
+                        getRootValidator().addInfo(dups + " duplicate texts from source found and removed", citation);
                     }
                 }
                 if (textFromSource != null) {
@@ -113,14 +113,14 @@ class CitationValidator extends AbstractValidator {
             throw new IllegalStateException("AbstractCitation references must be either CitationWithSource" + " instances or CitationWithoutSource instances");
         }
         if (citation.getNotes() == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 citation.getNotes(true).clear();
                 addInfo("Notes collection was null on " + citation.getClass().getSimpleName() + " - autorepaired");
             } else {
                 addError("Notes collection is null on " + citation.getClass().getSimpleName());
             }
         } else {
-            new NotesValidator(rootValidator, citation, citation.getNotes()).validate();
+            new NotesValidator(getRootValidator(), citation, citation.getNotes()).validate();
         }
 
     }

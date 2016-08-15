@@ -41,7 +41,7 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Submitter extends AbstractElement {
+public class Submitter extends AbstractNotesElement {
     /**
      * Serial Version UID
      */
@@ -81,11 +81,6 @@ public class Submitter extends AbstractElement {
      * The name of this submitter
      */
     private StringWithCustomTags name;
-
-    /**
-     * Notes about this object
-     */
-    private List<Note> notes = getNotes(Options.isCollectionInitializationEnabled());
 
     /**
      * The phone numbers for this submitter
@@ -166,13 +161,6 @@ public class Submitter extends AbstractElement {
                 return false;
             }
         } else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (notes == null) {
-            if (other.notes != null) {
-                return false;
-            }
-        } else if (!notes.equals(other.notes)) {
             return false;
         }
         if (phoneNumbers == null) {
@@ -355,30 +343,6 @@ public class Submitter extends AbstractElement {
     }
 
     /**
-     * Gets the notes.
-     *
-     * @return the notes
-     */
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    /**
-     * Get the notes
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection if needed?
-     * 
-     * @return the notes
-     */
-    public List<Note> getNotes(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<Note>(0);
-        }
-        return notes;
-    }
-
-    /**
      * Gets the phone numbers.
      *
      * @return the phone numbers
@@ -486,7 +450,6 @@ public class Submitter extends AbstractElement {
         result = prime * result + (languagePref == null ? 0 : languagePref.hashCode());
         result = prime * result + (multimedia == null ? 0 : multimedia.hashCode());
         result = prime * result + (name == null ? 0 : name.hashCode());
-        result = prime * result + (notes == null ? 0 : notes.hashCode());
         result = prime * result + (phoneNumbers == null ? 0 : phoneNumbers.hashCode());
         result = prime * result + (faxNumbers == null ? 0 : faxNumbers.hashCode());
         result = prime * result + (wwwUrls == null ? 0 : wwwUrls.hashCode());
@@ -600,9 +563,9 @@ public class Submitter extends AbstractElement {
             builder.append(name);
             builder.append(", ");
         }
-        if (notes != null) {
+        if (getNotes() != null) {
             builder.append("notes=");
-            builder.append(notes);
+            builder.append(getNotes());
             builder.append(", ");
         }
         if (phoneNumbers != null) {
@@ -635,9 +598,9 @@ public class Submitter extends AbstractElement {
             builder.append(xref);
             builder.append(", ");
         }
-        if (customTags != null) {
+        if (getCustomTags() != null) {
             builder.append("customTags=");
-            builder.append(customTags);
+            builder.append(getCustomTags());
         }
         builder.append("]");
         return builder.toString();

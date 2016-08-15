@@ -43,7 +43,7 @@ public class PersonalNameVariationValidatorTest extends AbstractValidatorTestCas
     @Test
     public void testOne() {
         Gedcom g = TestHelper.getMinimalGedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
 
         Individual i = new Individual();
         i.setXref("@I00001@");

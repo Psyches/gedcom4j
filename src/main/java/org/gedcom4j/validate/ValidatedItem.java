@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 Matthew R. Harrah
+ * Copyright (c) 2016 Mark A. Sikes
  *
  * MIT License
  *
@@ -24,17 +24,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.gedcom4j.model;
+package org.gedcom4j.validate;
+
+import org.gedcom4j.model.ValidatedElement;
 
 /**
- * An abstract base class for other source citations (both with and without source)
- * 
- * @author frizbog1
+ * @author Mark A Sikes
+ *
  */
-public abstract class AbstractCitation extends AbstractNotesElement {
+public class ValidatedItem implements ValidatedElement {
 
-    /**
-     * Serial Version UID
-     */
-    private static final long serialVersionUID = 5842672179681957413L;
+	private final Object item;
+	
+	ValidatedItem(Object theItem) {
+		item = theItem;
+	}
+	
+	public Object getItem() {
+		return item;
+	}
 }

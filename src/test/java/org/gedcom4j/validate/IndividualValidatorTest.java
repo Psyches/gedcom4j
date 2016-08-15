@@ -31,6 +31,7 @@ import java.util.Map;
 import org.gedcom4j.model.Gedcom;
 import org.gedcom4j.model.Individual;
 import org.gedcom4j.model.TestHelper;
+import org.gedcom4j.model.ValidatedElement;
 
 /**
  * Tests for {@link IndividualValidator}
@@ -76,10 +77,12 @@ public class IndividualValidatorTest extends AbstractValidatorTestCase {
         int errorsCount = 0;
         for (GedcomValidationFinding f : rootValidator.getFindings()) {
             assertNotNull(f);
-            assertNotNull("The finding should have an object attached", f.getItemWithProblem());
+            ValidatedElement ve = f.getItemWithProblem();
+            assertTrue("The finding should have a ValidatedItem object attached", ve instanceof ValidatedItem);
             if (f.getSeverity() == Severity.ERROR) {
                 errorsCount++;
-                assertTrue("The object attached should be a Map entry", f.getItemWithProblem() instanceof Map.Entry);
+                ValidatedItem item = (ValidatedItem)ve;
+                assertTrue("The item object attached should be a Map entry", item.getItem() instanceof Map.Entry);
             }
         }
         assertEquals("There should be one finding of severity ERROR", 1, errorsCount);

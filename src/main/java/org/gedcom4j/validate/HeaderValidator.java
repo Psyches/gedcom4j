@@ -52,7 +52,7 @@ class HeaderValidator extends AbstractValidator {
      *            the {@link Header} being validated
      */
     public HeaderValidator(GedcomValidator gedcomValidator, Header header) {
-        rootValidator = gedcomValidator;
+        super(gedcomValidator);
         this.header = header;
     }
 
@@ -65,11 +65,11 @@ class HeaderValidator extends AbstractValidator {
     protected void validate() {
         checkCharacterSet();
         if (header.getCopyrightData() == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 header.getCopyrightData(true).clear();
-                rootValidator.addInfo("Copyright data collection was null - repaired", header);
+                getRootValidator().addInfo("Copyright data collection was null - repaired", header);
             } else {
-                rootValidator.addError("Copyright data collection is null - must be at least an empty collection", header);
+                getRootValidator().addError("Copyright data collection is null - must be at least an empty collection", header);
             }
         }
         checkCustomTags(header);
@@ -81,45 +81,45 @@ class HeaderValidator extends AbstractValidator {
          */
         checkOptionalString(header.getFileName(), "filename", header);
         if (header.getGedcomVersion() == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 header.setGedcomVersion(new GedcomVersion());
-                rootValidator.addInfo("GEDCOM version in header was null - repaired", header);
+                getRootValidator().addInfo("GEDCOM version in header was null - repaired", header);
             } else {
-                rootValidator.addError("GEDCOM version in header must be specified", header);
+                getRootValidator().addError("GEDCOM version in header must be specified", header);
                 return;
             }
         }
         if (header.getGedcomVersion().getVersionNumber() == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 header.getGedcomVersion().setVersionNumber(SupportedVersion.V5_5_1);
-                rootValidator.addInfo("GEDCOM version number in header was null - repaired", header);
+                getRootValidator().addInfo("GEDCOM version number in header was null - repaired", header);
             } else {
-                rootValidator.addError("GEDCOM version number in header must be specified", header);
+                getRootValidator().addError("GEDCOM version number in header must be specified", header);
                 return;
             }
         }
         checkCustomTags(header.getGedcomVersion());
         checkOptionalString(header.getLanguage(), "language", header);
-        new NotesValidator(rootValidator, header, header.getNotes()).validate();
+        new NotesValidator(getRootValidator(), header, header.getNotes()).validate();
         checkOptionalString(header.getPlaceHierarchy(), "place hierarchy", header);
         checkSourceSystem();
         if (header.getSubmitter() == null) {
-            if (rootValidator.isAutorepairEnabled()) {
-                if (rootValidator.gedcom.getSubmitters() == null || rootValidator.gedcom.getSubmitters().isEmpty()) {
-                    rootValidator.addError("Submitter not specified in header, and autorepair could not " + "find a submitter to select as default", header);
+            if (getRootValidator().isAutorepairEnabled()) {
+                if (getRootValidator().getGedcom().getSubmitters() == null || getRootValidator().getGedcom().getSubmitters().isEmpty()) {
+                    getRootValidator().addError("Submitter not specified in header, and autorepair could not " + "find a submitter to select as default", header);
                 } else {
                     // Take the first submitter from the collection and set that
                     // as the primary submitter in the header
-                    header.setSubmitter(rootValidator.gedcom.getSubmitters().values().iterator().next());
+                    header.setSubmitter(getRootValidator().getGedcom().getSubmitters().values().iterator().next());
                 }
             } else {
-                rootValidator.addError("Submitter not specified in header", header);
+                getRootValidator().addError("Submitter not specified in header", header);
             }
             return;
         }
-        new SubmitterValidator(rootValidator, header.getSubmitter()).validate();
+        new SubmitterValidator(getRootValidator(), header.getSubmitter()).validate();
         if (header.getSubmission() != null) {
-            rootValidator.validateSubmission(header.getSubmission());
+            getRootValidator().validateSubmission(header.getSubmission());
         }
         checkOptionalString(header.getTime(), "time", header);
     }
@@ -129,25 +129,25 @@ class HeaderValidator extends AbstractValidator {
      */
     private void checkCharacterSet() {
         if (header.getCharacterSet() == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 header.setCharacterSet(new CharacterSet());
-                rootValidator.addInfo("Header did not have a character set defined - corrected.", header);
+                getRootValidator().addInfo("Header did not have a character set defined - corrected.", header);
             } else {
-                rootValidator.addError("Header has no character set defined", header);
+                getRootValidator().addError("Header has no character set defined", header);
                 return;
             }
         }
         if (header.getCharacterSet().getCharacterSetName() == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 header.getCharacterSet().setCharacterSetName(new StringWithCustomTags("ANSEL"));
-                rootValidator.addInfo("Character set name was not defined", header.getCharacterSet());
+                getRootValidator().addInfo("Character set name was not defined", header.getCharacterSet());
             } else {
-                rootValidator.addError("Character set name was not defined", header.getCharacterSet());
+                getRootValidator().addError("Character set name was not defined", header.getCharacterSet());
                 return;
             }
         }
         if (!Encoding.isValidCharacterSetName(header.getCharacterSet().getCharacterSetName().getValue())) {
-            rootValidator.addError("Character set name is not one of the supported encodings (" + Encoding.getSupportedCharacterSetNames() + ")", header
+            getRootValidator().addError("Character set name is not one of the supported encodings (" + Encoding.getSupportedCharacterSetNames() + ")", header
                     .getCharacterSet().getCharacterSetName());
         }
         checkOptionalString(header.getCharacterSet().getCharacterSetName(), "character set name", header.getCharacterSet());
@@ -161,12 +161,12 @@ class HeaderValidator extends AbstractValidator {
     private void checkSourceSystem() {
         SourceSystem ss = header.getSourceSystem();
         if (ss == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 ss = new SourceSystem();
                 header.setSourceSystem(ss);
-                rootValidator.addInfo("No source system specified in header - repaired", header);
+                getRootValidator().addInfo("No source system specified in header - repaired", header);
             } else {
-                rootValidator.addError("No source system specified in header", header);
+                getRootValidator().addError("No source system specified in header", header);
                 return;
             }
         }
@@ -175,14 +175,14 @@ class HeaderValidator extends AbstractValidator {
             Corporation c = ss.getCorporation();
             checkCustomTags(c);
             if (c.getAddress() != null) {
-                new AddressValidator(rootValidator, c.getAddress()).validate();
+                new AddressValidator(getRootValidator(), c.getAddress()).validate();
             }
             if (c.getBusinessName() == null || c.getBusinessName().trim().length() == 0) {
-                if (rootValidator.isAutorepairEnabled()) {
+                if (getRootValidator().isAutorepairEnabled()) {
                     c.setBusinessName("UNSPECIFIED");
-                    rootValidator.addInfo("Corporation for source system exists but had no name - repaired", c);
+                    getRootValidator().addInfo("Corporation for source system exists but had no name - repaired", c);
                 } else {
-                    rootValidator.addError("Corporation for source system exists but has no name", c);
+                    getRootValidator().addError("Corporation for source system exists but has no name", c);
                 }
             }
         }
@@ -190,11 +190,11 @@ class HeaderValidator extends AbstractValidator {
         if (ss.getSourceData() != null) {
             HeaderSourceData sd = ss.getSourceData();
             if (sd.getName() == null || sd.getName().trim().length() == 0) {
-                if (rootValidator.isAutorepairEnabled()) {
+                if (getRootValidator().isAutorepairEnabled()) {
                     sd.setName("UNSPECIFIED");
-                    rootValidator.addInfo("Source data was specified for source system, " + "but name of source data was not specified - repaired", sd);
+                    getRootValidator().addInfo("Source data was specified for source system, " + "but name of source data was not specified - repaired", sd);
                 } else {
-                    rootValidator.addError("Source data is specified for source system, " + "but name of source data is not specified", sd);
+                    getRootValidator().addError("Source data is specified for source system, " + "but name of source data is not specified", sd);
                 }
 
             }
@@ -203,11 +203,11 @@ class HeaderValidator extends AbstractValidator {
             checkCustomTags(sd);
         }
         if (ss.getSystemId() == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 ss.setSystemId("UNSPECIFIED");
-                rootValidator.addInfo("System ID was not specified in source system in header - repaired", ss);
+                getRootValidator().addInfo("System ID was not specified in source system in header - repaired", ss);
             } else {
-                rootValidator.addError("System ID must be specified in source system in header", ss);
+                getRootValidator().addError("System ID must be specified in source system in header", ss);
             }
         }
         checkOptionalString(ss.getVersionNum(), "source system version number", ss);

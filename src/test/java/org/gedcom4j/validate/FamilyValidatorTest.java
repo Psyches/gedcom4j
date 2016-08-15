@@ -66,9 +66,8 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
     @Override
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         gedcom = TestHelper.getMinimalGedcom();
-        rootValidator.gedcom = gedcom;
+        super.setUp();
         rootValidator.setAutorepairEnabled(false);
 
         dad = new Individual();

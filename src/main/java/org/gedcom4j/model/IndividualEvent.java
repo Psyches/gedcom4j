@@ -179,9 +179,9 @@ public class IndividualEvent extends AbstractEvent {
             builder.append(multimedia);
             builder.append(", ");
         }
-        if (notes != null) {
+        if (getNotes() != null) {
             builder.append("notes=");
-            builder.append(notes);
+            builder.append(getNotes());
             builder.append(", ");
         }
         if (phoneNumbers != null) {
@@ -224,9 +224,9 @@ public class IndividualEvent extends AbstractEvent {
             builder.append(yNull);
             builder.append(", ");
         }
-        if (customTags != null) {
+        if (getCustomTags() != null) {
             builder.append("customTags=");
-            builder.append(customTags);
+            builder.append(getCustomTags());
         }
         builder.append("]");
         return builder.toString();

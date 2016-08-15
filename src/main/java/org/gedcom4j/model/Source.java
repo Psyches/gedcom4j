@@ -36,7 +36,7 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Source extends AbstractElement {
+public class Source extends AbstractNotesElement {
     /**
      * Serial Version UID
      */
@@ -56,11 +56,6 @@ public class Source extends AbstractElement {
      * Multimedia links for this source citation
      */
     private List<Multimedia> multimedia = getMultimedia(Options.isCollectionInitializationEnabled());
-
-    /**
-     * Notes about this object
-     */
-    private List<Note> notes = getNotes(Options.isCollectionInitializationEnabled());
 
     /**
      * The originators/authors
@@ -154,13 +149,6 @@ public class Source extends AbstractElement {
                 return false;
             }
         } else if (!multimedia.equals(other.multimedia)) {
-            return false;
-        }
-        if (notes == null) {
-            if (other.notes != null) {
-                return false;
-            }
-        } else if (!notes.equals(other.notes)) {
             return false;
         }
         if (originatorsAuthors == null) {
@@ -268,30 +256,6 @@ public class Source extends AbstractElement {
             multimedia = new ArrayList<Multimedia>(0);
         }
         return multimedia;
-    }
-
-    /**
-     * Gets the notes.
-     *
-     * @return the notes
-     */
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    /**
-     * Get the notes
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection if needed?
-     * 
-     * @return the notes
-     */
-    public List<Note> getNotes(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<Note>(0);
-        }
-        return notes;
     }
 
     /**
@@ -455,7 +419,6 @@ public class Source extends AbstractElement {
         result = prime * result + (changeDate == null ? 0 : changeDate.hashCode());
         result = prime * result + (data == null ? 0 : data.hashCode());
         result = prime * result + (multimedia == null ? 0 : multimedia.hashCode());
-        result = prime * result + (notes == null ? 0 : notes.hashCode());
         result = prime * result + (originatorsAuthors == null ? 0 : originatorsAuthors.hashCode());
         result = prime * result + (publicationFacts == null ? 0 : publicationFacts.hashCode());
         result = prime * result + (recIdNumber == null ? 0 : recIdNumber.hashCode());
@@ -550,9 +513,9 @@ public class Source extends AbstractElement {
             builder.append(multimedia);
             builder.append(", ");
         }
-        if (notes != null) {
+        if (getNotes() != null) {
             builder.append("notes=");
-            builder.append(notes);
+            builder.append(getNotes());
             builder.append(", ");
         }
         if (originatorsAuthors != null) {
@@ -600,9 +563,9 @@ public class Source extends AbstractElement {
             builder.append(xref);
             builder.append(", ");
         }
-        if (customTags != null) {
+        if (getCustomTags() != null) {
             builder.append("customTags=");
-            builder.append(customTags);
+            builder.append(getCustomTags());
         }
         builder.append("]");
         return builder.toString();

@@ -37,7 +37,7 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public class PersonalName extends AbstractElement {
+public class PersonalName extends AbstractNotesElement {
     /**
      * Serial Version UID
      */
@@ -62,11 +62,6 @@ public class PersonalName extends AbstractElement {
      * Nickname
      */
     private StringWithCustomTags nickname;
-
-    /**
-     * Notes about this object
-     */
-    private List<Note> notes = getNotes(Options.isCollectionInitializationEnabled());
 
     /**
      * Phonetic spelling. New for GEDCOM 5.5.1
@@ -136,13 +131,6 @@ public class PersonalName extends AbstractElement {
                 return false;
             }
         } else if (!nickname.equals(other.nickname)) {
-            return false;
-        }
-        if (notes == null) {
-            if (other.notes != null) {
-                return false;
-            }
-        } else if (!notes.equals(other.notes)) {
             return false;
         }
         if (prefix == null) {
@@ -242,30 +230,6 @@ public class PersonalName extends AbstractElement {
     }
 
     /**
-     * Gets the notes.
-     *
-     * @return the notes
-     */
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    /**
-     * Get the notes
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection if needed?
-     * 
-     * @return the notes
-     */
-    public List<Note> getNotes(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<Note>(0);
-        }
-        return notes;
-    }
-
-    /**
      * Gets the phonetic variation(s)
      *
      * @return the phonetic varation(s)
@@ -355,7 +319,6 @@ public class PersonalName extends AbstractElement {
         result = prime * result + (citations == null ? 0 : citations.hashCode());
         result = prime * result + (givenName == null ? 0 : givenName.hashCode());
         result = prime * result + (nickname == null ? 0 : nickname.hashCode());
-        result = prime * result + (notes == null ? 0 : notes.hashCode());
         result = prime * result + (prefix == null ? 0 : prefix.hashCode());
         result = prime * result + (suffix == null ? 0 : suffix.hashCode());
         result = prime * result + (surname == null ? 0 : surname.hashCode());

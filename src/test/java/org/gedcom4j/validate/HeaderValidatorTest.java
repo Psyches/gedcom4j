@@ -44,7 +44,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testCharacterSet() {
         Gedcom g = new Gedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
         rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
@@ -84,7 +84,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testCopyrightData() {
         Gedcom g = new Gedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
         rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
@@ -106,7 +106,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testGedcomVersion() {
         Gedcom g = new Gedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
         rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
@@ -136,7 +136,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testNoSubmitters() {
         Gedcom g = new Gedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
         g.setSubmission(new Submission("@SUBN0001@"));
         g.getHeader().setSubmission(g.getSubmission());
 
@@ -162,7 +162,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testSourceSystem() {
         Gedcom g = new Gedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
         rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");

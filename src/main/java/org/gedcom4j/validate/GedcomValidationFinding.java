@@ -26,6 +26,8 @@
  */
 package org.gedcom4j.validate;
 
+import org.gedcom4j.model.ValidatedElement;
+
 /**
  * A class that holds information about something wrong with the gedcom data validated by {@link GedcomValidator}.
  * 
@@ -36,31 +38,31 @@ public class GedcomValidationFinding {
     /**
      * The object that had a problem with it
      */
-    private Object itemWithProblem;
+    private final ValidatedElement itemWithProblem;
 
     /**
      * A description of the problem
      */
-    private String problemDescription;
+    private final String problemDescription;
 
     /**
      * How severe is the problem
      */
-    private Severity severity;
+    private final Severity severity;
 
     /**
      * Constructor
      * 
      * @param description
      *            a description of the problem
-     * @param severity
+     * @param findingSeverity
      *            the severity of the problem
      * @param obj
      *            the item that has the problem (if applicable)
      */
-    GedcomValidationFinding(String description, Severity severity, Object obj) {
+    GedcomValidationFinding(String description, Severity findingSeverity, ValidatedElement obj) {
         problemDescription = description;
-        this.severity = severity;
+        severity = findingSeverity;
         itemWithProblem = obj;
     }
 
@@ -69,7 +71,7 @@ public class GedcomValidationFinding {
      * 
      * @return the itemWithProblem
      */
-    public Object getItemWithProblem() {
+    public ValidatedElement getItemWithProblem() {
         return itemWithProblem;
     }
 
@@ -89,36 +91,6 @@ public class GedcomValidationFinding {
      */
     public Severity getSeverity() {
         return severity;
-    }
-
-    /**
-     * Set the itemWithProblem
-     * 
-     * @param itemWithProblem
-     *            the itemWithProblem to set
-     */
-    public void setItemWithProblem(Object itemWithProblem) {
-        this.itemWithProblem = itemWithProblem;
-    }
-
-    /**
-     * Set the problemDescription
-     * 
-     * @param problemDescription
-     *            the problemDescription to set
-     */
-    public void setProblemDescription(String problemDescription) {
-        this.problemDescription = problemDescription;
-    }
-
-    /**
-     * Set the severity
-     * 
-     * @param severity
-     *            the severity to set
-     */
-    public void setSeverity(Severity severity) {
-        this.severity = severity;
     }
 
     @Override

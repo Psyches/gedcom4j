@@ -66,22 +66,22 @@ class PersonalNameVariationValidator extends NameVariationValidator {
         PersonalNameVariation pnv = (PersonalNameVariation) nv;
         List<AbstractCitation> citations = pnv.getCitations();
         if (citations == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 pnv.getCitations(true).clear();
                 addInfo("citations collection for personal name was null - autorepaired", pnv);
             } else {
                 addError("citations collection for personal name is null", pnv);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate citations found and removed", pnv);
+                    getRootValidator().addInfo(dups + " duplicate citations found and removed", pnv);
                 }
             }
 
             for (AbstractCitation c : citations) {
-                new CitationValidator(rootValidator, c).validate();
+                new CitationValidator(getRootValidator(), c).validate();
             }
         }
         checkOptionalString(pnv.getGivenName(), "given name", pnv);
@@ -90,6 +90,6 @@ class PersonalNameVariationValidator extends NameVariationValidator {
         checkOptionalString(pnv.getSuffix(), "suffix", pnv);
         checkOptionalString(pnv.getSurname(), "surname", pnv);
         checkOptionalString(pnv.getSurnamePrefix(), "surname prefix", pnv);
-        new NotesValidator(rootValidator, pnv, pnv.getNotes()).validate();
+        new NotesValidator(getRootValidator(), pnv, pnv.getNotes()).validate();
     }
 }

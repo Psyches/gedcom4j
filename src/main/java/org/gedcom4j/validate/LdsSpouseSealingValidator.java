@@ -54,7 +54,7 @@ class LdsSpouseSealingValidator extends AbstractValidator {
      *            the sealing being validated
      */
     public LdsSpouseSealingValidator(GedcomValidator rootValidator, LdsSpouseSealing s) {
-        this.rootValidator = rootValidator;
+        super(rootValidator);
         this.s = s;
     }
 
@@ -69,28 +69,28 @@ class LdsSpouseSealingValidator extends AbstractValidator {
         }
         List<AbstractCitation> citations = s.getCitations();
         if (Options.isCollectionInitializationEnabled() && citations == null) {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 s.getCitations(true).clear();
                 addInfo("citations collection for lds spouse sealing was null - rootValidator.autorepaired", s);
             } else {
                 addError("citations collection for lds spouse sealing is null", s);
             }
         } else {
-            if (rootValidator.isAutorepairEnabled()) {
+            if (getRootValidator().isAutorepairEnabled()) {
                 int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
                 if (dups > 0) {
-                    rootValidator.addInfo(dups + " duplicate citations found and removed", s);
+                    getRootValidator().addInfo(dups + " duplicate citations found and removed", s);
                 }
             }
             if (citations != null) {
                 for (AbstractCitation c : citations) {
-                    new CitationValidator(rootValidator, c).validate();
+                    new CitationValidator(getRootValidator(), c).validate();
                 }
             }
         }
         checkCustomTags(s);
         checkOptionalString(s.getDate(), "date", s);
-        new NotesValidator(rootValidator, s, s.getNotes()).validate();
+        new NotesValidator(getRootValidator(), s, s.getNotes()).validate();
         checkOptionalString(s.getPlace(), "place", s);
         checkOptionalString(s.getStatus(), "status", s);
         checkOptionalString(s.getTemple(), "temple", s);

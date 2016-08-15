@@ -54,7 +54,7 @@ class SubmitterValidator extends AbstractValidator {
      *            the submitter being validated
      */
     public SubmitterValidator(GedcomValidator rootValidator, Submitter submitter) {
-        this.rootValidator = rootValidator;
+        super(rootValidator);
         this.submitter = submitter;
     }
 
@@ -70,9 +70,9 @@ class SubmitterValidator extends AbstractValidator {
         checkOptionalString(submitter.getRecIdNumber(), "record id number", submitter);
         checkOptionalString(submitter.getRegFileNumber(), "submitter registered rfn", submitter);
         if (submitter.getAddress() != null) {
-            new AddressValidator(rootValidator, submitter.getAddress()).validate();
+            new AddressValidator(getRootValidator(), submitter.getAddress()).validate();
         }
-        new NotesValidator(rootValidator, submitter, submitter.getNotes()).validate();
+        new NotesValidator(getRootValidator(), submitter, submitter.getNotes()).validate();
     }
 
     /**
@@ -80,10 +80,10 @@ class SubmitterValidator extends AbstractValidator {
      */
     private void checkLanguagePreferences() {
         List<StringWithCustomTags> languagePref = submitter.getLanguagePref();
-        if (rootValidator.isAutorepairEnabled()) {
+        if (getRootValidator().isAutorepairEnabled()) {
             int dups = new DuplicateEliminator<StringWithCustomTags>(languagePref).process();
             if (dups > 0) {
-                rootValidator.addInfo(dups + " duplicate language preferences found and removed", submitter);
+                getRootValidator().addInfo(dups + " duplicate language preferences found and removed", submitter);
             }
         }
 

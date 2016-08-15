@@ -26,12 +26,11 @@
  */
 package org.gedcom4j.validate;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.gedcom4j.Options;
-import org.gedcom4j.exception.GedcomValidationException;
+import org.gedcom4j.model.HasNotes;
 import org.gedcom4j.model.Note;
 
 /**
@@ -50,7 +49,7 @@ class NotesValidator extends AbstractValidator {
     /**
      * The object that contains the notes
      */
-    private final Object parentObject;
+    private final HasNotes parentObject;
 
     /**
      * Constructor
@@ -62,8 +61,8 @@ class NotesValidator extends AbstractValidator {
      * @param notes
      *            the list of notes to be validated
      */
-    public NotesValidator(GedcomValidator rootValidator, Object parentObject, List<Note> notes) {
-        this.rootValidator = rootValidator;
+    public NotesValidator(GedcomValidator rootValidator, HasNotes parentObject, List<Note> notes) {
+        super(rootValidator);
         this.parentObject = parentObject;
         this.notes = notes;
     }
@@ -74,39 +73,26 @@ class NotesValidator extends AbstractValidator {
     @Override
     protected void validate() {
         if (notes == null && Options.isCollectionInitializationEnabled()) {
-            if (rootValidator.isAutorepairEnabled()) {
-                try {
-                    Field f = parentObject.getClass().getField("notes");
-                    f.set(parentObject, new ArrayList<Note>(0));
-                    addInfo("Notes collection on " + parentObject.getClass().getSimpleName() + " was null - autorepaired");
-                } catch (SecurityException e) {
-                    throw new GedcomValidationException("Could not autorepair null notes collection on " + parentObject.getClass().getSimpleName(), e);
-                } catch (NoSuchFieldException e) {
-                    throw new GedcomValidationException("Could not autorepair null notes collection on " + parentObject.getClass().getSimpleName(), e);
-                } catch (IllegalArgumentException e) {
-                    throw new GedcomValidationException("Could not autorepair null notes collection on " + parentObject.getClass().getSimpleName(), e);
-                } catch (IllegalAccessException e) {
-                    throw new GedcomValidationException("Could not autorepair null notes collection on " + parentObject.getClass().getSimpleName(), e);
-                }
+            if (getRootValidator().isAutorepairEnabled()) {
+                parentObject.setNotes(new ArrayList<Note>(0));
+                addInfo("Notes collection on " + parentObject.getClass().getSimpleName() + " was null - autorepaired");
             } else {
                 addError("Notes collection on " + parentObject.getClass().getSimpleName() + " is null");
             }
         } else {
             int i = 0;
             if (notes != null) {
-                if (rootValidator.isAutorepairEnabled()) {
+                if (getRootValidator().isAutorepairEnabled()) {
                     int dups = new DuplicateEliminator<Note>(notes).process();
                     if (dups > 0) {
-                        rootValidator.addInfo(dups + " duplicate notes found and removed", notes);
+                        getRootValidator().addInfo(dups + " duplicate notes found and removed", new ValidatedItem(notes));
                     }
                 }
                 for (Note n : notes) {
                     i++;
-                    new NoteValidator(rootValidator, i, n).validate();
+                    new NoteValidator(getRootValidator(), i, n).validate();
                 }
             }
         }
-
     }
-
 }

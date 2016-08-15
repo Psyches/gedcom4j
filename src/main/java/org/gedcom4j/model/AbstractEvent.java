@@ -37,7 +37,7 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public abstract class AbstractEvent extends AbstractElement {
+public abstract class AbstractEvent extends AbstractNotesElement {
     /**
      * Serial Version UID
      */
@@ -87,11 +87,6 @@ public abstract class AbstractEvent extends AbstractElement {
      * Multimedia links for this source citation
      */
     protected List<Multimedia> multimedia = getMultimedia(Options.isCollectionInitializationEnabled());
-
-    /**
-     * Notes about this object
-     */
-    protected List<Note> notes = getNotes(Options.isCollectionInitializationEnabled());
 
     /**
      * The phone numbers for this submitter
@@ -197,13 +192,6 @@ public abstract class AbstractEvent extends AbstractElement {
                 return false;
             }
         } else if (!multimedia.equals(other.multimedia)) {
-            return false;
-        }
-        if (notes == null) {
-            if (other.notes != null) {
-                return false;
-            }
-        } else if (!notes.equals(other.notes)) {
             return false;
         }
         if (phoneNumbers == null) {
@@ -420,30 +408,6 @@ public abstract class AbstractEvent extends AbstractElement {
     }
 
     /**
-     * Gets the notes.
-     *
-     * @return the notes
-     */
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    /**
-     * Get the notes
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection if needed?
-     * 
-     * @return the notes
-     */
-    public List<Note> getNotes(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<Note>(0);
-        }
-        return notes;
-    }
-
-    /**
      * Gets the phone numbers.
      *
      * @return the phone numbers
@@ -557,7 +521,6 @@ public abstract class AbstractEvent extends AbstractElement {
         result = prime * result + (date == null ? 0 : date.hashCode());
         result = prime * result + (description == null ? 0 : description.hashCode());
         result = prime * result + (multimedia == null ? 0 : multimedia.hashCode());
-        result = prime * result + (notes == null ? 0 : notes.hashCode());
         result = prime * result + (phoneNumbers == null ? 0 : phoneNumbers.hashCode());
         result = prime * result + (place == null ? 0 : place.hashCode());
         result = prime * result + (respAgency == null ? 0 : respAgency.hashCode());
@@ -733,9 +696,9 @@ public abstract class AbstractEvent extends AbstractElement {
             builder.append(multimedia);
             builder.append(", ");
         }
-        if (notes != null) {
+        if (getNotes() != null) {
             builder.append("notes=");
-            builder.append(notes);
+            builder.append(getNotes());
             builder.append(", ");
         }
         if (phoneNumbers != null) {
@@ -778,9 +741,9 @@ public abstract class AbstractEvent extends AbstractElement {
             builder.append(yNull);
             builder.append(", ");
         }
-        if (customTags != null) {
+        if (getCustomTags() != null) {
             builder.append("customTags=");
-            builder.append(customTags);
+            builder.append(getCustomTags());
         }
         builder.append("]");
         return builder.toString();

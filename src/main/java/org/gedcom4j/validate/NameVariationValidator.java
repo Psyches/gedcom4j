@@ -50,7 +50,7 @@ class NameVariationValidator extends AbstractValidator {
      *            the name variation being validated
      */
     public NameVariationValidator(GedcomValidator rootValidator, AbstractNameVariation nv) {
-        this.rootValidator = rootValidator;
+        super(rootValidator);
         this.nv = nv;
     }
 

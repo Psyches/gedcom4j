@@ -72,7 +72,7 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testTrailer() {
         Gedcom g = new Gedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
         rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 Matthew R. Harrah
+ * Copyright (c) 2016 Mark A. Sikes
  *
  * MIT License
  *
@@ -32,26 +32,21 @@ import java.util.List;
 import org.gedcom4j.Options;
 
 /**
- * A class for source citation data.
- * 
- * @author frizbog1
+ * @author Mark A Sikes
+ *
  */
-public class CitationData extends AbstractElement {
-    /**
-     * Serial Version UID
+public abstract class AbstractNotesElement extends AbstractElement implements HasNotes {
+
+	private static final long serialVersionUID = 2539148787102235445L;
+	
+	/**
+     * Notes on this element
      */
-    private static final long serialVersionUID = -423230002337524774L;
+    private List<Note> notes = getNotes(Options.isCollectionInitializationEnabled());
 
     /**
-     * The date of the entry
+     * {@inheritDoc}
      */
-    private StringWithCustomTags entryDate;
-
-    /**
-     * The source text - one or more lines of it
-     */
-    private List<List<String>> sourceText = getSourceText(Options.isCollectionInitializationEnabled());
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -63,73 +58,59 @@ public class CitationData extends AbstractElement {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        CitationData other = (CitationData) obj;
-        if (entryDate == null) {
-            if (other.entryDate != null) {
+        AbstractNotesElement other = (AbstractNotesElement) obj;
+        if (notes == null) {
+            if (other.notes != null) {
                 return false;
             }
-        } else if (!entryDate.equals(other.entryDate)) {
-            return false;
-        }
-        if (sourceText == null) {
-            if (other.sourceText != null) {
-                return false;
-            }
-        } else if (!sourceText.equals(other.sourceText)) {
+        } else if (!notes.equals(other.notes)) {
             return false;
         }
         return true;
     }
 
     /**
-     * Gets the entry date.
+     * Gets the notes.
      *
-     * @return the entry date
+     * @return the notes
      */
-    public StringWithCustomTags getEntryDate() {
-        return entryDate;
+    public List<Note> getNotes() {
+        return notes;
     }
 
     /**
-     * Gets the source text.
-     *
-     * @return the source text
-     */
-    public List<List<String>> getSourceText() {
-        return sourceText;
-    }
-
-    /**
-     * Get the source text
+     * Get the notes
      * 
      * @param initializeIfNeeded
      *            true if this collection should be created on-the-fly if it is currently null
-     * @return the source text
+     * @return the notes
      */
-    public List<List<String>> getSourceText(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && sourceText == null) {
-            sourceText = new ArrayList<List<String>>(0);
+    public List<Note> getNotes(boolean initializeIfNeeded) {
+        if (initializeIfNeeded && notes == null) {
+            notes = new ArrayList<Note>(0);
         }
-        return sourceText;
+        return notes;
     }
 
+    /**
+     * Set the notes
+     * 
+     * @param theNotes
+     */
+    public void setNotes(List<Note> theNotes) {
+    	getNotes(true).clear();
+    	notes.addAll(theNotes);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + (entryDate == null ? 0 : entryDate.hashCode());
-        result = prime * result + (sourceText == null ? 0 : sourceText.hashCode());
+        result = prime * result + ((notes == null) ? 0 : notes.hashCode());
         return result;
-    }
-
-    /**
-     * Sets the entry date.
-     *
-     * @param entryDate
-     *            the new entry date
-     */
-    public void setEntryDate(StringWithCustomTags entryDate) {
-        this.entryDate = entryDate;
     }
 
     /**
@@ -138,15 +119,10 @@ public class CitationData extends AbstractElement {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("CitationData [");
-        if (entryDate != null) {
-            builder.append("entryDate=");
-            builder.append(entryDate);
-            builder.append(", ");
-        }
-        if (sourceText != null) {
-            builder.append("sourceText=");
-            builder.append(sourceText);
+        builder.append(getClass().getSimpleName()).append(" [");
+        if (notes != null) {
+            builder.append("notes=");
+            builder.append(notes);
             builder.append(", ");
         }
         if (getCustomTags() != null) {

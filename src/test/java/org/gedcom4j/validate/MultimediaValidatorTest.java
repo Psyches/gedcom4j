@@ -47,7 +47,7 @@ public class MultimediaValidatorTest extends AbstractValidatorTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Gedcom g = new Gedcom();
-        rootValidator.gedcom = g;
+        rootValidator = new GedcomValidator(g);
         rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
@@ -67,15 +67,15 @@ public class MultimediaValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testEmbeddedMedia() {
         mm.setXref("@MM001@");
-        rootValidator.gedcom.getMultimedia().put(mm.getXref(), mm);
+        rootValidator.getGedcom().getMultimedia().put(mm.getXref(), mm);
 
         // Blob can be empty in 5.5.1
-        rootValidator.gedcom.getHeader().getGedcomVersion().setVersionNumber(SupportedVersion.V5_5_1);
+        rootValidator.getGedcom().getHeader().getGedcomVersion().setVersionNumber(SupportedVersion.V5_5_1);
         rootValidator.validate();
         assertNoIssues();
 
         // Blob must be populated in v5.5, and must have a format
-        rootValidator.gedcom.getHeader().getGedcomVersion().setVersionNumber(SupportedVersion.V5_5);
+        rootValidator.getGedcom().getHeader().getGedcomVersion().setVersionNumber(SupportedVersion.V5_5);
         rootValidator.validate();
         assertFindingsContain(Severity.ERROR, "blob", "empty");
         mm.getBlob(true).add("foo");
@@ -84,7 +84,7 @@ public class MultimediaValidatorTest extends AbstractValidatorTestCase {
         assertNoIssues();
 
         // Blob must be empty in 5.5.1, and embedded media format must be null
-        rootValidator.gedcom.getHeader().getGedcomVersion().setVersionNumber(SupportedVersion.V5_5_1);
+        rootValidator.getGedcom().getHeader().getGedcomVersion().setVersionNumber(SupportedVersion.V5_5_1);
         rootValidator.validate();
         assertFindingsContain(Severity.ERROR, "blob", "populated", "5.5.1");
         assertFindingsContain(Severity.ERROR, "embedded", "media", "format", "5.5.1");

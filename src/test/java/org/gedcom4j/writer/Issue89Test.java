@@ -98,7 +98,6 @@ public class Issue89Test extends TestCase {
             }
             throw e;
         }
-        
         // Normalize line terminators
         String output = baos.toString().replaceAll("\\r\\n","\n");
         assertEquals("0 HEAD\n" + "1 SOUR UNSPECIFIED\n" + "1 SUBM @SUBM0001@\n" + "1 SUBN @SUBN0001@\n" + "1 GEDC\n"
