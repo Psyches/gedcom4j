@@ -26,6 +26,8 @@
  */
 package org.gedcom4j.io.reader;
 
+import org.gedcom4j.io.writer.LineTerminator;
+
 /**
  * Test getting listener notifications from {@link AnselReader}. See {@link AbstractReaderListenerTest} for the real code that does
  * the testing.
@@ -38,8 +40,7 @@ public class AnselReaderListenerTest extends AbstractReaderListenerTest {
      * Constructor
      */
     public AnselReaderListenerTest() {
-    	// This file stays in *nix EOL style, regardless of platform
-        super("sample/willis-ansel.ged", 20036, /* LineTerminator.getDefaultLineTerminator() == LineTerminator.CRLF ? 607444 : */ 587409,
+        super("sample/willis-ansel.ged", 20036, LineTerminator.getDefaultLineTerminator() == LineTerminator.CRLF ? 607444 : 587409,
                 41);
     }
 
