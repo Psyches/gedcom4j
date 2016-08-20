@@ -64,7 +64,7 @@ public class HeaderValidator extends AbstractValidator {
     @Override
     protected void validate() {
         checkCharacterSet();
-    	boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+    	boolean isRepairEnabled = isAutoRepairEnabled();
         if (header.getCopyrightData() == null && Options.isCollectionInitializationEnabled()) {
             if (isRepairEnabled) {
                 header.getCopyrightData(true).clear();
@@ -82,7 +82,7 @@ public class HeaderValidator extends AbstractValidator {
          */
         checkOptionalString(header.getFileName(), "filename", header);
         if (header.getGedcomVersion() == null) {
-        	isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+        	isRepairEnabled = isAutoRepairEnabled();
             if (isRepairEnabled) {
                 header.setGedcomVersion(new GedcomVersion());
                 addInfo("GEDCOM version in header was null - repaired", header);
@@ -106,7 +106,7 @@ public class HeaderValidator extends AbstractValidator {
         checkOptionalString(header.getPlaceHierarchy(), "place hierarchy", header);
         checkSourceSystem();
         if (header.getSubmitter() == null) {
-        	isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+        	isRepairEnabled = isAutoRepairEnabled();
             if (isRepairEnabled) {
                 if (getRootValidator().getGedcom().getSubmitters() == null || getRootValidator().getGedcom().getSubmitters().isEmpty()) {
                     addError("Submitter not specified in header, and autorepair could not find a submitter to select as default", header);
@@ -131,7 +131,7 @@ public class HeaderValidator extends AbstractValidator {
      * Check the character set
      */
     private void checkCharacterSet() {
-    	boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+    	boolean isRepairEnabled = isAutoRepairEnabled();
         if (header.getCharacterSet() == null) {
             if (isRepairEnabled) {
                 header.setCharacterSet(new CharacterSet());
@@ -164,7 +164,7 @@ public class HeaderValidator extends AbstractValidator {
      */
     private void checkSourceSystem() {
         SourceSystem ss = header.getSourceSystem();
-    	boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+    	boolean isRepairEnabled = isAutoRepairEnabled();
         if (ss == null) {
             if (isRepairEnabled) {
                 ss = new SourceSystem();

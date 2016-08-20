@@ -45,14 +45,10 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
      */
     private static final String SAMPLE_STRESS_TEST_FILENAME = "sample/TGC551.ged";
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
     /**
      * Test autorepairing - shouldn't need to do anything on a new Gedcom
      */
+	@Test
     public void testAutoRepair() {
         Gedcom g = new Gedcom();
 
@@ -94,6 +90,7 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
      * Test for {@link GedcomValidator#validateIndividuals()} with default, empty {@link Gedcom} structure.
      * 
      */
+	@Test
     public void testValidateEmptyGedcom() {
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
@@ -117,6 +114,7 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
      * @throws GedcomParserException
      *             if the file can't be parsed
      */
+	@Test
     public void testValidateStressTestFile() throws IOException, GedcomParserException {
         // Load a file
         GedcomParser p = new GedcomParser();

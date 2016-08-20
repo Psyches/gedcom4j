@@ -49,6 +49,11 @@ public class FrenchRepublicanCalendarParserTest {
     private static TimeZone saveTimeZone;
 
     /**
+	 * The class being tested
+	 */
+	private final FrenchRepublicanCalendarParser classUnderTest = new FrenchRepublicanCalendarParser();
+
+	/**
      * Restore the TimeZone
      */
     @AfterClass
@@ -64,11 +69,6 @@ public class FrenchRepublicanCalendarParserTest {
         saveTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
-
-    /**
-     * The class being tested
-     */
-    private final FrenchRepublicanCalendarParser classUnderTest = new FrenchRepublicanCalendarParser();
 
     /**
      * Test {@link FrenchRepublicanCalendarParser#convertFrenchRepublicanDateToGregorian(int, String, int)}
@@ -118,7 +118,7 @@ public class FrenchRepublicanCalendarParserTest {
      */
     @Test
     public void testConvertFrenchRepublicanDateToGregorian2() {
-
+    	// TODO: empty test case: testConvertFrenchRepublicanDateToGregorian2
     }
 
     /**

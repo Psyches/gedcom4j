@@ -79,13 +79,12 @@ public class SourceValidator extends AbstractValidator {
 			checkOptionalString(sd.getRespAgency(), "responsible agency", sd);
 
 			// Structure validate, repair, and dedup the recorded events collection
-			List<EventRecorded> erList = validateRepairStructure("Events", "recorded event", true, sd,
-					new ListRef<EventRecorded>() {
-						@Override
-						public List<EventRecorded> get(boolean initializeIfNeeded) {
-							return sd.getEventsRecorded(initializeIfNeeded);
-						}
-					});
+			List<EventRecorded> erList = checkListStructure("recorded event", true, sd, new ListRef<EventRecorded>() {
+				@Override
+				public List<EventRecorded> get(boolean initializeIfNeeded) {
+					return sd.getEventsRecorded(initializeIfNeeded);
+				}
+			});
 
 			if (erList != null) {
 				for (EventRecorded er : erList) {
@@ -97,13 +96,12 @@ public class SourceValidator extends AbstractValidator {
 		}
 
 		// Structure validate, repair, and dedup the multimedia collection
-		List<Multimedia> mmList = validateRepairStructure("Multimedia", "multimedia", true, source,
-				new ListRef<Multimedia>() {
-					@Override
-					public List<Multimedia> get(boolean initializeIfNeeded) {
-						return source.getMultimedia(initializeIfNeeded);
-					}
-				});
+		List<Multimedia> mmList = checkListStructure("multimedia", true, source, new ListRef<Multimedia>() {
+			@Override
+			public List<Multimedia> get(boolean initializeIfNeeded) {
+				return source.getMultimedia(initializeIfNeeded);
+			}
+		});
 
 		if (mmList != null) {
 			for (Multimedia mm : mmList) {
@@ -136,13 +134,12 @@ public class SourceValidator extends AbstractValidator {
 	 *            the citation to check the call numbers on
 	 */
 	private void checkCallNumbers(final RepositoryCitation citation) {
-		List<SourceCallNumber> scnList = validateRepairStructure("SourceCallNumbers", "source call number", true, citation,
-				new ListRef<SourceCallNumber>() {
-					@Override
-					public List<SourceCallNumber> get(boolean initializeIfNeeded) {
-						return citation.getCallNumbers(initializeIfNeeded);
-					}
-				});
+		List<SourceCallNumber> scnList = checkListStructure("source call number", true, citation, new ListRef<SourceCallNumber>() {
+			@Override
+			public List<SourceCallNumber> get(boolean initializeIfNeeded) {
+				return citation.getCallNumbers(initializeIfNeeded);
+			}
+		});
 
 		if (scnList != null) {
 			for (SourceCallNumber scn : scnList) {

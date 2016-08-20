@@ -45,6 +45,7 @@ import org.junit.Test;
  * @author frizbog1
  * 
  */
+@SuppressWarnings({ "PMD.SystemPrintln", "PMD.SingularField" })
 public class RelationshipCalculatorTest {
 
     /**
@@ -56,7 +57,7 @@ public class RelationshipCalculatorTest {
     /**
      * The gedcom to work with for testing
      */
-    private Gedcom g;
+    private Gedcom gedcom;
 
     /**
      * A finder test fixture for the test
@@ -83,17 +84,18 @@ public class RelationshipCalculatorTest {
         assertTrue(gp.getErrors().isEmpty());
         assertTrue(gp.getWarnings().isEmpty());
 
-        g = gp.getGedcom();
-        assertNotNull(g);
-        assertEquals("There are supposed to be 43 people in the gedcom - are you using the right file/file version?", 43, g.getIndividuals().size());
-        assertEquals("There are supposed to be 18 families in the gedcom - are you using the right file/file version?", 18, g.getFamilies().size());
-        finder = new Finder(g);
+        gedcom = gp.getGedcom();
+        assertNotNull(gedcom);
+        assertEquals("There are supposed to be 43 people in the gedcom - are you using the right file/file version?", 43, gedcom.getIndividuals().size());
+        assertEquals("There are supposed to be 18 families in the gedcom - are you using the right file/file version?", 18, gedcom.getFamilies().size());
+        finder = new Finder(gedcom);
     }
 
     /**
      * Test for {@link RelationshipCalculator}, for aunts/uncles
      */
-    public void testAuntsUncles() {
+	@Test
+	public void testAuntsUncles() {
         Individual alex = getPerson("Zucco", "Alex");
         Individual theresa = getPerson("Andrews", "Theresa");
 
@@ -112,7 +114,6 @@ public class RelationshipCalculatorTest {
         assertNotNull(r.getChain());
         assertEquals("The relationship should be one item long", 1, r.getChain().size());
         assertEquals("The relationship should be an aunt/nephew one", AUNT, r.getChain().get(0).getName());
-
     }
 
     /**

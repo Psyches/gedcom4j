@@ -137,7 +137,7 @@ public class SourceData extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(32);
         builder.append("SourceData [");
         if (eventsRecorded != null) {
             builder.append("eventsRecorded=");

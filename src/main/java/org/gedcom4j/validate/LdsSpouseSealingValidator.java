@@ -26,9 +26,6 @@
  */
 package org.gedcom4j.validate;
 
-import java.util.List;
-
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.LdsSpouseSealing;
 
 /**
@@ -42,7 +39,7 @@ class LdsSpouseSealingValidator extends AbstractValidator {
     /**
      * The sealing being validated
      */
-    private final LdsSpouseSealing s;
+    private final LdsSpouseSealing spouseSealing;
 
     /**
      * Constructor
@@ -54,7 +51,7 @@ class LdsSpouseSealingValidator extends AbstractValidator {
      */
     public LdsSpouseSealingValidator(GedcomValidator rootValidator, LdsSpouseSealing s) {
         super(rootValidator);
-        this.s = s;
+        this.spouseSealing = s;
     }
 
     /**
@@ -62,34 +59,16 @@ class LdsSpouseSealingValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        if (s == null) {
+        if (spouseSealing == null) {
             addError("LDS Spouse Sealing is null and cannot be validated");
             return;
         }
-        checkCitations();
-        checkCustomTags(s);
-        checkOptionalString(s.getDate(), "date", s);
-        new NotesValidator(getRootValidator(), s).validate();
-        checkOptionalString(s.getPlace(), "place", s);
-        checkOptionalString(s.getStatus(), "status", s);
-        checkOptionalString(s.getTemple(), "temple", s);
-    }
-
-    /**
-     * Check the citations
-     */
-    private void checkCitations() {
-		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, s,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return s.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
+        checkCitations(spouseSealing);
+        checkCustomTags(spouseSealing);
+        checkOptionalString(spouseSealing.getDate(), "date", spouseSealing);
+        new NotesValidator(getRootValidator(), spouseSealing).validate();
+        checkOptionalString(spouseSealing.getPlace(), "place", spouseSealing);
+        checkOptionalString(spouseSealing.getStatus(), "status", spouseSealing);
+        checkOptionalString(spouseSealing.getTemple(), "temple", spouseSealing);
     }
 }

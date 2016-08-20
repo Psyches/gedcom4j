@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.PersonalName;
 import org.gedcom4j.model.PersonalNameVariation;
 
@@ -74,33 +73,14 @@ class PersonalNameValidator extends AbstractValidator {
         checkOptionalString(pn.getSurname(), "surname", pn);
         checkOptionalString(pn.getSurnamePrefix(), "surname prefix", pn);
         checkCustomTags(pn);
-        checkCitations();
+        checkCitations(pn);
         new NotesValidator(getRootValidator(), pn).validate();
         checkPhonetic();
         checkRomanized();
     }
 
-    /**
-     * Check the citations
-     */
-    private void checkCitations() {
-    	// TODO: dedup citations here
-		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", false, pn,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return pn.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
-    }
-    
     private void checkPhonetic() {
-		checkNameVariations("Phonetics", "phonetic name variations", new ListRef<PersonalNameVariation>() {
+		checkNameVariations("phonetic name variations", new ListRef<PersonalNameVariation>() {
 			@Override
 			public List<PersonalNameVariation> get(boolean initializeIfNeeded) {
 				return pn.getPhonetic(initializeIfNeeded);
@@ -109,7 +89,7 @@ class PersonalNameValidator extends AbstractValidator {
     }
     
     private void checkRomanized() {
-		checkNameVariations("Romanized", "romanized name variations", new ListRef<PersonalNameVariation>() {
+		checkNameVariations("romanized name variations", new ListRef<PersonalNameVariation>() {
 			@Override
 			public List<PersonalNameVariation> get(boolean initializeIfNeeded) {
 				return pn.getRomanized(initializeIfNeeded);
@@ -117,8 +97,8 @@ class PersonalNameValidator extends AbstractValidator {
 		});
     }
     
-    private void checkNameVariations(String v, String n, ListRef<PersonalNameVariation> handler) {
-		List<PersonalNameVariation> list = validateRepairStructure(v, n, true, pn, handler);
+    private void checkNameVariations(String name, ListRef<PersonalNameVariation> handler) {
+		List<PersonalNameVariation> list = checkListStructure(name, true, pn, handler);
 		if (list != null) {
 			for (PersonalNameVariation nv : list) {
                 new PersonalNameVariationValidator(getRootValidator(), nv).validate();

@@ -30,9 +30,13 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.gedcom4j.Options;
+import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.ChangeDate;
+import org.gedcom4j.model.HasCitations;
 import org.gedcom4j.model.HasCustomTags;
+import org.gedcom4j.model.HasNotes;
 import org.gedcom4j.model.HasXref;
+import org.gedcom4j.model.Note;
 import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.UserReference;
 import org.gedcom4j.model.ValidatedElement;
@@ -79,6 +83,13 @@ public abstract class AbstractValidator {
 		return rootValidator;
 	}
 
+	/**
+	 * @return true iff auto-repair is enabled on the root validator.
+	 */
+	protected boolean isAutoRepairEnabled() {
+		return getRootValidator().isAutoRepairEnabled();
+	}
+	
 	/**
 	 * Add a new finding of severity ERROR
 	 * 
@@ -168,9 +179,105 @@ public abstract class AbstractValidator {
 	 * @param element the model object element
 	 */
 	protected void addNullListError(String theValidator, String theName, ValidatedElement element) {
-		addNullError(this.getRootValidator().isAutoRepairEnabled(), "List of " + theName, element);
+		addNullError(isAutoRepairEnabled(), "List of " + theName, element);
 	}
 	
+	/**
+	 * Is the string supplied non-null, and has something other than whitespace
+	 * in it?
+	 * 
+	 * @param s
+	 *            the strings
+	 * @return true if the string supplied non-null, and has something other
+	 *         than whitespace in it
+	 */
+	protected static boolean isSpecified(String s) {
+		if (s != null) {
+			for (int i = 0; i < s.length(); i++) {
+				if (!Character.isWhitespace(s.charAt(i))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Process the list, eliminating duplicates
+	 * 
+	 * @return the number of items removed.
+	 */
+	protected static <T> int eliminateDuplicates(List<T> items) {
+		int result = 0;
+		if (items != null && !items.isEmpty()) {
+			HashSet<T> unique = new HashSet<T>();
+			for (int i = 0; i < items.size();) {
+				T item = items.get(i);
+				if (unique.contains(item)) {
+					result++;
+					items.remove(i);
+				} else {
+					i++;
+					unique.add(item);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Eliminate any duplicates in a list on an element, and give an info-level report if any were found
+	 * 
+	 * @param name the kind of the list of items duplicates are being removed on
+	 * @param element the list owner model element
+	 * @param items the list to remove duplicates on
+	 */
+	protected <T> void eliminateDuplicatesWithInfo(String name, ValidatedElement element, List<T> items) {
+	    int dups = eliminateDuplicates(items);
+	    if (dups > 0) {
+	        addInfo(dups + " duplicates in " + name + " found and removed", element);
+	    }
+	}
+
+	/**
+	 * checkListStructure checks lists of model sub-objects on an object.
+	 * Those lists must be non-null but may be empty. If auto-repair is enabled,
+	 * a null list will be converted to an empty list. If de-duplication is
+	 * requested and auto-repair is enabled, the list itself is de-duplicated
+	 * (exact duplicate entries are removed).
+	 * 
+	 * @param theName
+	 *            the name of the list to validate and maybe repair
+	 * @param handleDups
+	 *            true for duplicate removal on a non-empty list.
+	 * @param theElement
+	 *            the outer element that owns the list
+	 * @param theHandler
+	 *            the handler for the list attached to the outer element
+	 * 
+	 * @return the resulting list which may be null, or newly created and/or
+	 *         de-duped depending on arguments
+	 */
+	protected <E extends ValidatedElement, T> List<T> checkListStructure(String theName,
+			boolean handleDups, E theElement, ListRef<T> theHandler) {
+		boolean isRepairEnabled = isAutoRepairEnabled();
+		List<T> list = theHandler.get(false);
+		String qualifiedName = String.format("List of %s on %s", theName, theElement.getClass().getSimpleName());
+		if (list == null && Options.isCollectionInitializationEnabled()) {
+			if (isRepairEnabled) {
+				list = theHandler.get(true); // list was null, now will not be
+				addInfo(qualifiedName + " was null - auto-repaired", theElement);
+			} else {
+				addError(qualifiedName + " is null", theElement);
+			}
+		} else {
+			if (isRepairEnabled && handleDups) {
+				eliminateDuplicatesWithInfo(qualifiedName, theElement, list);
+			}
+		}
+		return list;
+	}
+
 	/**
 	 * Check a change date structure
 	 * 
@@ -186,19 +293,42 @@ public abstract class AbstractValidator {
 		}
 		checkRequiredString(changeDate.getDate(), "change date", objectWithChangeDate);
 		checkOptionalString(changeDate.getTime(), "change time", objectWithChangeDate);
-		if (changeDate.getNotes() == null && Options.isCollectionInitializationEnabled()) {
-			if (this.getRootValidator().isAutoRepairEnabled()) {
-				changeDate.getNotes(true).clear();
-				addInfo("Notes collection was null on " + changeDate.getClass().getSimpleName() + " - autorepaired");
-			} else {
-				addError("Notes collection is null on " + changeDate.getClass().getSimpleName());
-			}
-		} else {
-			new NotesValidator(getRootValidator(), changeDate).validate();
-		}
-
+		checkNotes(changeDate);
 	}
 
+    /**
+     * Check the notes.
+     */
+    protected void checkNotes(final HasNotes notes) {
+		List<Note> list = checkListStructure("Notes", true, notes, new ListRef<Note>() {
+			@Override
+			public List<Note> get(boolean initializeIfNeeded) {
+				return notes.getNotes(initializeIfNeeded);
+			}
+		});
+		if (list != null) {
+			// TODO: consolidate NotesValidator and NoteValidator
+			new NotesValidator(getRootValidator(), notes).validate();
+		}
+    }
+    
+    /**
+     * Check the citations.
+     */
+    protected void checkCitations(final HasCitations citations) {
+		List<AbstractCitation> list = checkListStructure("Citations", true, citations, new ListRef<AbstractCitation>() {
+			@Override
+			public List<AbstractCitation> get(boolean initializeIfNeeded) {
+				return citations.getCitations(initializeIfNeeded);
+			}
+		});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
+    }
+    
 	/**
 	 * Check custom tags on an object implementing HasCustomTags. If autorepair
 	 * is on, it will reflectively fix this.
@@ -209,7 +339,7 @@ public abstract class AbstractValidator {
 	protected void checkCustomTags(HasCustomTags o) {
 		List<?> customTags = o.getCustomTags();
 		if (customTags == null && Options.isCollectionInitializationEnabled()) {
-			if (this.getRootValidator().isAutoRepairEnabled()) {
+			if (isAutoRepairEnabled()) {
 				o.getCustomTags(true);
 				getRootValidator().addInfo("Custom tag collection was null - repaired", o);
 			} else {
@@ -312,7 +442,7 @@ public abstract class AbstractValidator {
 			while (i < stringList.size()) {
 				String a = stringList.get(i);
 				if (a == null) {
-					if (this.getRootValidator().isAutoRepairEnabled()) {
+					if (isAutoRepairEnabled()) {
 						addInfo("String list (" + description + ") contains null entry - removed",
 								new ValidatedItem(stringList));
 						stringList.remove(i);
@@ -320,7 +450,7 @@ public abstract class AbstractValidator {
 					}
 					addError("String list (" + description + ") contains null entry", new ValidatedItem(stringList));
 				} else if (!blanksAllowed && !isSpecified(a)) {
-					if (this.getRootValidator().isAutoRepairEnabled()) {
+					if (isAutoRepairEnabled()) {
 						addInfo("String list (" + description
 								+ ") contains blank entry where none are allowed - removed",
 								new ValidatedItem(stringList));
@@ -350,7 +480,7 @@ public abstract class AbstractValidator {
 	protected void checkStringTagList(List<StringWithCustomTags> stringList, String description,
 			boolean blanksAllowed) {
 		int i = 0;
-		boolean isRepairEnabled = this.getRootValidator().isAutoRepairEnabled();
+		boolean isRepairEnabled = isAutoRepairEnabled();
 		if (isRepairEnabled) {
 			eliminateDuplicatesWithInfo("tagged strings", new ValidatedItem(stringList), stringList);
 		}
@@ -444,83 +574,6 @@ public abstract class AbstractValidator {
 	protected abstract void validate();
 
 	/**
-	 * validateRepairStructure is a generic helper method used to consolidate
-	 * some current boilerplate code.
-	 * 
-	 * @param theValidator
-	 *            the name of the registered validator
-	 * @param theName
-	 *            the name of the list to validate and maybe repair (only if the
-	 *            validator supports repair)
-	 * @param handleDups
-	 *            true iff duplicate removal should be done for a non-empty
-	 *            list.
-	 * @param theElement
-	 *            the outer element that owns the list
-	 * @param theHandler
-	 *            the handler for the list attached to the outer element
-	 * 
-	 * @return the resulting list which may be null, or newly created and/or
-	 *         de-duped depending on arguments
-	 */
-	protected <E extends ValidatedElement, T> List<T> validateRepairStructure(String theValidator, String theName,
-			boolean handleDups, E theElement, ListRef<T> theHandler) {
-		boolean isRepairEnabled = this.getRootValidator().isAutoRepairEnabled();
-		List<T> list = theHandler.get(false);
-		String qualifiedName = String.format("List of %s on %s", theName, theElement.getClass().getSimpleName());
-		if (list == null && Options.isCollectionInitializationEnabled()) {
-			if (isRepairEnabled) {
-				list = theHandler.get(true); // list was null, now should not be
-				addInfo(qualifiedName + " was null - autorepaired", theElement);
-			} else {
-				addError(qualifiedName + " is null", theElement);
-			}
-		} else {
-			if (isRepairEnabled && handleDups) {
-				eliminateDuplicatesWithInfo(qualifiedName, theElement, list);
-			}
-		}
-		return list;
-	}
-
-	/**
-	 * Eliminate any duplicates in a list on an element, and give an info-level report if any were found
-	 * 
-	 * @param name the kind of the list of items duplicates are being removed on
-	 * @param element the list owner model element
-	 * @param items the list to remove duplicates on
-	 */
-	protected <T> void eliminateDuplicatesWithInfo(String name, ValidatedElement element, List<T> items) {
-        int dups = eliminateDuplicates(items);
-        if (dups > 0) {
-            addInfo(dups + " duplicates in " + name + " found and removed", element);
-        }
-	}
-	
-    /**
-     * Process the list, eliminating duplicates
-     * 
-     * @return the number of items removed.
-     */
-	protected static <T> int eliminateDuplicates(List<T> items) {
-		int result = 0;
-		if (items != null && !items.isEmpty()) {
-			HashSet<T> unique = new HashSet<>();
-			for (int i = 0; i < items.size();) {
-				T item = items.get(i);
-				if (unique.contains(item)) {
-					result++;
-					items.remove(i);
-				} else {
-					i++;
-					unique.add(item);
-				}
-			}
-		}
-		return result;
-	}
-	
-	/**
 	 * Check a string with custom tags to make sure the custom tags collection
 	 * is defined whenever there is a value in the string part.
 	 * 
@@ -537,26 +590,5 @@ public abstract class AbstractValidator {
 			addError("A string with custom tags object (" + fieldDescription + ") was defined with no value", swct);
 		}
 		checkCustomTags(swct);
-	}
-
-	/**
-	 * Is the string supplied non-null, and has something other than whitespace
-	 * in it?
-	 * 
-	 * @param s
-	 *            the strings
-	 * @return true if the string supplied non-null, and has something other
-	 *         than whitespace in it
-	 */
-	private boolean isSpecified(String s) {
-		if (s == null || s.isEmpty()) {
-			return false;
-		}
-		for (int i = 0; i < s.length(); i++) {
-			if (!Character.isWhitespace(s.charAt(i))) {
-				return true;
-			}
-		}
-		return false;
 	}
 }

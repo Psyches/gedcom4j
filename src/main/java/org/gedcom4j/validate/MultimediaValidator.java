@@ -75,7 +75,7 @@ public class MultimediaValidator extends AbstractValidator {
         Header header = gedcom == null ? null : gedcom.getHeader();
         GedcomVersion gv = header == null ? null : header.getGedcomVersion();
         if (gv == null || gv.getVersionNumber() == null) {
-            if (getRootValidator().isAutoRepairEnabled()) {
+            if (isAutoRepairEnabled()) {
                 gedcomVersion = SupportedVersion.V5_5_1;
                 addInfo("Was not able to determine GEDCOM version - assuming 5.5.1", gedcom);
             } else {
@@ -120,13 +120,12 @@ public class MultimediaValidator extends AbstractValidator {
      * Check user references
      */
     private void checkUserReferences() {
-		List<UserReference> userReferences = validateRepairStructure("UserReferences", "user references", true, mm,
-				new ListRef<UserReference>() {
-					@Override
-					public List<UserReference> get(boolean initializeIfNeeded) {
-						return mm.getUserReferences(initializeIfNeeded);
-					}
-				});
+		List<UserReference> userReferences = checkListStructure("user references", true, mm, new ListRef<UserReference>() {
+			@Override
+			public List<UserReference> get(boolean initializeIfNeeded) {
+				return mm.getUserReferences(initializeIfNeeded);
+			}
+		});
 		checkUserReferences(userReferences, mm);
     }
 
@@ -135,7 +134,7 @@ public class MultimediaValidator extends AbstractValidator {
      */
     private void checkXref() {
         // Xref is required
-    	boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+    	boolean isRepairEnabled = isAutoRepairEnabled();
         if (mm.getXref() == null || mm.getXref().trim().isEmpty()) {
         	addNullError(isRepairEnabled, "mandated xref", mm);
             return;
@@ -150,37 +149,18 @@ public class MultimediaValidator extends AbstractValidator {
     }
 
     /**
-     * Check the citations
-     */
-    private void checkCitations() {
-		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", false, mm,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return mm.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
-    }
-
-    /**
      * Check the blob
      */
     private void checkBlob() {
         // The blob object should always be instantiated, even for 5.5.1 (in
         // which case it should be an empty collection)
 
-		validateRepairStructure("Blobs", "blob", false, mm,
-				new ListRef<String>() {
-					@Override
-					public List<String> get(boolean initializeIfNeeded) {
-						return mm.getBlob(initializeIfNeeded);
-					}
-				});
+		checkListStructure("blob", false, mm, new ListRef<String>() {
+			@Override
+			public List<String> get(boolean initializeIfNeeded) {
+				return mm.getBlob(initializeIfNeeded);
+			}
+		});
     }
 
     /**
@@ -196,7 +176,7 @@ public class MultimediaValidator extends AbstractValidator {
      * Validate that the multimedia object conforms to GEDCOM 5.5 rules
      */
     private void validate55() {
-    	boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+    	boolean isRepairEnabled = isAutoRepairEnabled();
         if (mm.getBlob() == null || mm.getBlob().isEmpty()) {
         	addNullError(isRepairEnabled, "blob", mm);
         }
@@ -204,7 +184,7 @@ public class MultimediaValidator extends AbstractValidator {
 
         // Validate the citations - only allowed in 5.5.1
         if (mm.getCitations() != null && !mm.getCitations().isEmpty()) {
-        	isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+        	isRepairEnabled = isAutoRepairEnabled();
             if (isRepairEnabled)
                 mm.getCitations(true).clear();
             addProblemFinding(isRepairEnabled, "Citations collection is populated but not allowed in gedcom v5.5", mm);
@@ -215,13 +195,12 @@ public class MultimediaValidator extends AbstractValidator {
      * Validate that the multimedia object conforms to GEDCOM 5.5.1 rules
      */
     private void validate551() {
-		List<FileReference> list = validateRepairStructure("FileReferences", "file references", false, mm,
-				new ListRef<FileReference>() {
-					@Override
-					public List<FileReference> get(boolean initializeIfNeeded) {
-						return mm.getFileReferences(initializeIfNeeded);
-					}
-				});
+		List<FileReference> list = checkListStructure("file references", true, mm, new ListRef<FileReference>() {
+			@Override
+			public List<FileReference> get(boolean initializeIfNeeded) {
+				return mm.getFileReferences(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			for (FileReference fr : list) {
                 checkFileReference(fr);
@@ -230,7 +209,7 @@ public class MultimediaValidator extends AbstractValidator {
 
 		// Blobs must be empty in 5.5.1
         if (mm.getBlob() != null && !mm.getBlob().isEmpty()) {
-        	boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+        	boolean isRepairEnabled = isAutoRepairEnabled();
             if (isRepairEnabled)
                 mm.getBlob().clear();
 			addProblemFinding(isRepairEnabled,
@@ -239,7 +218,7 @@ public class MultimediaValidator extends AbstractValidator {
 
         // Cannot have an embedded media format in 5.5.1
         if (mm.getEmbeddedMediaFormat() != null) {
-        	boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+        	boolean isRepairEnabled = isAutoRepairEnabled();
             if (isRepairEnabled)
                 mm.setEmbeddedMediaFormat(null);
 			addProblemFinding(isRepairEnabled,
@@ -264,7 +243,7 @@ public class MultimediaValidator extends AbstractValidator {
         checkOptionalString(mm.getRecIdNumber(), "record id number", mm);
         checkChangeDate(mm.getChangeDate(), mm);
         checkUserReferences();
-        checkCitations();
+        checkCitations(mm);
         if (mm.getContinuedObject() != null) {
             new MultimediaValidator(getRootValidator(), mm.getContinuedObject()).validate();
         }

@@ -42,6 +42,7 @@ import org.junit.Test;
  * 
  * @author frizbog
  */
+@SuppressWarnings("PMD.AddEmptyString")
 public class StringCanonicalizerTest {
 
     /**
@@ -72,7 +73,7 @@ public class StringCanonicalizerTest {
         final int numValues = classUnderTest.getMaxPoolSize() + 100;
         for (int values = 0; values < numValues; values++) {
             for (int uses = 0; uses < 20 + random.nextInt(20); uses++) {
-                String s = "" + values;
+				String s = "" + values;
                 String c = classUnderTest.getCanonicalVersion(s);
                 assertEquals(s, c);
             }

@@ -95,7 +95,7 @@ class SubmitterValidator extends AbstractValidator {
      */
     private void checkLanguagePreferences() {
         List<StringWithCustomTags> languagePref = submitter.getLanguagePref();
-        if (getRootValidator().isAutoRepairEnabled()) {
+        if (isAutoRepairEnabled()) {
             eliminateDuplicatesWithInfo("language preferences", submitter, languagePref);
         }
 

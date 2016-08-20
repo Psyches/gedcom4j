@@ -139,7 +139,7 @@ public class RepositoryCitation extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("RepositoryCitation [");
         if (callNumbers != null) {
             builder.append("callNumbers=");

@@ -26,9 +26,6 @@
  */
 package org.gedcom4j.validate;
 
-import java.util.List;
-
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.AbstractNameVariation;
 import org.gedcom4j.model.PersonalNameVariation;
 
@@ -74,23 +71,4 @@ class PersonalNameVariationValidator extends NameVariationValidator {
         checkCitations(pnv);
         new NotesValidator(getRootValidator(), pnv).validate();
     }
-    
-    /**
-     * Check the citations.
-     */
-    private void checkCitations(final PersonalNameVariation pnv) {
-		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, pnv,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return pnv.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
-    }
-    
 }

@@ -36,7 +36,7 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog
  */
-public class PersonalNameVariation extends AbstractNameVariation implements HasNotes {
+public class PersonalNameVariation extends AbstractNameVariation implements HasNotes, HasCitations {
     /**
      * Serial Version UID
      */
@@ -194,7 +194,7 @@ public class PersonalNameVariation extends AbstractNameVariation implements HasN
      */
     public List<AbstractCitation> getCitations(boolean initializeIfNeeded) {
         if (initializeIfNeeded && citations == null) {
-            citations = new ArrayList<>(0);
+            citations = new ArrayList<AbstractCitation>(0);
         }
         return citations;
     }
@@ -236,7 +236,7 @@ public class PersonalNameVariation extends AbstractNameVariation implements HasN
      */
     public List<Note> getNotes(boolean initializeIfNeeded) {
         if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<>(0);
+            notes = new ArrayList<Note>(0);
         }
         return notes;
     }

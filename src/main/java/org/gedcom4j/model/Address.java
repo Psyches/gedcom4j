@@ -300,7 +300,7 @@ public class Address extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Address [");
         if (addr1 != null) {
             builder.append("addr1=");

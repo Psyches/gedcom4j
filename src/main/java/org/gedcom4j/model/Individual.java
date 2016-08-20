@@ -39,7 +39,7 @@ import org.gedcom4j.Options;
  * @author frizbog1
  */
 @SuppressWarnings({ "PMD.ExcessiveClassLength", "PMD.ExcessivePublicCount", "PMD.GodClass" })
-public class Individual extends AbstractElement implements HasXref {
+public class Individual extends AbstractNotesElement implements HasCitations, HasXref {
 
     /**
      * Serial Version UID
@@ -1129,8 +1129,7 @@ public class Individual extends AbstractElement implements HasXref {
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(64); // Initial size - we know we're going to be appending more than 16
-        // chars in most cases
+        StringBuilder sb = new StringBuilder(64);
         sb.append(getFormattedName());
         if (aliases != null) {
             for (StringWithCustomTags n : aliases) {
@@ -1182,7 +1181,7 @@ public class Individual extends AbstractElement implements HasXref {
                 } else {
                     sb.append(", b.");
                 }
-                sb.append(b.date);
+                sb.append(b.getDate());
                 found = true;
             }
         }
@@ -1195,7 +1194,7 @@ public class Individual extends AbstractElement implements HasXref {
                 } else {
                     sb.append(", d.");
                 }
-                sb.append(d.date);
+                sb.append(d.getDate());
                 found = true;
             }
         }

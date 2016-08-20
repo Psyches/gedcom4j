@@ -39,8 +39,8 @@ import org.gedcom4j.exception.GedcomValidationException;
  * @author Mark A Sikes
  */
 final public class Validators {
-	private static final Map<String, Validator> REGISTERED_VALIDATORS = new HashMap<>();
-	private static final List<Validator> CONFIGURED_VALIDATORS = new ArrayList<>();
+	private static final Map<String, Validator> REGISTERED_VALIDATORS = new HashMap<String, Validator>();
+	private static final List<Validator> CONFIGURED_VALIDATORS = new ArrayList<Validator>();
 	
 	/**
 	 * @param theName

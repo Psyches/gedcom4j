@@ -167,7 +167,7 @@ public class HeaderSourceData extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("HeaderSourceData [");
         if (copyright != null) {
             builder.append("copyright=");

@@ -37,7 +37,8 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public abstract class AbstractEvent extends AbstractNotesElement {
+@SuppressWarnings("PMD.GodClass")
+public abstract class AbstractEvent extends AbstractNotesElement implements HasCitations {
     /**
      * Serial Version UID
      */
@@ -46,88 +47,88 @@ public abstract class AbstractEvent extends AbstractNotesElement {
     /**
      * The address where this event took place
      */
-    protected Address address;
+    private Address address;
 
     /**
      * The age of the person to whom this event is attached at the time it occurred
      */
-    protected StringWithCustomTags age;
+    private StringWithCustomTags age;
 
     /**
      * The cause of the event
      */
-    protected StringWithCustomTags cause;
+    private StringWithCustomTags cause;
 
     /**
      * The citations for this object
      */
-    protected List<AbstractCitation> citations = getCitations(Options.isCollectionInitializationEnabled());
+    private List<AbstractCitation> citations = getCitations(Options.isCollectionInitializationEnabled());
 
     /**
      * The date of this event
      */
-    protected StringWithCustomTags date;
+    private StringWithCustomTags date;
 
     /**
      * A description of this event
      */
-    protected StringWithCustomTags description;
+    private StringWithCustomTags description;
 
     /**
      * The emails for this submitter. New for GEDCOM 5.5.1
      */
-    protected List<StringWithCustomTags> emails = getEmails(Options.isCollectionInitializationEnabled());
+    private List<StringWithCustomTags> emails = getEmails(Options.isCollectionInitializationEnabled());
 
     /**
      * Fax numbers. New for GEDCOM 5.5.1.
      */
-    protected List<StringWithCustomTags> faxNumbers = getFaxNumbers(Options.isCollectionInitializationEnabled());
+    private List<StringWithCustomTags> faxNumbers = getFaxNumbers(Options.isCollectionInitializationEnabled());
 
     /**
      * Multimedia links for this source citation
      */
-    protected List<Multimedia> multimedia = getMultimedia(Options.isCollectionInitializationEnabled());
+    private List<Multimedia> multimedia = getMultimedia(Options.isCollectionInitializationEnabled());
 
     /**
      * The phone numbers for this submitter
      */
-    protected List<StringWithCustomTags> phoneNumbers = getPhoneNumbers(Options.isCollectionInitializationEnabled());
+    private List<StringWithCustomTags> phoneNumbers = getPhoneNumbers(Options.isCollectionInitializationEnabled());
 
     /**
      * The place where this event occurred
      */
-    protected Place place;
+    private Place place;
 
     /**
      * The religious affiliation of this event. New for GEDCOM 5.5.1.
      */
-    protected StringWithCustomTags religiousAffiliation;
+    private StringWithCustomTags religiousAffiliation;
 
     /**
      * The responsible agency for this event
      */
-    protected StringWithCustomTags respAgency;
+    private StringWithCustomTags respAgency;
 
     /**
      * A notification that this record is in some way restricted. New for GEDCOM 5.5.1. Values are supposed to be
      * "confidential", "locked", or "privacy" but this implementation allows any value.
      */
-    protected StringWithCustomTags restrictionNotice;
+    private StringWithCustomTags restrictionNotice;
 
     /**
      * A subtype that further qualifies the type
      */
-    protected StringWithCustomTags subType;
+    private StringWithCustomTags subType;
 
     /**
      * Web URL's. New for GEDCOM 5.5.1.
      */
-    protected List<StringWithCustomTags> wwwUrls = getWwwUrls(Options.isCollectionInitializationEnabled());
+    private List<StringWithCustomTags> wwwUrls = getWwwUrls(Options.isCollectionInitializationEnabled());
 
     /**
      * Either a Y or a null after the event type;
      */
-    protected String yNull;
+    private String yNull;
 
     /**
      * {@inheritDoc}
@@ -649,8 +650,21 @@ public abstract class AbstractEvent extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(128);
         builder.append("AbstractEvent [");
+        buildAbstractEventToString(builder);
+        builder.append("]");
+        return builder.toString();
+    }
+
+    /**
+     * Converts only the field members into the toString() representation, for easy sub-classing.
+     * 
+     * @param builder the StringBuilder to output into.
+     * 
+     * @return the StringBuilder that was passed in.
+     */
+    protected StringBuilder buildAbstractEventToString(StringBuilder builder) {
         if (address != null) {
             builder.append("address=");
             builder.append(address);
@@ -745,8 +759,6 @@ public abstract class AbstractEvent extends AbstractNotesElement {
             builder.append("customTags=");
             builder.append(getCustomTags());
         }
-        builder.append("]");
-        return builder.toString();
+    	return builder;
     }
-
 }

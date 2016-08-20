@@ -58,6 +58,7 @@ import org.junit.Test;
  * @author frizbog1
  * 
  */
+@SuppressWarnings({ "PMD.TooManyMethods", "PMD.SystemPrintln" })
 public class GedcomWriterTest {
 
     /**
@@ -96,7 +97,7 @@ public class GedcomWriterTest {
      * @throws GedcomWriterException
      *             if a gedcom data structure can't be written (usually due to invalid data, shouldn't happen)
      */
-    public GedcomWriterTest() throws IOException, GedcomParserException, GedcomWriterException {
+	public GedcomWriterTest() throws IOException, GedcomParserException, GedcomWriterException {
         // Load a file
         GedcomParser p = new GedcomParser();
         p.load(SAMPLE_STRESS_TEST_FILENAME);
@@ -394,19 +395,17 @@ public class GedcomWriterTest {
      * @param lookFor
      *            the strings to find in <code>lookIn</code>
      */
-    private void assertLineSequence(String failureMessage, List<String> lookIn, String... lookFor) {
+    private static void assertLineSequence(String failureMessage, List<String> lookIn, String... lookFor) {
         int indexOf = lookIn.indexOf(lookFor[0]);
-        if (verbose) {
-            if (indexOf < 0) {
-                System.out.println("\n====");
-                System.out.println("Looking for: ");
-                System.out.println(lookFor[0]);
-                System.out.println("Looking in:");
-                for (String l : lookIn) {
-                    System.out.println(l);
-                }
-            }
-        }
+        if (verbose && indexOf < 0) {
+		    System.out.println("\n====");
+		    System.out.println("Looking for: ");
+		    System.out.println(lookFor[0]);
+		    System.out.println("Looking in:");
+		    for (String l : lookIn) {
+		        System.out.println(l);
+		    }
+		}
         assertTrue(failureMessage + ": first string being looked for (\"" + lookFor[0] + "\") was not found in in the list being searched", indexOf >= 0);
 
         boolean matches = true; // optimistic
@@ -445,7 +444,7 @@ public class GedcomWriterTest {
      * @throws GedcomParserException
      *             if the file load was cancelled or was malformed
      */
-    private List<String> readBack(File fileToRead) throws IOException, GedcomParserException {
+    private static List<String> readBack(File fileToRead) throws IOException, GedcomParserException {
         FileInputStream fis = null;
         BufferedInputStream bis = null;
         try {

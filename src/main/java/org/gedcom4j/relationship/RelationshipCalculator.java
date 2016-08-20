@@ -26,11 +26,25 @@
  */
 package org.gedcom4j.relationship;
 
-import static org.gedcom4j.relationship.RelationshipName.*;
+import static org.gedcom4j.relationship.RelationshipName.CHILD;
+import static org.gedcom4j.relationship.RelationshipName.DAUGHTER;
+import static org.gedcom4j.relationship.RelationshipName.FATHER;
+import static org.gedcom4j.relationship.RelationshipName.HUSBAND;
+import static org.gedcom4j.relationship.RelationshipName.MOTHER;
+import static org.gedcom4j.relationship.RelationshipName.SON;
+import static org.gedcom4j.relationship.RelationshipName.WIFE;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.Family;
+import org.gedcom4j.model.FamilyChild;
+import org.gedcom4j.model.FamilySpouse;
+import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.StringWithCustomTags;
 
 /**
  * <p>
@@ -364,7 +378,7 @@ public class RelationshipCalculator {
         SimpleRelationship r = new SimpleRelationship();
         r.setIndividual1(personBeingExamined);
         r.setIndividual2(fs.getFamily().getHusband());
-        r.setName(RelationshipName.HUSBAND);
+        r.setName(HUSBAND);
         currentChain.add(r);
         examine(r.getIndividual2());
         currentChain.remove(currentChain.size() - 1);
@@ -409,7 +423,7 @@ public class RelationshipCalculator {
         SimpleRelationship r = new SimpleRelationship();
         r.setIndividual1(personBeingExamined);
         r.setIndividual2(fs.getFamily().getWife());
-        r.setName(RelationshipName.WIFE);
+        r.setName(WIFE);
         currentChain.add(r);
         examine(r.getIndividual2());
         currentChain.remove(currentChain.size() - 1);

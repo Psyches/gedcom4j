@@ -35,11 +35,12 @@ import org.junit.Test;
  * 
  * @author frizbog1
  */
+@SuppressWarnings("PMD.SingularField")
 public class LdsSpouseSealingValidatorTest extends AbstractValidatorTestCase {
     /**
      * The father in the family
      */
-    private Individual dad;
+	private Individual dad;
 
     /**
      * The mother in the family

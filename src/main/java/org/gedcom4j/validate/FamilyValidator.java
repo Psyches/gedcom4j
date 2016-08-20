@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.AbstractEvent;
 import org.gedcom4j.model.Family;
 import org.gedcom4j.model.Individual;
@@ -46,7 +45,7 @@ class FamilyValidator extends AbstractValidator {
     /**
      * The family being validated
      */
-    private final Family f;
+    private final Family family;
 
     /**
      * Validator for {@link Family}
@@ -58,7 +57,7 @@ class FamilyValidator extends AbstractValidator {
      */
     public FamilyValidator(GedcomValidator gedcomValidator, Family f) {
         super(gedcomValidator);
-        this.f = f;
+        this.family = f;
     }
 
     /**
@@ -66,30 +65,30 @@ class FamilyValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        checkOptionalString(f.getAutomatedRecordId(), "Automated record id", f);
-        checkChangeDate(f.getChangeDate(), f);
+        checkOptionalString(family.getAutomatedRecordId(), "Automated record id", family);
+        checkChangeDate(family.getChangeDate(), family);
         checkChildren();
-        checkCitations();
-        checkCustomTags(f);
-        if (f.getEvents() != null) {
-            for (AbstractEvent ev : f.getEvents()) {
+        checkCitations(family);
+        checkCustomTags(family);
+        if (family.getEvents() != null) {
+            for (AbstractEvent ev : family.getEvents()) {
                 new EventValidator(getRootValidator(), ev).validate();
             }
         }
-        if (f.getHusband() != null) {
-            new IndividualValidator(getRootValidator(), f.getHusband()).validate();
+        if (family.getHusband() != null) {
+            new IndividualValidator(getRootValidator(), family.getHusband()).validate();
         }
-        if (f.getWife() != null) {
-            new IndividualValidator(getRootValidator(), f.getWife()).validate();
+        if (family.getWife() != null) {
+            new IndividualValidator(getRootValidator(), family.getWife()).validate();
         }
         checkLdsSpouseSealings();
         checkMultimedia();
-        new NotesValidator(getRootValidator(), f).validate();
-        checkOptionalString(f.getNumChildren(), "number of children", f);
-        checkOptionalString(f.getRecFileNumber(), "record file number", f);
-        checkOptionalString(f.getRestrictionNotice(), "restriction notice", f);
+        new NotesValidator(getRootValidator(), family).validate();
+        checkOptionalString(family.getNumChildren(), "number of children", family);
+        checkOptionalString(family.getRecFileNumber(), "record file number", family);
+        checkOptionalString(family.getRestrictionNotice(), "restriction notice", family);
         checkSubmitters();
-        checkUserReferences(f.getUserReferences(), f);
+        checkUserReferences(family.getUserReferences(), family);
     }
 
     /**
@@ -97,37 +96,17 @@ class FamilyValidator extends AbstractValidator {
      */
     private void checkChildren() {
 		// Structure validate, repair, and dedup children on family collection
-		List<Individual> list = validateRepairStructure("Children", "children", true, f,
-				new ListRef<Individual>() {
-					@Override
-					public List<Individual> get(boolean initializeIfNeeded) {
-						return f.getChildren(initializeIfNeeded);
-					}
-				});
+		List<Individual> list = checkListStructure("children", true, family, new ListRef<Individual>() {
+			@Override
+			public List<Individual> get(boolean initializeIfNeeded) {
+				return family.getChildren(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			for (Individual i : list) {
                 if (i == null) {
-                    getRootValidator().addError("Family with xref '" + f.getXref() + "' has a null entry in children collection", f);
+                    getRootValidator().addError("Family with xref '" + family.getXref() + "' has a null entry in children collection", family);
                 }
-			}
-		}
-    }
-
-    /**
-     * Check citations.
-     */
-    private void checkCitations() {
-		// Structure validate, repair, and dedup citations on family collection
-		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, f,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return f.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
 			}
 		}
     }
@@ -137,13 +116,12 @@ class FamilyValidator extends AbstractValidator {
      */
     private void checkLdsSpouseSealings() {
 		// Structure validate, repair, and dedup citations on event collection
-		List<LdsSpouseSealing> list = validateRepairStructure("SpouseSealings", "spouse sealings", true, f,
-				new ListRef<LdsSpouseSealing>() {
-					@Override
-					public List<LdsSpouseSealing> get(boolean initializeIfNeeded) {
-						return f.getLdsSpouseSealings(initializeIfNeeded);
-					}
-				});
+		List<LdsSpouseSealing> list = checkListStructure("spouse sealings", true, family, new ListRef<LdsSpouseSealing>() {
+			@Override
+			public List<LdsSpouseSealing> get(boolean initializeIfNeeded) {
+				return family.getLdsSpouseSealings(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			for (LdsSpouseSealing l : list) {
 				new LdsSpouseSealingValidator(getRootValidator(), l).validate();
@@ -155,13 +133,12 @@ class FamilyValidator extends AbstractValidator {
      * Check multimedia.
      */
     private void checkMultimedia() {
-		List<Multimedia> list = validateRepairStructure("Multimedia", "Multimedia", true, f,
-				new ListRef<Multimedia>() {
-					@Override
-					public List<Multimedia> get(boolean initializeIfNeeded) {
-						return f.getMultimedia(initializeIfNeeded);
-					}
-				});
+		List<Multimedia> list = checkListStructure("Multimedia", true, family, new ListRef<Multimedia>() {
+			@Override
+			public List<Multimedia> get(boolean initializeIfNeeded) {
+				return family.getMultimedia(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			for (Multimedia l : list) {
 				new MultimediaValidator(getRootValidator(), l).validate();
@@ -173,13 +150,12 @@ class FamilyValidator extends AbstractValidator {
      * Check submitters.
      */
     private void checkSubmitters() {
-		List<Submitter> list = validateRepairStructure("Submitters", "Submitter", true, f,
-				new ListRef<Submitter>() {
-					@Override
-					public List<Submitter> get(boolean initializeIfNeeded) {
-						return f.getSubmitters(initializeIfNeeded);
-					}
-				});
+		List<Submitter> list = checkListStructure("Submitter", true, family, new ListRef<Submitter>() {
+			@Override
+			public List<Submitter> get(boolean initializeIfNeeded) {
+				return family.getSubmitters(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			for (Submitter l : list) {
 				new SubmitterValidator(getRootValidator(), l).validate();

@@ -109,7 +109,7 @@ public class GedcomValidator extends AbstractValidator {
 	/**
 	 * The findings from validation
 	 */
-	private final List<GedcomValidationFinding> findings = new ArrayList<>();
+	private final List<GedcomValidationFinding> findings = new ArrayList<GedcomValidationFinding>();
 
 	/**
 	 * The gedcom structure being validated
@@ -188,7 +188,8 @@ public class GedcomValidator extends AbstractValidator {
 	/**
 	 * @return true if auto-repair is enabled.
 	 */
-	public boolean isAutoRepairEnabled() {
+	@Override
+	protected boolean isAutoRepairEnabled() {
 		return autoRepairEnabled;
 	}
 	
@@ -249,7 +250,7 @@ public class GedcomValidator extends AbstractValidator {
 	 * Validate the families map
 	 */
 	private void validateFamilies() {
-		boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+		boolean isRepairEnabled = isAutoRepairEnabled();
 		for (Entry<String, Family> e : getGedcom().getFamilies().entrySet()) {
 			if (e.getKey() == null) {
 				if (isRepairEnabled) {
@@ -417,7 +418,7 @@ public class GedcomValidator extends AbstractValidator {
 		@Override
 		public List<Note> getNotes() {
 			Map<String, Note> notes = gedcom.getNotes();
-			return notes == null ? null : new ArrayList<>(notes.values());
+			return notes == null ? null : new ArrayList<Note>(notes.values());
 		}
 
 		@Override

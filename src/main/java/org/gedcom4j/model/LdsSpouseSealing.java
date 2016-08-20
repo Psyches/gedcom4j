@@ -43,7 +43,7 @@ public class LdsSpouseSealing extends AbstractLdsOrdinance {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("LdsSpouseSealing [");
         if (citations != null) {
             builder.append("citations=");

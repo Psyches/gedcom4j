@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.AbstractEvent;
 import org.gedcom4j.model.Multimedia;
 import org.gedcom4j.model.StringWithCustomTags;
@@ -43,7 +42,7 @@ public class EventValidator extends AbstractValidator {
     /**
      * The event being validated
      */
-    private final AbstractEvent e;
+    private final AbstractEvent event;
 
     /**
      * Constructor
@@ -55,7 +54,7 @@ public class EventValidator extends AbstractValidator {
      */
     public EventValidator(GedcomValidator rootValidator, AbstractEvent e) {
         super(rootValidator);
-        this.e = e;
+        event = e;
     }
 
     /**
@@ -63,63 +62,44 @@ public class EventValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        if (e == null) {
+        if (event == null) {
             addError("Event is null and cannot be validated or autorepaired");
             return;
         }
-        if (e.getAddress() != null) {
-            new AddressValidator(getRootValidator(), e.getAddress()).validate();
+        if (event.getAddress() != null) {
+            new AddressValidator(getRootValidator(), event.getAddress()).validate();
         }
-        checkOptionalString(e.getAge(), "age", e);
-        checkOptionalString(e.getCause(), "cause", e);
-        checkCitations();
-        checkCustomTags(e);
-        checkOptionalString(e.getDate(), "date", e);
-        if (e.getDescription() != null && e.getDescription().trim().length() != 0) {
-            getRootValidator().addError("Event has description, which is non-standard. Remove this value, or move it (perhaps to a Note).", e);
+        checkOptionalString(event.getAge(), "age", event);
+        checkOptionalString(event.getCause(), "cause", event);
+        checkCitations(event);
+        checkCustomTags(event);
+        checkOptionalString(event.getDate(), "date", event);
+        if (event.getDescription() != null && event.getDescription().trim().length() != 0) {
+            addError("Event has description, which is non-standard. Remove this value, or move it (perhaps to a Note).", event);
         }
         checkEmails();
         checkFaxNumbers();
         checkMultimedia();
-        new NotesValidator(getRootValidator(), e).validate();
+        new NotesValidator(getRootValidator(), event).validate();
         checkPhoneNumbers();
-        checkOptionalString(e.getReligiousAffiliation(), "religious affiliation", e);
-        checkOptionalString(e.getRespAgency(), "responsible agency", e);
-        checkOptionalString(e.getRestrictionNotice(), "restriction notice", e);
-        checkOptionalString(e.getSubType(), "subtype", e);
+        checkOptionalString(event.getReligiousAffiliation(), "religious affiliation", event);
+        checkOptionalString(event.getRespAgency(), "responsible agency", event);
+        checkOptionalString(event.getRestrictionNotice(), "restriction notice", event);
+        checkOptionalString(event.getSubType(), "subtype", event);
         checkWwwUrls();
 
-    }
-
-    /**
-     * Check the citations
-     */
-    private void checkCitations() {
-		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, e,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return e.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
     }
 
     /**
 	 * Check the multimedia
 	 */
 	private void checkMultimedia() {
-		List<Multimedia> mm = validateRepairStructure("Multimedia", "Multimedia", true, e,
-				new ListRef<Multimedia>() {
-					@Override
-					public List<Multimedia> get(boolean initializeIfNeeded) {
-						return e.getMultimedia(initializeIfNeeded);
-					}
-				});
+		List<Multimedia> mm = checkListStructure("Multimedia", true, event, new ListRef<Multimedia>() {
+			@Override
+			public List<Multimedia> get(boolean initializeIfNeeded) {
+				return event.getMultimedia(initializeIfNeeded);
+			}
+		});
 		if (mm != null) {
 			for (Multimedia m : mm) {
 	            new MultimediaValidator(getRootValidator(), m).validate();
@@ -131,10 +111,10 @@ public class EventValidator extends AbstractValidator {
 	 * Check the emails
 	 */
 	private void checkEmails() {
-		checkValidRepairStringList("Emails", "Email address", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("Email address", new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return e.getEmails(initializeIfNeeded);
+				return event.getEmails(initializeIfNeeded);
 			}
 		});
 	}
@@ -143,10 +123,10 @@ public class EventValidator extends AbstractValidator {
 	 * Check the fax numbers
 	 */
 	private void checkFaxNumbers() {
-		checkValidRepairStringList("Faxes", "Fax number", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("Fax number", new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return e.getFaxNumbers(initializeIfNeeded);
+				return event.getFaxNumbers(initializeIfNeeded);
 			}
 		});
 	}
@@ -155,15 +135,15 @@ public class EventValidator extends AbstractValidator {
 	 * Check the phone numbers
 	 */
 	private void checkPhoneNumbers() {
-		checkValidRepairStringList("Phones", "Phone number", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("Phone number", new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return e.getEmails(initializeIfNeeded);
+				return event.getEmails(initializeIfNeeded);
 			}
 		});
 	
-		if (e.getPlace() != null) {
-	        new PlaceValidator(getRootValidator(), e.getPlace()).validate();
+		if (event.getPlace() != null) {
+	        new PlaceValidator(getRootValidator(), event.getPlace()).validate();
 	    }
 	}
 
@@ -171,22 +151,23 @@ public class EventValidator extends AbstractValidator {
 	 * Check the www urls
 	 */
 	private void checkWwwUrls() {
-		checkValidRepairStringList("URLs", "www url", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("www url", new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return e.getWwwUrls(initializeIfNeeded);
+				return event.getWwwUrls(initializeIfNeeded);
 			}
 		});
 	}
 
 	/**
      * Check list of required strings with custom tags and maybe repair
+     * TODO push to AbstractValidator
      */
-    private List<StringWithCustomTags> checkValidRepairStringList(String v, String n, ListRef<StringWithCustomTags> r) {
-		List<StringWithCustomTags> list = validateRepairStructure(v, n, true, e, r);
+    private List<StringWithCustomTags> checkStringListStructure(String name, ListRef<StringWithCustomTags> r) {
+		List<StringWithCustomTags> list = checkListStructure(name, true, event, r);
 		if (list != null) {
 			for (StringWithCustomTags swct : list) {
-				checkRequiredString(swct, n, e);
+				checkRequiredString(swct, name, event);
 			}
 		}
 		return list;

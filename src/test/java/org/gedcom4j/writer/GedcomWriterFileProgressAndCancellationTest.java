@@ -57,6 +57,7 @@ import org.junit.Test;
  * 
  * @author frizbog
  */
+@SuppressWarnings({ "PMD.TooManyMethods", "PMD.SystemPrintln" })
 public class GedcomWriterFileProgressAndCancellationTest implements ConstructProgressListener, FileProgressListener {
 
     /**
@@ -122,7 +123,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test(expected = WriterCancelledException.class)
+    @SuppressWarnings("resource")
+	@Test(expected = WriterCancelledException.class)
     public void testConstuctionCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ascii.ged");
@@ -143,7 +145,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test(expected = WriterCancelledException.class)
+    @SuppressWarnings("resource")
+	@Test(expected = WriterCancelledException.class)
     public void testFileCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ascii.ged");
@@ -164,7 +167,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationAnselCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ansel.ged");
@@ -183,9 +187,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(621821, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(621291, bytesWritten);
     }
 
     /**
@@ -198,7 +202,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationAnselCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ansel.ged");
@@ -217,9 +222,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(601799, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(601293, bytesWritten);
     }
 
     /**
@@ -232,7 +237,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationAsciiCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ascii.ged");
@@ -251,9 +257,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(621821, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(621291, bytesWritten);
     }
 
     /**
@@ -266,7 +272,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationAsciiCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ascii.ged");
@@ -285,9 +292,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(601799, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(601293, bytesWritten);
     }
 
     /**
@@ -300,7 +307,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationUnicodeBigEndianCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-unicode-bigendian.ged");
@@ -319,9 +327,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(1243670, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(1242610, bytesWritten);
     }
 
     /**
@@ -334,7 +342,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationUnicodeBigEndianCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-unicode-bigendian.ged");
@@ -353,9 +362,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(1203626, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(1202614, bytesWritten);
     }
 
     /**
@@ -368,7 +377,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationUnicodeLittleEndianCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-unicode-littleendian.ged");
@@ -387,9 +397,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(1243676, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(1242616, bytesWritten);
     }
 
     /**
@@ -402,7 +412,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationUnicodeLittleEndianCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-unicode-littleendian.ged");
@@ -421,9 +432,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(42, fileNotificationCount);
-        assertEquals(20022, linesConstructed);
-        assertEquals(1203632, bytesWritten);
+        assertEquals(41, fileNotificationCount);
+        assertEquals(19998, linesConstructed);
+        assertEquals(1202620, bytesWritten);
     }
 
     /**
@@ -436,7 +447,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationUtf8Crlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis.ged");
@@ -455,9 +467,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(41, fileNotificationCount);
-        assertEquals(20019, linesConstructed);
-        assertEquals(606208, bytesWritten);
+        assertEquals(40, fileNotificationCount);
+        assertEquals(19995, linesConstructed);
+        assertEquals(573440, bytesWritten);
     }
 
     /**
@@ -470,7 +482,8 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testNoCancellationUtf8CrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis.ged");
@@ -489,9 +502,9 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
             throw e;
         }
         assertEquals(40, constructNotificationCount);
-        assertEquals(41, fileNotificationCount);
-        assertEquals(20019, linesConstructed);
-        assertEquals(581632, bytesWritten);
+        assertEquals(40, fileNotificationCount);
+        assertEquals(19995, linesConstructed);
+        assertEquals(557056, bytesWritten);
     }
 
     /**
@@ -502,7 +515,7 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @param encoding
      *            the encoding to use when writing
      */
-    private void cleanUpGedcom(GedcomParser gp, Encoding encoding) {
+    private static void cleanUpGedcom(GedcomParser gp, Encoding encoding) {
         CharacterSet characterSet = new CharacterSet();
         characterSet.setCharacterSetName(new StringWithCustomTags(encoding.getCharacterSetName()));
         gp.getGedcom().getHeader().setCharacterSet(characterSet);

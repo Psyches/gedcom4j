@@ -85,13 +85,12 @@ class CitationValidator extends AbstractValidator {
             final CitationWithoutSource cwns = (CitationWithoutSource) citation;
             checkStringList(cwns.getDescription(), "description on a citation without a source", true);
 			// Structure validate, repair, and dedup text from source collection
-			List<List<String>> texts = validateRepairStructure("Citations", "Texts from source (list of lists)", true,
-					cwns, new ListRef<List<String>>() {
-						@Override
-						public List<List<String>> get(boolean initializeIfNeeded) {
-							return cwns.getTextFromSource(initializeIfNeeded);
-						}
-					});
+			List<List<String>> texts = checkListStructure("Texts from source (list of lists)", true, cwns, new ListRef<List<String>>() {
+				@Override
+				public List<List<String>> get(boolean initializeIfNeeded) {
+					return cwns.getTextFromSource(initializeIfNeeded);
+				}
+			});
             if (texts != null) {
                 for (List<String> text : texts) {
                     if (text == null) {
@@ -105,7 +104,7 @@ class CitationValidator extends AbstractValidator {
             throw new IllegalStateException("AbstractCitation references must be either CitationWithSource or CitationWithoutSource instances");
         }
 		// Structure validate and repair notes WITHOUT dedup
-		List<Note> list = validateRepairStructure("Notes", "Note", false, citation, new ListRef<Note>() {
+		List<Note> list = checkListStructure("Note", false, citation, new ListRef<Note>() {
 			@Override
 			public List<Note> get(boolean initializeIfNeeded) {
 				return citation.getNotes(initializeIfNeeded);

@@ -36,7 +36,8 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Family extends AbstractNotesElement {
+@SuppressWarnings("PMD.GodClass")
+public class Family extends AbstractNotesElement implements HasCitations {
     /**
      * Serial Version UID
      */
@@ -586,7 +587,7 @@ public class Family extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Family [");
         if (automatedRecordId != null) {
             builder.append("automatedRecordId=");

@@ -129,7 +129,7 @@ public class GedcomVersion extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(32);
         builder.append("GedcomVersion [");
         if (gedcomForm != null) {
             builder.append("gedcomForm=");

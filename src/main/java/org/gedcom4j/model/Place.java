@@ -36,7 +36,7 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Place extends AbstractNotesElement {
+public class Place extends AbstractNotesElement implements HasCitations {
     /**
      * Serial Version UID
      */
@@ -242,7 +242,7 @@ public class Place extends AbstractNotesElement {
      */
     public List<AbstractNameVariation> getRomanized(boolean initializeIfNeeded) {
         if (initializeIfNeeded && romanized == null) {
-            romanized = new ArrayList<>(0);
+            romanized = new ArrayList<AbstractNameVariation>(0);
         }
         return romanized;
     }

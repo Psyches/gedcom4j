@@ -157,7 +157,7 @@ public class LdsIndividualOrdinance extends AbstractLdsOrdinance {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("LdsIndividualOrdinance [");
         if (familyWhereChild != null) {
             builder.append("familyWhereChild=");

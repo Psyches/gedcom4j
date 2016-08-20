@@ -44,12 +44,18 @@ import org.junit.Test;
  * 
  * @author frizbog
  */
+@SuppressWarnings({ "PMD.ExcessiveClassLength", "PMD.ExcessivePublicCount", "PMD.GodClass", "PMD.TooManyMethods" })
 public class DateParserTest {
 
     /**
      * Save the Time Zone used on this machine - we're going to tinker during the test
      */
     private static TimeZone saveTimeZone;
+
+    /**
+     * Class under test
+     */
+    private final DateParser dp = new DateParser();
 
     /**
      * Restore the TimeZone
@@ -67,11 +73,6 @@ public class DateParserTest {
         saveTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
-
-    /**
-     * Class under test
-     */
-    private final DateParser dp = new DateParser();
 
     /**
      * Test BC Dates

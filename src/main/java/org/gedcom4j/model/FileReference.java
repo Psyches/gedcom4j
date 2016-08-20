@@ -193,7 +193,7 @@ public class FileReference extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("FileReference [");
         if (format != null) {
             builder.append("format=");

@@ -51,7 +51,7 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public class Multimedia extends AbstractNotesElement {
+public class Multimedia extends AbstractNotesElement implements HasCitations {
     /**
      * Serial Version UID
      */
@@ -424,7 +424,7 @@ public class Multimedia extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Multimedia [");
         if (blob != null) {
             builder.append("blob=");

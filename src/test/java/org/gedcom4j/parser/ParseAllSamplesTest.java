@@ -51,7 +51,8 @@ public class ParseAllSamplesTest {
      *             if a file can't be read
      */
     @Test
-    public void testLoadAllSamples() throws IOException, GedcomParserException {
+    @SuppressWarnings("PMD.SystemPrintln")
+	public void testLoadAllSamples() throws IOException, GedcomParserException {
         GedcomParser gp = new GedcomParser();
         gp.setStrictCustomTags(false);
         gp.setStrictLineBreaks(false);

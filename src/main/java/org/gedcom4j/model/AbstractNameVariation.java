@@ -130,7 +130,7 @@ public abstract class AbstractNameVariation extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("AbstractNameVariation [");
         if (variation != null) {
             builder.append("variation=");

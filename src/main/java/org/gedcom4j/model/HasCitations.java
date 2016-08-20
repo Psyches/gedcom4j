@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 Matthew R. Harrah
+ * Copyright (c) 2016 Mark A. Sikes
  *
  * MIT License
  *
@@ -26,35 +26,12 @@
  */
 package org.gedcom4j.model;
 
+import java.util.List;
+
 /**
- * Utility class for helping with tests
- * 
- * @author frizbog1
- * 
+ * @author Mark A Sikes
  */
-public final class TestHelper {
-
-    /**
-     * Factory method to get a minimally populated Gedcom structure for use in tests. Creates a bogus submission and
-     * submitter record and makes sure the references that are needed are there.
-     * 
-     * @return a minimally populated Gedcom with fake data
-     */
-    public static Gedcom getMinimalGedcom() {
-        Gedcom g = new Gedcom();
-        g.setSubmission(new Submission("@SUBN0001@"));
-        g.getHeader().setSubmission(g.getSubmission());
-        Submitter s = new Submitter();
-        s.setXref("@SUBM0001@");
-        s.setName(new StringWithCustomTags("Joe Tester"));
-        g.getSubmitters().put(s.getXref(), s);
-        g.getHeader().setSubmitter(s);
-        return g;
-    }
-
-    /**
-     * Private constructor to prevent instantiation and subclassing
-     */
-    private TestHelper() {
-    }
+public interface HasCitations extends ValidatedElement {
+	List<AbstractCitation> getCitations();
+	List<AbstractCitation> getCitations(boolean initializeIfNeeded);
 }

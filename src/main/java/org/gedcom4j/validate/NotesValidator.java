@@ -62,13 +62,12 @@ class NotesValidator extends AbstractValidator {
     @Override
     protected void validate() {
     	// TODO: the original code attaches the notes list itself to duplicate findings, not the parentObject
-		List<Note> list = validateRepairStructure("Notes", "Notes", true, parentObject,
-				new ListRef<Note>() {
-					@Override
-					public List<Note> get(boolean initializeIfNeeded) {
-						return parentObject.getNotes(initializeIfNeeded);
-					}
-				});
+		List<Note> list = checkListStructure("Notes", true, parentObject, new ListRef<Note>() {
+			@Override
+			public List<Note> get(boolean initializeIfNeeded) {
+				return parentObject.getNotes(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			int i = 0;
 			for (Note n : list) {

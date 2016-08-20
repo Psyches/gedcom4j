@@ -44,6 +44,7 @@ import org.junit.Test;
  * @author frizbog
  * 
  */
+@SuppressWarnings({ "PMD.TooManyMethods", "PMD.SystemPrintln", "PMD.EmptyStatementNotInLoop" })
 public class GedcomWriter551Test {
 
     /**
@@ -55,7 +56,7 @@ public class GedcomWriter551Test {
      *             if the data is malformed - should never happen, because the code under test is checking for this
      */
     @Test
-    public void testBlobWith551() throws IOException, GedcomWriterException {
+	public void testBlobWith551() throws IOException, GedcomWriterException {
         Gedcom g = TestHelper.getMinimalGedcom();
         GedcomWriter gw = new GedcomWriter(g);
         gw.validationSuppressed = false;
@@ -283,7 +284,7 @@ public class GedcomWriter551Test {
      *             if the data is malformed - should never happen, because the code under test is checking for this
      */
     @Test
-    public void testMultilineCopyrightWith55() throws IOException, GedcomWriterException {
+	public void testMultilineCopyrightWith55() throws IOException, GedcomWriterException {
         Gedcom g = TestHelper.getMinimalGedcom();
         g.getHeader().getGedcomVersion().setVersionNumber(SupportedVersion.V5_5);
         g.getHeader().getCopyrightData(true).add("One line is ok");

@@ -71,7 +71,7 @@ class StringCanonicalizer {
          */
         @Override
         public String toString() {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder(64);
             builder.append("CanonicalizedString [count=");
             builder.append(count);
             builder.append(", ");

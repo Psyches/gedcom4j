@@ -37,7 +37,8 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public class PersonalName extends AbstractNotesElement {
+@SuppressWarnings("PMD.GodClass")
+public class PersonalName extends AbstractNotesElement implements HasCitations {
     /**
      * Serial Version UID
      */

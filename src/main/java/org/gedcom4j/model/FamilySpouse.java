@@ -150,7 +150,7 @@ public class FamilySpouse extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(24);
         builder.append("FamilySpouse [");
         if (family != null) {
             builder.append("family=");

@@ -48,7 +48,8 @@ public class Issue80WriterTest {
      * @throws GedcomWriterException
      *             if the GEDCOM cannot be written to stdout
      */
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void testIssue80() throws GedcomWriterException {
 
         // Set up a place with a lat and long

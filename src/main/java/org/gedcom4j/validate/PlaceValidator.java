@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.AbstractNameVariation;
 import org.gedcom4j.model.Place;
 
@@ -68,33 +67,17 @@ public class PlaceValidator extends AbstractValidator {
         checkOptionalString(place.getLongitude(), "longitude", place);
         checkOptionalString(place.getPlaceFormat(), "place format", place);
         checkCustomTags(place);
-        checkCitations();
+        checkCitations(place);
         checkPhonetic();
         checkRomanized();
         new NotesValidator(getRootValidator(), place).validate();
         if (place.getPlaceName() == null) {
-            addError("Place name was unspecified" + (getRootValidator().isAutoRepairEnabled() ? " and cannot be repaired" : ""));
+            addError("Place name was unspecified" + (isAutoRepairEnabled() ? " and cannot be repaired" : ""));
         }
     }
 
-    private void checkCitations() {
-		List<AbstractCitation> list = validateRepairStructure("Citations", "citations", true, place,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return place.getCitations(initializeIfNeeded);
-					}
-				});
-
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
-	}
-    
     private void checkPhonetic() {
-		checkNameVariations("Phonetics", "phonetic name variations", new ListRef<AbstractNameVariation>() {
+		checkNameVariations("phonetic name variations", new ListRef<AbstractNameVariation>() {
 			@Override
 			public List<AbstractNameVariation> get(boolean initializeIfNeeded) {
 				return place.getPhonetic(initializeIfNeeded);
@@ -103,7 +86,7 @@ public class PlaceValidator extends AbstractValidator {
     }
     
     private void checkRomanized() {
-		checkNameVariations("Romanized", "romanized name variations", new ListRef<AbstractNameVariation>() {
+		checkNameVariations("romanized name variations", new ListRef<AbstractNameVariation>() {
 			@Override
 			public List<AbstractNameVariation> get(boolean initializeIfNeeded) {
 				return place.getRomanized(initializeIfNeeded);
@@ -111,8 +94,8 @@ public class PlaceValidator extends AbstractValidator {
 		});
     }
     
-    private void checkNameVariations(String v, String n, ListRef<AbstractNameVariation> handler) {
-		List<AbstractNameVariation> list = validateRepairStructure(v, n, true, place, handler);
+    private void checkNameVariations(String name, ListRef<AbstractNameVariation> handler) {
+		List<AbstractNameVariation> list = checkListStructure(name, true, place, handler);
 		if (list != null) {
 			for (AbstractNameVariation nv : list) {
                 new NameVariationValidator(getRootValidator(), nv).validate();

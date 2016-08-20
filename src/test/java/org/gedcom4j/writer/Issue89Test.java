@@ -48,7 +48,8 @@ public class Issue89Test extends TestCase {
      * @throws GedcomWriterException
      */
     @Test
-    public void testIssue89() throws GedcomWriterException {
+    @SuppressWarnings("PMD.SystemPrintln")
+	public void testIssue89() throws GedcomWriterException {
         Gedcom g = new Gedcom();
         g.setSubmission(new Submission("@SUBN0001@"));
         g.getHeader().setSubmission(g.getSubmission());

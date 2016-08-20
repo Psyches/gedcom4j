@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.Association;
 import org.gedcom4j.model.Individual;
 import org.gedcom4j.model.IndividualAttribute;
@@ -70,20 +69,19 @@ public class IndividualValidator extends AbstractValidator {
             return;
         }
         checkXref(individual);
-		List<PersonalName> list = validateRepairStructure("Names", "names", true, individual,
-				new ListRef<PersonalName>() {
-					@Override
-					public List<PersonalName> get(boolean initializeIfNeeded) {
-						return individual.getNames(initializeIfNeeded);
-					}
-				});
+		List<PersonalName> list = checkListStructure("names", true, individual, new ListRef<PersonalName>() {
+			@Override
+			public List<PersonalName> get(boolean initializeIfNeeded) {
+				return individual.getNames(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
             for (PersonalName pn : list) {
                 new PersonalNameValidator(getRootValidator(), pn).validate();
             }
 		}
 		
-		boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+		boolean isRepairEnabled = isAutoRepairEnabled();
         if (isRepairEnabled) {
         	eliminateDuplicatesWithInfo("families (where individual was a child)", individual, individual.getFamiliesWhereChild());
         	eliminateDuplicatesWithInfo("families (where individual was a spouse)", individual, individual.getFamiliesWhereSpouse());
@@ -91,7 +89,7 @@ public class IndividualValidator extends AbstractValidator {
 
         checkAliases();
         checkAssociations();
-        checkCitations();
+        checkCitations(individual);
         checkIndividualAttributes();
         checkSubmitters();
         checkIndividualEvents();
@@ -102,13 +100,12 @@ public class IndividualValidator extends AbstractValidator {
      * 
      */
     private void checkAliases() {
-		List<StringWithCustomTags> list = validateRepairStructure("Aliases", "aliases", false, individual,
-				new ListRef<StringWithCustomTags>() {
-					@Override
-					public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-						return individual.getAliases(initializeIfNeeded);
-					}
-				});
+		List<StringWithCustomTags> list = checkListStructure("aliases", true, individual, new ListRef<StringWithCustomTags>() {
+			@Override
+			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
+				return individual.getAliases(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			checkStringTagList(list, "aliases", false);
 		}
@@ -118,13 +115,12 @@ public class IndividualValidator extends AbstractValidator {
      * Validate the {@link Individual#associations} collection
      */
     private void checkAssociations() {
-		List<Association> list = validateRepairStructure("Associations", "associations", false, individual,
-				new ListRef<Association>() {
-					@Override
-					public List<Association> get(boolean initializeIfNeeded) {
-						return individual.getAssociations(initializeIfNeeded);
-					}
-				});
+		List<Association> list = checkListStructure("associations", true, individual, new ListRef<Association>() {
+			@Override
+			public List<Association> get(boolean initializeIfNeeded) {
+				return individual.getAssociations(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
             for (Association a : list) {
                 if (a == null) {
@@ -138,34 +134,15 @@ public class IndividualValidator extends AbstractValidator {
     }
 
     /**
-     * Validate the {@link Individual#citations} collection
-     */
-    private void checkCitations() {
-    	List<AbstractCitation> list = validateRepairStructure("Citations", "citations", false, individual,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return individual.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
-    }
-
-    /**
      * Validate the {@link Individual#attributes} collection
      */
     private void checkIndividualAttributes() {
-		List<IndividualAttribute> list = validateRepairStructure("Attributes", "attributes", false, individual,
-				new ListRef<IndividualAttribute>() {
-					@Override
-					public List<IndividualAttribute> get(boolean initializeIfNeeded) {
-						return individual.getAttributes(initializeIfNeeded);
-					}
-				});
+		List<IndividualAttribute> list = checkListStructure("attributes", true, individual, new ListRef<IndividualAttribute>() {
+			@Override
+			public List<IndividualAttribute> get(boolean initializeIfNeeded) {
+				return individual.getAttributes(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			for (IndividualAttribute l : list) {
                 if (l.getType() == null) {
@@ -179,13 +156,12 @@ public class IndividualValidator extends AbstractValidator {
      * Validate the {@link Individual#events} collection
      */
     private void checkIndividualEvents() {
-		List<IndividualEvent> list = validateRepairStructure("Events", "events", false, individual,
-				new ListRef<IndividualEvent>() {
-					@Override
-					public List<IndividualEvent> get(boolean initializeIfNeeded) {
-						return individual.getEvents(initializeIfNeeded);
-					}
-				});
+		List<IndividualEvent> list = checkListStructure("events", true, individual, new ListRef<IndividualEvent>() {
+			@Override
+			public List<IndividualEvent> get(boolean initializeIfNeeded) {
+				return individual.getEvents(initializeIfNeeded);
+			}
+		});
 		if (list != null) {
 			for (IndividualEvent l : list) {
                 if (l.getType() == null) {
@@ -221,7 +197,7 @@ public class IndividualValidator extends AbstractValidator {
      * @param whichList ancestor or descendant interest list reference
      */
     private void checkSubmitters(String whichName, ListRef<Submitter> whichList) {
-    	List<Submitter> list = validateRepairStructure("Submitters", whichName, false, individual, whichList);
+    	List<Submitter> list = checkListStructure(whichName, true, individual, whichList);
 		if (list != null) {
 			for (Submitter s : list) {
 				new SubmitterValidator(getRootValidator(), s).validate();

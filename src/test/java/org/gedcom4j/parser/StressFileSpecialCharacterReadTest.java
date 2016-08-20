@@ -79,7 +79,8 @@ public class StressFileSpecialCharacterReadTest {
      * diacritics. When using pre-composed (single) glyphs, those are shown already composed.
      */
     @Test
-    public void testDiacritics() {
+    @SuppressWarnings({ "PMD.ExcessiveMethodLength", "PMD.NcssMethodCount" })
+	public void testDiacritics() {
         Note note = g.getNotes().get("@N24@");
         assertEquals(179, note.getLines().size());
 
@@ -440,7 +441,7 @@ public class StressFileSpecialCharacterReadTest {
      * @param actual
      *            actual value
      */
-    private void assertEqualsCharByChar(String expected, String actual) {
+    private static void assertEqualsCharByChar(final String expected, final String actual) {
         assertNotNull(expected);
         assertNotNull(actual);
         for (int i = 0; i < Math.min(expected.length(), actual.length()); i++) {

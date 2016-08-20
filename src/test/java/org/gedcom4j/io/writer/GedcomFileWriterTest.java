@@ -51,6 +51,7 @@ import org.junit.Test;
  * 
  * @author frizbog1
  */
+@SuppressWarnings({ "resource", "PMD.TooManyMethods" })
 public class GedcomFileWriterTest {
 
     /**
@@ -74,7 +75,7 @@ public class GedcomFileWriterTest {
      * @throws WriterCancelledException
      *             if the write operation was cancelled
      */
-    @Test
+	@Test
     public void testEncodingDetectionAnselExplicit() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();
         lines.add("0 HEAD");
@@ -872,7 +873,7 @@ public class GedcomFileWriterTest {
      * 
      * @return a list of strings representing GEDCOM text for a ANSEL-encoded file
      */
-    private List<String> getAnselGedcomLines() {
+    private static List<String> getAnselGedcomLines() {
         List<String> lines = new ArrayList<String>();
         lines.add("0 HEAD");
         lines.add("1 CHAR ANSEL");
@@ -888,7 +889,7 @@ public class GedcomFileWriterTest {
      * 
      * @return a list of strings representing GEDCOM text for an ASCII-encoded file
      */
-    private List<String> getAsciiGedcomLines() {
+    private static List<String> getAsciiGedcomLines() {
         List<String> lines = new ArrayList<String>();
         lines.add("0 HEAD");
         lines.add("1 CHAR ASCII");
@@ -903,7 +904,7 @@ public class GedcomFileWriterTest {
      * 
      * @return a list of strings representing GEDCOM text for a Unicode-encoded file
      */
-    private List<String> getUnicodeGedcomLines() {
+    private static List<String> getUnicodeGedcomLines() {
         List<String> lines = new ArrayList<String>();
         lines.add("0 HEAD");
         lines.add("1 CHAR UNICODE");
@@ -918,7 +919,7 @@ public class GedcomFileWriterTest {
      * 
      * @return a list of strings representing GEDCOM text for a UTF-8-encoded file
      */
-    private List<String> getUtf8GedcomLines() {
+    private static List<String> getUtf8GedcomLines() {
         List<String> lines = new ArrayList<String>();
         lines.add("0 HEAD");
         lines.add("1 CHAR UTF-8");

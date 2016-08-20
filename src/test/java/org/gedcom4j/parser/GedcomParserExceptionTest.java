@@ -32,8 +32,8 @@ import org.junit.Test;
 
 /**
  * @author frizbog1
- * 
  */
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
 public class GedcomParserExceptionTest {
 
     /**
@@ -69,7 +69,7 @@ public class GedcomParserExceptionTest {
      * {@link org.gedcom4j.exception.GedcomParserException#GedcomParserException(java.lang.String, java.lang.Throwable)} .
      */
     @Test
-    public void testGedcomWriterExceptionStringThrowable() {
+	public void testGedcomWriterExceptionStringThrowable() {
         try {
             throw new GedcomParserException(new RuntimeException());
         } catch (GedcomParserException e) {

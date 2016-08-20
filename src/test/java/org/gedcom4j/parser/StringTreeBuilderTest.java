@@ -26,6 +26,8 @@
  */
 package org.gedcom4j.parser;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 
 /**
@@ -38,6 +40,7 @@ public class StringTreeBuilderTest extends TestCase {
     /**
      * Test case for {@link StringTreeBuilder#leftTrim(String)}
      */
+	@Test
     public void testLeftTrim() {
         assertNull(StringTreeBuilder.leftTrim(null));
         assertEquals("This is a test", StringTreeBuilder.leftTrim("            This is a test"));

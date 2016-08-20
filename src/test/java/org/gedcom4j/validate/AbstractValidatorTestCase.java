@@ -27,6 +27,7 @@
 package org.gedcom4j.validate;
 
 import org.gedcom4j.model.Gedcom;
+import org.junit.Before;
 
 import junit.framework.TestCase;
 
@@ -73,6 +74,7 @@ public abstract class AbstractValidatorTestCase extends TestCase {
     /**
      * {@inheritDoc}
      */
+    @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();

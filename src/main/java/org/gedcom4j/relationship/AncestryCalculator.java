@@ -134,14 +134,12 @@ public class AncestryCalculator {
      */
     private void addFatherAndAllHisWives(Set<Individual> result, FamilyChild fc) {
         Individual dad = fc.getFamily().getHusband();
-        if (dad != null) {
-            if (dad.getFamiliesWhereSpouse() != null) {
-                for (FamilySpouse fs : dad.getFamiliesWhereSpouse()) {
-                    Individual dadsWife = fs.getFamily().getWife();
-                    addIndividualAndFamilies(result, dadsWife);
-                }
-            }
-        }
+        if (dad != null && dad.getFamiliesWhereSpouse() != null) {
+		    for (FamilySpouse fs : dad.getFamiliesWhereSpouse()) {
+		        Individual dadsWife = fs.getFamily().getWife();
+		        addIndividualAndFamilies(result, dadsWife);
+		    }
+		}
         // And include his extended ancestry as well (recursively)
         addIndividualAndFamilies(result, dad);
     }
@@ -237,16 +235,14 @@ public class AncestryCalculator {
      */
     private void addMotherAndAllHerHusbands(Set<Individual> result, FamilyChild fc) {
         Individual mom = fc.getFamily().getWife();
-        if (mom != null) {
-            if (mom.getFamiliesWhereSpouse() != null) {
-                for (FamilySpouse fs : mom.getFamiliesWhereSpouse()) {
-                    Individual momsHusband = fs.getFamily().getHusband();
-                    if (momsHusband != null) {
-                        addIndividualAndFamilies(result, momsHusband);
-                    }
-                }
-            }
-        }
+        if (mom != null && mom.getFamiliesWhereSpouse() != null) {
+		    for (FamilySpouse fs : mom.getFamiliesWhereSpouse()) {
+		        Individual momsHusband = fs.getFamily().getHusband();
+		        if (momsHusband != null) {
+		            addIndividualAndFamilies(result, momsHusband);
+		        }
+		    }
+		}
         // And include her extended ancestry as well (recursively)
         addIndividualAndFamilies(result, mom);
     }

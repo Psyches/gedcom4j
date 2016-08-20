@@ -37,7 +37,7 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public abstract class AbstractLdsOrdinance extends AbstractNotesElement {
+public abstract class AbstractLdsOrdinance extends AbstractNotesElement implements HasCitations {
 
     /**
      * Serial Version UID
@@ -235,7 +235,7 @@ public abstract class AbstractLdsOrdinance extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("AbstractLdsOrdinance [");
         if (citations != null) {
             builder.append("citations=");

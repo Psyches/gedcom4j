@@ -97,6 +97,10 @@ import org.gedcom4j.writer.event.ConstructProgressListener;
  * 
  * @author frizbog1
  */
+/**
+ * @author Mark A Sikes
+ *
+ */
 @SuppressWarnings({ "PMD.GodClass", "PMD.TooManyMethods" })
 public class GedcomWriter extends AbstractEmitter<Gedcom> {
     /**
@@ -157,7 +161,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     private LineTerminator lineTerminator = LineTerminator.getDefaultLineTerminator();
 
-    private boolean autorepair; // TODO REMOVE THIS
+    private boolean autorepair;
     
     /**
      * Constructor
@@ -276,7 +280,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     }
 
     /**
-     * TODO: consolidate this with general validation registration infrastructure 
+     * @param autorepair whether to auto-repair before writing or not.
      */
     public void setAutorepair(boolean autorepair) {
     	this.autorepair = autorepair;

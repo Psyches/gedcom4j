@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.Note;
 import org.gedcom4j.model.UserReference;
 
@@ -74,7 +73,7 @@ public class NoteValidator extends AbstractValidator {
         checkOptionalString(note.getRecIdNumber(), "automated record id", note);
         checkChangeDate(note.getChangeDate(), note);
         checkLines();
-        checkCitations();
+        checkCitations(note);
         checkUserReferences();
     }
     
@@ -82,7 +81,7 @@ public class NoteValidator extends AbstractValidator {
      * Check the note text lines. 
      */
     private void checkLines() {
-        List<String> list = validateRepairStructure("Notes", "text lines in a note", false, note, new ListRef<String>() {
+        List<String> list = checkListStructure("text lines in a note", false, note, new ListRef<String>() {
 			@Override
 			public List<String> get(boolean initializeIfNeeded) {
 				return note.getLines(initializeIfNeeded);
@@ -95,34 +94,15 @@ public class NoteValidator extends AbstractValidator {
     }
     
     /**
-     * Check the citations.
-     */
-    private void checkCitations() {
-		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, note,
-				new ListRef<AbstractCitation>() {
-					@Override
-					public List<AbstractCitation> get(boolean initializeIfNeeded) {
-						return note.getCitations(initializeIfNeeded);
-					}
-				});
-		if (list != null) {
-			for (AbstractCitation c : list) {
-				new CitationValidator(getRootValidator(), c).validate();
-			}
-		}
-    }
-    
-    /**
      * Check user references
      */
     private void checkUserReferences() {
-		List<UserReference> userReferences = validateRepairStructure("UserReferences", "user references", true, note,
-				new ListRef<UserReference>() {
-					@Override
-					public List<UserReference> get(boolean initializeIfNeeded) {
-						return note.getUserReferences(initializeIfNeeded);
-					}
-				});
+		List<UserReference> userReferences = checkListStructure("user references", true, note, new ListRef<UserReference>() {
+			@Override
+			public List<UserReference> get(boolean initializeIfNeeded) {
+				return note.getUserReferences(initializeIfNeeded);
+			}
+		});
 		checkUserReferences(userReferences, note);
     }
 }
