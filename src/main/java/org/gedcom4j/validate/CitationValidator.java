@@ -28,10 +28,10 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.Options;
 import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.CitationWithSource;
 import org.gedcom4j.model.CitationWithoutSource;
+import org.gedcom4j.model.Note;
 
 /**
  * A validator for source citations - both {@link CitationWithoutSource} and {@link CitationWithSource}. See
@@ -67,61 +67,51 @@ class CitationValidator extends AbstractValidator {
             return;
         }
         if (citation instanceof CitationWithSource) {
-            CitationWithSource c = (CitationWithSource) citation;
-            if (c.getSource() == null) {
-                addError("CitationWithSource requires a non-null source reference", c);
+            CitationWithSource cws = (CitationWithSource) citation;
+            if (cws.getSource() == null) {
+                addError("CitationWithSource requires a non-null source reference", cws);
             }
-            checkOptionalString(c.getWhereInSource(), "where within source", c);
-            checkOptionalString(c.getEventCited(), "event type cited from", c);
-            if (c.getEventCited() == null) {
-                if (c.getRoleInEvent() != null) {
+            checkOptionalString(cws.getWhereInSource(), "where within source", cws);
+            checkOptionalString(cws.getEventCited(), "event type cited from", cws);
+            if (cws.getEventCited() == null) {
+                if (cws.getRoleInEvent() != null) {
                     addError("CitationWithSource has role in event but a null event");
                 }
             } else {
-                checkOptionalString(c.getRoleInEvent(), "role in event", c);
+                checkOptionalString(cws.getRoleInEvent(), "role in event", cws);
             }
-            checkOptionalString(c.getCertainty(), "certainty/quality", c);
+            checkOptionalString(cws.getCertainty(), "certainty/quality", cws);
         } else if (citation instanceof CitationWithoutSource) {
-            CitationWithoutSource c = (CitationWithoutSource) citation;
-            checkStringList(c.getDescription(), "description on a citation without a source", true);
-            List<List<String>> textFromSource = c.getTextFromSource();
-            if (textFromSource == null && Options.isCollectionInitializationEnabled()) {
-                if (getRootValidator().isAutorepairEnabled()) {
-                    c.getTextFromSource(true).clear();
-                    addInfo("Text from source collection (the list of lists) was null in CitationWithoutSource - autorepaired", citation);
-                } else {
-                    addError("Text from source collection (the list of lists) is null in CitationWithoutSource", citation);
-                }
-            } else {
-                if (getRootValidator().isAutorepairEnabled()) {
-                    int dups = new DuplicateEliminator<List<String>>(textFromSource).process();
-                    if (dups > 0) {
-                        getRootValidator().addInfo(dups + " duplicate texts from source found and removed", citation);
-                    }
-                }
-                if (textFromSource != null) {
-                    for (List<String> sl : textFromSource) {
-                        if (sl == null) {
-                            addError("Text from source collection (the list of lists) in CitationWithoutSource contains a null", citation);
-                        } else {
-                            checkStringList(sl, "one of the sublists in the textFromSource collection on a source citation", true);
-                        }
+            final CitationWithoutSource cwns = (CitationWithoutSource) citation;
+            checkStringList(cwns.getDescription(), "description on a citation without a source", true);
+			// Structure validate, repair, and dedup text from source collection
+			List<List<String>> texts = validateRepairStructure("Citations", "Texts from source (list of lists)", true,
+					cwns, new ListRef<List<String>>() {
+						@Override
+						public List<List<String>> get(boolean initializeIfNeeded) {
+							return cwns.getTextFromSource(initializeIfNeeded);
+						}
+					});
+            if (texts != null) {
+                for (List<String> text : texts) {
+                    if (text == null) {
+                        addError("Text from source collection (the list of lists) in CitationWithoutSource contains a null", citation);
+                    } else {
+                        checkStringList(text, "one of the sublists in the textFromSource collection on a source citation", true);
                     }
                 }
             }
         } else {
-            throw new IllegalStateException("AbstractCitation references must be either CitationWithSource" + " instances or CitationWithoutSource instances");
+            throw new IllegalStateException("AbstractCitation references must be either CitationWithSource or CitationWithoutSource instances");
         }
-        if (citation.getNotes() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                citation.getNotes(true).clear();
-                addInfo("Notes collection was null on " + citation.getClass().getSimpleName() + " - autorepaired");
-            } else {
-                addError("Notes collection is null on " + citation.getClass().getSimpleName());
-            }
-        } else {
-            new NotesValidator(getRootValidator(), citation, citation.getNotes()).validate();
-        }
-
+		// Structure validate and repair notes WITHOUT dedup
+		List<Note> list = validateRepairStructure("Notes", "Note", false, citation, new ListRef<Note>() {
+			@Override
+			public List<Note> get(boolean initializeIfNeeded) {
+				return citation.getNotes(initializeIfNeeded);
+			}
+		});
+        if (list != null)
+        	new NotesValidator(getRootValidator(), citation).validate();
     }
 }

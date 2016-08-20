@@ -26,12 +26,9 @@
  */
 package org.gedcom4j.model;
 
-import java.util.List;
-
 /**
  * @author Mark A Sikes
  */
-public interface HasNotes extends ValidatedElement {
-	List<Note> getNotes();
-	List<Note> getNotes(boolean initializeIfNeeded);
+public interface HasXref extends ValidatedElement {
+	String getXref();
 }

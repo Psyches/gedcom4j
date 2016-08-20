@@ -28,8 +28,13 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.Options;
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.AbstractCitation;
+import org.gedcom4j.model.AbstractEvent;
+import org.gedcom4j.model.Family;
+import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.LdsSpouseSealing;
+import org.gedcom4j.model.Multimedia;
+import org.gedcom4j.model.Submitter;
 
 /**
  * Validator for {@link Family} objects
@@ -79,7 +84,7 @@ class FamilyValidator extends AbstractValidator {
         }
         checkLdsSpouseSealings();
         checkMultimedia();
-        new NotesValidator(getRootValidator(), f, f.getNotes()).validate();
+        new NotesValidator(getRootValidator(), f).validate();
         checkOptionalString(f.getNumChildren(), "number of children", f);
         checkOptionalString(f.getRecFileNumber(), "record file number", f);
         checkOptionalString(f.getRestrictionNotice(), "restriction notice", f);
@@ -91,137 +96,94 @@ class FamilyValidator extends AbstractValidator {
      * Check children.
      */
     private void checkChildren() {
-        List<Individual> children = f.getChildren();
-        if (children == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                f.getChildren(true).clear();
-                getRootValidator().addInfo("Family's collection of children was null - repaired", f);
-            } else {
-                getRootValidator().addError("Family's collection of children is null", f);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<Individual>(children).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate children found and removed", f);
+		// Structure validate, repair, and dedup children on family collection
+		List<Individual> list = validateRepairStructure("Children", "children", true, f,
+				new ListRef<Individual>() {
+					@Override
+					public List<Individual> get(boolean initializeIfNeeded) {
+						return f.getChildren(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (Individual i : list) {
+                if (i == null) {
+                    getRootValidator().addError("Family with xref '" + f.getXref() + "' has a null entry in children collection", f);
                 }
-            }
-            if (children != null) {
-                for (Individual i : children) {
-                    if (i == null) {
-                        getRootValidator().addError("Family with xref '" + f.getXref() + "' has a null entry in children collection", f);
-                    }
-                }
-            }
-        }
+			}
+		}
     }
 
     /**
      * Check citations.
      */
     private void checkCitations() {
-        List<AbstractCitation> citations = f.getCitations();
-        if (citations == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                f.getCitations(true).clear();
-                addInfo("citations collection for family was null - rootValidator.autorepaired", f);
-            } else {
-                addError("citations collection for family is null", f);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate source citations found and removed", f);
-                }
-            }
-            if (citations != null) {
-                for (AbstractCitation c : citations) {
-                    new CitationValidator(getRootValidator(), c).validate();
-                }
-            }
-        }
+		// Structure validate, repair, and dedup citations on family collection
+		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, f,
+				new ListRef<AbstractCitation>() {
+					@Override
+					public List<AbstractCitation> get(boolean initializeIfNeeded) {
+						return f.getCitations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
     }
 
     /**
      * Check lds spouse sealings.
      */
     private void checkLdsSpouseSealings() {
-        List<LdsSpouseSealing> ldsSpouseSealings = f.getLdsSpouseSealings();
-        if (ldsSpouseSealings == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                f.getLdsSpouseSealings(true).clear();
-                addInfo("LDS spouse sealings collection for family was null - rootValidator.autorepaired", f);
-            } else {
-                addError("LDS spouse sealings collection for family is null", f);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<LdsSpouseSealing>(ldsSpouseSealings).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate LDS spouse sealings found and removed", f);
-                }
-            }
-            if (ldsSpouseSealings != null) {
-                for (LdsSpouseSealing s : ldsSpouseSealings) {
-                    new LdsSpouseSealingValidator(getRootValidator(), s).validate();
-                }
-            }
-        }
+		// Structure validate, repair, and dedup citations on event collection
+		List<LdsSpouseSealing> list = validateRepairStructure("SpouseSealings", "spouse sealings", true, f,
+				new ListRef<LdsSpouseSealing>() {
+					@Override
+					public List<LdsSpouseSealing> get(boolean initializeIfNeeded) {
+						return f.getLdsSpouseSealings(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (LdsSpouseSealing l : list) {
+				new LdsSpouseSealingValidator(getRootValidator(), l).validate();
+			}
+		}
     }
 
     /**
      * Check multimedia.
      */
     private void checkMultimedia() {
-        List<Multimedia> multimedia = f.getMultimedia();
-        if (multimedia == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                f.getMultimedia(true).clear();
-                addInfo("Multimedia collection for family was null - rootValidator.autorepaired", f);
-            } else {
-                addError("Multimedia collection for family is null", f);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<Multimedia>(multimedia).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate multimedia found and removed", f);
-                }
-            }
-            if (multimedia != null) {
-                for (Multimedia m : multimedia) {
-                    new MultimediaValidator(getRootValidator(), m).validate();
-                }
-            }
-        }
+		List<Multimedia> list = validateRepairStructure("Multimedia", "Multimedia", true, f,
+				new ListRef<Multimedia>() {
+					@Override
+					public List<Multimedia> get(boolean initializeIfNeeded) {
+						return f.getMultimedia(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (Multimedia l : list) {
+				new MultimediaValidator(getRootValidator(), l).validate();
+			}
+		}
     }
 
     /**
      * Check submitters.
      */
     private void checkSubmitters() {
-        List<Submitter> submitters = f.getSubmitters();
-        if (submitters == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                f.getSubmitters(true).clear();
-                addInfo("Submitters collection was missing on family - repaired", f);
-            } else {
-                addInfo("Submitters collection is missing on family", f);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<Submitter>(submitters).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate submitters found and removed", f);
-                }
-            }
-            if (submitters != null) {
-                for (Submitter s : submitters) {
-                    new SubmitterValidator(getRootValidator(), s).validate();
-                }
-            }
-        }
+		List<Submitter> list = validateRepairStructure("Submitters", "Submitter", true, f,
+				new ListRef<Submitter>() {
+					@Override
+					public List<Submitter> get(boolean initializeIfNeeded) {
+						return f.getSubmitters(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (Submitter l : list) {
+				new SubmitterValidator(getRootValidator(), l).validate();
+			}
+		}
     }
-
 }

@@ -26,10 +26,8 @@
  */
 package org.gedcom4j.validate;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.gedcom4j.Options;
 import org.gedcom4j.model.HasNotes;
 import org.gedcom4j.model.Note;
 
@@ -40,12 +38,6 @@ import org.gedcom4j.model.Note;
  * 
  */
 class NotesValidator extends AbstractValidator {
-
-    /**
-     * The notes being validated
-     */
-    private final List<Note> notes;
-
     /**
      * The object that contains the notes
      */
@@ -58,13 +50,10 @@ class NotesValidator extends AbstractValidator {
      *            the root validator
      * @param parentObject
      *            the object containing the notes
-     * @param notes
-     *            the list of notes to be validated
      */
-    public NotesValidator(GedcomValidator rootValidator, HasNotes parentObject, List<Note> notes) {
+    public NotesValidator(GedcomValidator rootValidator, HasNotes parentObject) {
         super(rootValidator);
         this.parentObject = parentObject;
-        this.notes = notes;
     }
 
     /**
@@ -72,27 +61,20 @@ class NotesValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        if (notes == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                parentObject.setNotes(new ArrayList<Note>(0));
-                addInfo("Notes collection on " + parentObject.getClass().getSimpleName() + " was null - autorepaired");
-            } else {
-                addError("Notes collection on " + parentObject.getClass().getSimpleName() + " is null");
-            }
-        } else {
-            int i = 0;
-            if (notes != null) {
-                if (getRootValidator().isAutorepairEnabled()) {
-                    int dups = new DuplicateEliminator<Note>(notes).process();
-                    if (dups > 0) {
-                        getRootValidator().addInfo(dups + " duplicate notes found and removed", new ValidatedItem(notes));
-                    }
-                }
-                for (Note n : notes) {
-                    i++;
-                    new NoteValidator(getRootValidator(), i, n).validate();
-                }
-            }
-        }
+    	// TODO: the original code attaches the notes list itself to duplicate findings, not the parentObject
+		List<Note> list = validateRepairStructure("Notes", "Notes", true, parentObject,
+				new ListRef<Note>() {
+					@Override
+					public List<Note> get(boolean initializeIfNeeded) {
+						return parentObject.getNotes(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			int i = 0;
+			for (Note n : list) {
+				i++;
+				new NoteValidator(getRootValidator(), i, n).validate();
+			}
+		}
     }
 }

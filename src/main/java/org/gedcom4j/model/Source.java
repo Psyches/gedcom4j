@@ -36,7 +36,8 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Source extends AbstractNotesElement {
+@SuppressWarnings("PMD.GodClass")
+public class Source extends AbstractNotesElement implements HasXref {
     /**
      * Serial Version UID
      */
@@ -496,7 +497,7 @@ public class Source extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Source [");
         if (changeDate != null) {
             builder.append("changeDate=");

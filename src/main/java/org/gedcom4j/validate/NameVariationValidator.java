@@ -39,7 +39,7 @@ class NameVariationValidator extends AbstractValidator {
     /**
      * The name variation being validated
      */
-    protected AbstractNameVariation nv;
+    private final AbstractNameVariation nv;
 
     /**
      * Constructor
@@ -55,17 +55,24 @@ class NameVariationValidator extends AbstractValidator {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validate() {
-        if (nv == null) {
-            addError("Name variation is null and cannot be validated");
-            return;
-        }
-        checkCustomTags(nv);
-        checkRequiredString(nv.getVariation(), "variation on a personal name", nv);
-        checkOptionalString(nv.getVariationType(), "type of variation on a personal name", nv);
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validate() {
+	    if (nv == null) {
+	        addError("Name variation is null and cannot be validated");
+	        return;
+	    }
+	    checkCustomTags(nv);
+	    checkRequiredString(nv.getVariation(), "variation on a personal name", nv);
+	    checkOptionalString(nv.getVariationType(), "type of variation on a personal name", nv);
+	
+	}
 
-    }
+	/**
+	 * @return the AbstractNameVariation
+	 */
+	protected AbstractNameVariation getNameVariation() {
+		return nv;
+	}
 }

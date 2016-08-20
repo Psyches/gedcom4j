@@ -60,12 +60,13 @@ public class Issue111Test {
         i.getNames().add(pn2);
         g.getIndividuals().put(i.getXref(), i);
         GedcomValidator gv = new GedcomValidator(g);
+        gv.setAutoRepairEnabled(true);
         gv.validate();
         assertFalse(gv.hasErrors());
         assertFalse(gv.hasWarnings());
         assertTrue(gv.hasInfo());
         assertEquals(1, gv.getFindings().size());
-        assertEquals("INFO: 1 duplicate names found and removed (Duncan /Highlander/)", gv.getFindings().get(0).toString());
+        assertEquals("INFO: 1 duplicates in List of names on Individual found and removed (Duncan /Highlander/)", gv.getFindings().get(0).toString());
         assertEquals("There can be only one", 1, i.getNames().size());
     }
 

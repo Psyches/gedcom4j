@@ -26,14 +26,13 @@
  */
 package org.gedcom4j.validate;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 
 import org.gedcom4j.Options;
-import org.gedcom4j.exception.GedcomValidationException;
 import org.gedcom4j.model.ChangeDate;
 import org.gedcom4j.model.HasCustomTags;
+import org.gedcom4j.model.HasXref;
 import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.UserReference;
 import org.gedcom4j.model.ValidatedElement;
@@ -44,6 +43,7 @@ import org.gedcom4j.model.ValidatedElement;
  * @author frizbog1
  * 
  */
+@SuppressWarnings({ "PMD.GodClass", "PMD.TooManyMethods" })
 public abstract class AbstractValidator {
 
 	/**
@@ -52,6 +52,20 @@ public abstract class AbstractValidator {
 	 * not an {@link AbstractValidator}
 	 */
 	private final GedcomValidator rootValidator;
+
+	public interface ListRef<T> {
+		/**
+		 * This method is used to allow generic structure validate and repair
+		 * behavior to initialize a list on an object using the existing code
+		 * pattern: OuterObject.getInnerList(boolean);
+		 * 
+		 * @param initializeIfNeeded
+		 *            if true, create a new list if it is null
+		 * @return the List of type T, which may be null unless
+		 *         initializeIfNeeded is true.
+		 */
+		List<T> get(boolean initializeIfNeeded);
+	}
 
 	protected AbstractValidator(GedcomValidator theRootValidator) {
 		rootValidator = (theRootValidator == null && this instanceof GedcomValidator) ? (GedcomValidator) this
@@ -131,6 +145,32 @@ public abstract class AbstractValidator {
 		getRootValidator().getFindings().add(new GedcomValidationFinding(description, Severity.WARNING, o));
 	}
 
+	protected void addProblemFinding(boolean repaired, String message, ValidatedElement o) {
+		getRootValidator().getFindings().add(new GedcomValidationFinding(message + (repaired ? " - repaired" : ""),
+				repaired ? Severity.INFO : Severity.ERROR, o));
+	}
+	/**
+	 * Add a standard error for a null entry from a model object reference
+	 * 
+	 * @param repairRequested true if repair was requested (repair cannot be done)
+	 * @param theName the friendly referenced type name
+	 * @param o the model object (the referencer)
+	 */
+	protected void addNullError(boolean repairRequested, String theName, ValidatedElement o) {
+		addError(String.format("%s is null on %s%s", theName, o.getClass().getSimpleName(),
+				repairRequested ? " - cannot repair" : ""), o);
+	}
+	/**
+	 * Add a standard error for a null list from a model object reference
+	 * 
+	 * @param theValidator the Validator/repairer name
+	 * @param theName the friendly list type name
+	 * @param element the model object element
+	 */
+	protected void addNullListError(String theValidator, String theName, ValidatedElement element) {
+		addNullError(this.getRootValidator().isAutoRepairEnabled(), "List of " + theName, element);
+	}
+	
 	/**
 	 * Check a change date structure
 	 * 
@@ -147,14 +187,14 @@ public abstract class AbstractValidator {
 		checkRequiredString(changeDate.getDate(), "change date", objectWithChangeDate);
 		checkOptionalString(changeDate.getTime(), "change time", objectWithChangeDate);
 		if (changeDate.getNotes() == null && Options.isCollectionInitializationEnabled()) {
-			if (getRootValidator().isAutorepairEnabled()) {
+			if (this.getRootValidator().isAutoRepairEnabled()) {
 				changeDate.getNotes(true).clear();
 				addInfo("Notes collection was null on " + changeDate.getClass().getSimpleName() + " - autorepaired");
 			} else {
 				addError("Notes collection is null on " + changeDate.getClass().getSimpleName());
 			}
 		} else {
-			new NotesValidator(getRootValidator(), changeDate, changeDate.getNotes()).validate();
+			new NotesValidator(getRootValidator(), changeDate).validate();
 		}
 
 	}
@@ -169,7 +209,7 @@ public abstract class AbstractValidator {
 	protected void checkCustomTags(HasCustomTags o) {
 		List<?> customTags = o.getCustomTags();
 		if (customTags == null && Options.isCollectionInitializationEnabled()) {
-			if (getRootValidator().isAutorepairEnabled()) {
+			if (this.getRootValidator().isAutoRepairEnabled()) {
 				o.getCustomTags(true);
 				getRootValidator().addInfo("Custom tag collection was null - repaired", o);
 			} else {
@@ -272,7 +312,7 @@ public abstract class AbstractValidator {
 			while (i < stringList.size()) {
 				String a = stringList.get(i);
 				if (a == null) {
-					if (getRootValidator().isAutorepairEnabled()) {
+					if (this.getRootValidator().isAutoRepairEnabled()) {
 						addInfo("String list (" + description + ") contains null entry - removed",
 								new ValidatedItem(stringList));
 						stringList.remove(i);
@@ -280,9 +320,10 @@ public abstract class AbstractValidator {
 					}
 					addError("String list (" + description + ") contains null entry", new ValidatedItem(stringList));
 				} else if (!blanksAllowed && !isSpecified(a)) {
-					if (getRootValidator().isAutorepairEnabled()) {
+					if (this.getRootValidator().isAutoRepairEnabled()) {
 						addInfo("String list (" + description
-								+ ") contains blank entry where none are allowed - removed", new ValidatedItem(stringList));
+								+ ") contains blank entry where none are allowed - removed",
+								new ValidatedItem(stringList));
 						stringList.remove(i);
 						continue;
 					}
@@ -309,27 +350,27 @@ public abstract class AbstractValidator {
 	protected void checkStringTagList(List<StringWithCustomTags> stringList, String description,
 			boolean blanksAllowed) {
 		int i = 0;
-		if (getRootValidator().isAutorepairEnabled()) {
-			int dups = new DuplicateEliminator<StringWithCustomTags>(stringList).process();
-			if (dups > 0) {
-				getRootValidator().addInfo(dups + " duplicate tagged strings found and removed", new ValidatedItem(stringList));
-			}
+		boolean isRepairEnabled = this.getRootValidator().isAutoRepairEnabled();
+		if (isRepairEnabled) {
+			eliminateDuplicatesWithInfo("tagged strings", new ValidatedItem(stringList), stringList);
 		}
 
 		if (stringList != null) {
 			while (i < stringList.size()) {
 				StringWithCustomTags a = stringList.get(i);
 				if (a == null || a.getValue() == null) {
-					if (getRootValidator().isAutorepairEnabled()) {
-						addInfo("String list (" + description + ") contains null entry - removed", new ValidatedItem(stringList));
+					if (isRepairEnabled) {
+						addInfo("String list (" + description + ") contains null entry - removed",
+								new ValidatedItem(stringList));
 						stringList.remove(i);
 						continue;
 					}
 					addError("String list (" + description + ") contains null entry", new ValidatedItem(stringList));
 				} else if (!blanksAllowed && a.getValue().trim().length() == 0) {
-					if (getRootValidator().isAutorepairEnabled()) {
+					if (isRepairEnabled) {
 						addInfo("String list (" + description
-								+ ") contains blank entry where none are allowed - removed", new ValidatedItem(stringList));
+								+ ") contains blank entry where none are allowed - removed",
+								new ValidatedItem(stringList));
 						stringList.remove(i);
 						continue;
 					}
@@ -353,9 +394,9 @@ public abstract class AbstractValidator {
 		if (userReferences != null) {
 			for (UserReference userReference : userReferences) {
 				if (userReference == null) {
-					addError("Null user reference in collection on "
-							+ objectWithUserReferences.getClass().getSimpleName(), objectWithUserReferences);
+					addNullError(false, "user reference in list", objectWithUserReferences);
 				} else {
+	                checkCustomTags(userReference);
 					checkRequiredString(userReference.getReferenceNum(), "reference number", userReference);
 					checkOptionalString(userReference.getType(), "reference type", userReference);
 				}
@@ -364,62 +405,36 @@ public abstract class AbstractValidator {
 	}
 
 	/**
+	 * @param objectContainingXref
+	 *            an object that has a Xref and implements HasXref to allow a
+	 *            generic way of getting it
+	 */
+	protected void checkXref(HasXref objectContainingXref) {
+		checkXref(objectContainingXref, "xref");
+	}
+
+	/**
 	 * Check the xref on an object, using the default field name of
 	 * <tt>xref</tt> for the xref field
 	 * 
 	 * @param objectContainingXref
 	 *            the object containing the xref field
-	 */
-	protected void checkXref(ValidatedElement objectContainingXref) {
-		checkXref(objectContainingXref, "xref");
-	}
-
-	/**
-	 * Check the xref on an object, using a specific field name to find the xref
-	 * in
-	 * 
-	 * @param objectContainingXref
-	 *            the object containing the xref field
 	 * @param xrefFieldName
-	 *            the name of the xref field
+	 *            the name of the field for Findings reporting
 	 */
-	protected void checkXref(ValidatedElement objectContainingXref, String xrefFieldName) {
-		String getterName = "get" + xrefFieldName.substring(0, 1).toUpperCase() + xrefFieldName.substring(1);
-		try {
-			Method xrefGetter = objectContainingXref.getClass().getMethod(getterName);
-			String xref = (String) xrefGetter.invoke(objectContainingXref);
-			checkRequiredString(xref, xrefFieldName, objectContainingXref);
-			if (xref != null) {
-				if (xref.length() < 3) {
-					addError("xref on " + objectContainingXref.getClass().getSimpleName()
-							+ " is too short to be a valid xref", objectContainingXref);
-				} else if (xref.charAt(0) != '@') {
-					addError("xref on " + objectContainingXref.getClass().getSimpleName()
-							+ " is doesn't start with an at-sign (@)", objectContainingXref);
-				}
-				if (!xref.endsWith("@")) {
-					addError("xref on " + objectContainingXref.getClass().getSimpleName()
-							+ " is doesn't end with an at-sign (@)", objectContainingXref);
-				}
+	protected void checkXref(HasXref objectContainingXref, String xrefFieldName) {
+		String xref = objectContainingXref.getXref();
+		checkRequiredString(xref, xrefFieldName, objectContainingXref);
+		if (xref != null) {
+			String context = objectContainingXref.getClass().getSimpleName();
+			if (xref.length() < 3) {
+				addError("xref on " + context + " is too short to be a valid xref", objectContainingXref);
+			} else if (xref.charAt(0) != '@') {
+				addError("xref on " + context + " doesn't start with an at-sign (@)", objectContainingXref);
 			}
-		} catch (SecurityException e) {
-			throw new GedcomValidationException(objectContainingXref.getClass().getSimpleName()
-					+ " doesn't have an xref getter named " + getterName + " that can be accessed to validate", e);
-		} catch (ClassCastException e) {
-			throw new GedcomValidationException(objectContainingXref.getClass().getSimpleName()
-					+ " doesn't have an xref getter of the right type named " + getterName + " to validate", e);
-		} catch (IllegalArgumentException e) {
-			throw new GedcomValidationException(objectContainingXref.getClass().getSimpleName()
-					+ " doesn't have an xref getter named " + getterName + " to validate", e);
-		} catch (IllegalAccessException e) {
-			throw new GedcomValidationException(objectContainingXref.getClass().getSimpleName()
-					+ " doesn't have an xref getter named " + getterName + " that can be accessed to validate", e);
-		} catch (InvocationTargetException e) {
-			throw new GedcomValidationException(objectContainingXref.getClass().getSimpleName()
-					+ " doesn't have an xref getter named " + getterName + " to validate", e);
-		} catch (NoSuchMethodException e) {
-			throw new GedcomValidationException(objectContainingXref.getClass().getSimpleName()
-					+ " doesn't have an xref getter named " + getterName + " to validate", e);
+			if (!xref.endsWith("@")) {
+				addError("xref on " + context + " doesn't end with an at-sign (@)", objectContainingXref);
+			}
 		}
 	}
 
@@ -428,6 +443,83 @@ public abstract class AbstractValidator {
 	 */
 	protected abstract void validate();
 
+	/**
+	 * validateRepairStructure is a generic helper method used to consolidate
+	 * some current boilerplate code.
+	 * 
+	 * @param theValidator
+	 *            the name of the registered validator
+	 * @param theName
+	 *            the name of the list to validate and maybe repair (only if the
+	 *            validator supports repair)
+	 * @param handleDups
+	 *            true iff duplicate removal should be done for a non-empty
+	 *            list.
+	 * @param theElement
+	 *            the outer element that owns the list
+	 * @param theHandler
+	 *            the handler for the list attached to the outer element
+	 * 
+	 * @return the resulting list which may be null, or newly created and/or
+	 *         de-duped depending on arguments
+	 */
+	protected <E extends ValidatedElement, T> List<T> validateRepairStructure(String theValidator, String theName,
+			boolean handleDups, E theElement, ListRef<T> theHandler) {
+		boolean isRepairEnabled = this.getRootValidator().isAutoRepairEnabled();
+		List<T> list = theHandler.get(false);
+		String qualifiedName = String.format("List of %s on %s", theName, theElement.getClass().getSimpleName());
+		if (list == null && Options.isCollectionInitializationEnabled()) {
+			if (isRepairEnabled) {
+				list = theHandler.get(true); // list was null, now should not be
+				addInfo(qualifiedName + " was null - autorepaired", theElement);
+			} else {
+				addError(qualifiedName + " is null", theElement);
+			}
+		} else {
+			if (isRepairEnabled && handleDups) {
+				eliminateDuplicatesWithInfo(qualifiedName, theElement, list);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * Eliminate any duplicates in a list on an element, and give an info-level report if any were found
+	 * 
+	 * @param name the kind of the list of items duplicates are being removed on
+	 * @param element the list owner model element
+	 * @param items the list to remove duplicates on
+	 */
+	protected <T> void eliminateDuplicatesWithInfo(String name, ValidatedElement element, List<T> items) {
+        int dups = eliminateDuplicates(items);
+        if (dups > 0) {
+            addInfo(dups + " duplicates in " + name + " found and removed", element);
+        }
+	}
+	
+    /**
+     * Process the list, eliminating duplicates
+     * 
+     * @return the number of items removed.
+     */
+	protected static <T> int eliminateDuplicates(List<T> items) {
+		int result = 0;
+		if (items != null && !items.isEmpty()) {
+			HashSet<T> unique = new HashSet<>();
+			for (int i = 0; i < items.size();) {
+				T item = items.get(i);
+				if (unique.contains(item)) {
+					result++;
+					items.remove(i);
+				} else {
+					i++;
+					unique.add(item);
+				}
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * Check a string with custom tags to make sure the custom tags collection
 	 * is defined whenever there is a value in the string part.

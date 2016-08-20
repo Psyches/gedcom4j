@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.Options;
 import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.LdsSpouseSealing;
 
@@ -67,33 +66,30 @@ class LdsSpouseSealingValidator extends AbstractValidator {
             addError("LDS Spouse Sealing is null and cannot be validated");
             return;
         }
-        List<AbstractCitation> citations = s.getCitations();
-        if (Options.isCollectionInitializationEnabled() && citations == null) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                s.getCitations(true).clear();
-                addInfo("citations collection for lds spouse sealing was null - rootValidator.autorepaired", s);
-            } else {
-                addError("citations collection for lds spouse sealing is null", s);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate citations found and removed", s);
-                }
-            }
-            if (citations != null) {
-                for (AbstractCitation c : citations) {
-                    new CitationValidator(getRootValidator(), c).validate();
-                }
-            }
-        }
+        checkCitations();
         checkCustomTags(s);
         checkOptionalString(s.getDate(), "date", s);
-        new NotesValidator(getRootValidator(), s, s.getNotes()).validate();
+        new NotesValidator(getRootValidator(), s).validate();
         checkOptionalString(s.getPlace(), "place", s);
         checkOptionalString(s.getStatus(), "status", s);
         checkOptionalString(s.getTemple(), "temple", s);
     }
 
+    /**
+     * Check the citations
+     */
+    private void checkCitations() {
+		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, s,
+				new ListRef<AbstractCitation>() {
+					@Override
+					public List<AbstractCitation> get(boolean initializeIfNeeded) {
+						return s.getCitations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
+    }
 }

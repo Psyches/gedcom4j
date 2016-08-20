@@ -86,7 +86,6 @@ import org.gedcom4j.parser.event.ParseProgressListener;
  * @author frizbog1
  * 
  */
-@SuppressWarnings("PMD.TooManyMethods")
 public class GedcomParser extends AbstractParser<Gedcom> {
 
     /**

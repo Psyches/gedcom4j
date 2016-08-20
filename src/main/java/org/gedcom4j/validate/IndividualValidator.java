@@ -28,8 +28,14 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.Options;
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.AbstractCitation;
+import org.gedcom4j.model.Association;
+import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.IndividualAttribute;
+import org.gedcom4j.model.IndividualEvent;
+import org.gedcom4j.model.PersonalName;
+import org.gedcom4j.model.StringWithCustomTags;
+import org.gedcom4j.model.Submitter;
 
 /**
  * A validator for an {@link Individual}. See {@link GedcomValidator} for usage information.
@@ -37,7 +43,7 @@ import org.gedcom4j.model.*;
  * @author frizbog1
  * 
  */
-class IndividualValidator extends AbstractValidator {
+public class IndividualValidator extends AbstractValidator {
 
     /**
      * The individual being validated
@@ -64,38 +70,23 @@ class IndividualValidator extends AbstractValidator {
             return;
         }
         checkXref(individual);
-        List<PersonalName> names = individual.getNames();
-        if (names == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getNames(true).clear();
-                getRootValidator().addInfo("Individual " + individual.getXref() + " had no list of names - repaired", individual);
-            } else {
-                getRootValidator().addError("Individual " + individual.getXref() + " has no list of names", individual);
+		List<PersonalName> list = validateRepairStructure("Names", "names", true, individual,
+				new ListRef<PersonalName>() {
+					@Override
+					public List<PersonalName> get(boolean initializeIfNeeded) {
+						return individual.getNames(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+            for (PersonalName pn : list) {
+                new PersonalNameValidator(getRootValidator(), pn).validate();
             }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<PersonalName>(names).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate names found and removed", individual);
-                }
-            }
-            if (names != null) {
-                for (PersonalName pn : names) {
-                    new PersonalNameValidator(getRootValidator(), pn).validate();
-                }
-            }
-        }
-        if (getRootValidator().isAutorepairEnabled()) {
-            int dups = new DuplicateEliminator<FamilyChild>(individual.getFamiliesWhereChild()).process();
-            if (dups > 0) {
-                getRootValidator().addInfo(dups + " duplicate families (where individual was a child) found and removed", individual);
-            }
-        }
-        if (getRootValidator().isAutorepairEnabled()) {
-            int dups = new DuplicateEliminator<FamilySpouse>(individual.getFamiliesWhereSpouse()).process();
-            if (dups > 0) {
-                getRootValidator().addInfo(dups + " duplicate families (where individual was a spouse) found and removed", individual);
-            }
+		}
+		
+		boolean isRepairEnabled = getRootValidator().isAutoRepairEnabled();
+        if (isRepairEnabled) {
+        	eliminateDuplicatesWithInfo("families (where individual was a child)", individual, individual.getFamiliesWhereChild());
+        	eliminateDuplicatesWithInfo("families (where individual was a spouse)", individual, individual.getFamiliesWhereSpouse());
         }
 
         checkAliases();
@@ -111,143 +102,130 @@ class IndividualValidator extends AbstractValidator {
      * 
      */
     private void checkAliases() {
-        if (individual.getAliases() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getAliases(true).clear();
-                addInfo("aliases collection for individual was null - rootValidator.autorepaired", individual);
-            } else {
-                addError("aliases collection for individual is null", individual);
-            }
-        } else {
-            checkStringTagList(individual.getAliases(), "aliases on individual", false);
-        }
+		List<StringWithCustomTags> list = validateRepairStructure("Aliases", "aliases", false, individual,
+				new ListRef<StringWithCustomTags>() {
+					@Override
+					public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
+						return individual.getAliases(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			checkStringTagList(list, "aliases", false);
+		}
     }
 
     /**
      * Validate the {@link Individual#associations} collection
      */
     private void checkAssociations() {
-        if (individual.getAssociations() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getAssociations(true).clear();
-                addInfo("associations collection for individual was null - rootValidator.autorepaired", individual);
-            } else {
-                addError("associations collection for individual is null", individual);
-            }
-        } else {
-            if (individual.getAssociations() != null) {
-                for (Association a : individual.getAssociations()) {
-                    if (a == null) {
-                        addError("associations collection for individual contains null entry", individual);
-                    } else {
-                        checkRequiredString(a.getAssociatedEntityType(), "associated entity type", a);
-                        checkXref(a, "associatedEntityXref");
-                    }
+		List<Association> list = validateRepairStructure("Associations", "associations", false, individual,
+				new ListRef<Association>() {
+					@Override
+					public List<Association> get(boolean initializeIfNeeded) {
+						return individual.getAssociations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+            for (Association a : list) {
+                if (a == null) {
+                    addError("associations collection for individual contains null entry", individual);
+                } else {
+                    checkRequiredString(a.getAssociatedEntityType(), "associated entity type", a);
+                    checkXref(a, "association xref");
                 }
             }
-        }
-
+		}
     }
 
     /**
      * Validate the {@link Individual#citations} collection
      */
     private void checkCitations() {
-        if (individual.getCitations() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getCitations(true).clear();
-                addInfo("citations collection for individual was null - rootValidator.autorepaired", individual);
-            } else {
-                addError("citations collection for individual is null", individual);
-            }
-        } else {
-            if (individual.getCitations() != null) {
-                for (AbstractCitation c : individual.getCitations()) {
-                    new CitationValidator(getRootValidator(), c).validate();
-                }
-            }
-        }
+    	List<AbstractCitation> list = validateRepairStructure("Citations", "citations", false, individual,
+				new ListRef<AbstractCitation>() {
+					@Override
+					public List<AbstractCitation> get(boolean initializeIfNeeded) {
+						return individual.getCitations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
     }
 
     /**
      * Validate the {@link Individual#attributes} collection
      */
     private void checkIndividualAttributes() {
-        if (individual.getAttributes() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getAttributes(true).clear();
-                addInfo("attributes collection for individual was null - rootValidator.autorepaired", individual);
-            } else {
-                addError("attributes collection for individual is null", individual);
-            }
-        } else {
-            if (individual.getAttributes() != null) {
-                for (IndividualAttribute a : individual.getAttributes()) {
-                    if (a.getType() == null) {
-                        addError("Individual attribute requires a type", a);
-                    }
+		List<IndividualAttribute> list = validateRepairStructure("Attributes", "attributes", false, individual,
+				new ListRef<IndividualAttribute>() {
+					@Override
+					public List<IndividualAttribute> get(boolean initializeIfNeeded) {
+						return individual.getAttributes(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (IndividualAttribute l : list) {
+                if (l.getType() == null) {
+                    addError("Individual attribute requires a type", l);
                 }
-            }
-        }
+			}
+		}
     }
 
     /**
      * Validate the {@link Individual#events} collection
      */
     private void checkIndividualEvents() {
-        if (individual.getEvents() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getEvents(true).clear();
-                addInfo("events collection for individual was null - rootValidator.autorepaired", individual);
-            } else {
-                addError("events collection for individual is null", individual);
-            }
-        } else {
-            if (individual.getEvents() != null) {
-                for (IndividualEvent a : individual.getEvents()) {
-                    if (a.getType() == null) {
-                        addError("Individual event requires a type", a);
-                    }
-                    new EventValidator(getRootValidator(), a).validate();
+		List<IndividualEvent> list = validateRepairStructure("Events", "events", false, individual,
+				new ListRef<IndividualEvent>() {
+					@Override
+					public List<IndividualEvent> get(boolean initializeIfNeeded) {
+						return individual.getEvents(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (IndividualEvent l : list) {
+                if (l.getType() == null) {
+                    addError("Individual event requires a type", l);
                 }
-            }
-        }
+                new EventValidator(getRootValidator(), l).validate();
+			}
+		}
     }
 
     /**
-     * Validate the two submitters collections: {@link Individual#ancestorInterest} and
-     * {@link Individual#descendantInterest}
+	 * Validate the two submitters collections: {@link Individual#ancestorInterest} and
+	 * {@link Individual#descendantInterest}
+	 */
+	private void checkSubmitters() {
+		checkSubmitters("ancestor interest", new ListRef<Submitter>() {
+			@Override
+			public List<Submitter> get(boolean initializeIfNeeded) {
+				return individual.getAncestorInterest(initializeIfNeeded);
+			}
+		});
+		
+		checkSubmitters("descendant interest", new ListRef<Submitter>() {
+			@Override
+			public List<Submitter> get(boolean initializeIfNeeded) {
+				return individual.getDescendantInterest(initializeIfNeeded);
+			}
+		});
+	}
+
+	/**
+     * @param whichName ancestor or descendant interest list name
+     * @param whichList ancestor or descendant interest list reference
      */
-    private void checkSubmitters() {
-        if (individual.getAncestorInterest() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getAncestorInterest(true).clear();
-                addInfo("ancestorInterest collection for individual was null - rootValidator.autorepaired", individual);
-            } else {
-                addError("ancestorInterest collection for individual is null", individual);
-            }
-        } else {
-            if (individual.getAncestorInterest() != null) {
-                for (Submitter submitter : individual.getAncestorInterest()) {
-                    new SubmitterValidator(getRootValidator(), submitter).validate();
-                }
-            }
-        }
-        if (individual.getDescendantInterest() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                individual.getDescendantInterest(true).clear();
-                addInfo("descendantInterest collection for individual was null - rootValidator.autorepaired", individual);
-            } else {
-                addError("descendantInterest collection for individual is null", individual);
-            }
-        } else {
-            if (individual.getDescendantInterest() != null) {
-                for (Submitter submitter : individual.getDescendantInterest()) {
-                    new SubmitterValidator(getRootValidator(), submitter).validate();
-                }
-            }
-        }
-
+    private void checkSubmitters(String whichName, ListRef<Submitter> whichList) {
+    	List<Submitter> list = validateRepairStructure("Submitters", whichName, false, individual, whichList);
+		if (list != null) {
+			for (Submitter s : list) {
+				new SubmitterValidator(getRootValidator(), s).validate();
+			}
+		}
     }
-
 }

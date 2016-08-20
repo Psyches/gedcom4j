@@ -58,7 +58,7 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
 
         // Go validate
         GedcomValidator v = new GedcomValidator(g);
-        v.setAutorepairEnabled(false);
+        v.setAutoRepairEnabled(false);
         v.validate();
         assertFalse("Whether or not autorepair is on, there should be findings", v.getFindings().isEmpty());
         for (GedcomValidationFinding f : v.getFindings()) {
@@ -73,7 +73,7 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
     public void testTrailer() {
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
-        rootValidator.setAutorepairEnabled(false);
+        rootValidator.setAutoRepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
         s.setName(new StringWithCustomTags("test"));
@@ -97,6 +97,7 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
     public void testValidateEmptyGedcom() {
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
+        rootValidator.setAutoRepairEnabled(true);
         verbose = true;
         rootValidator.validate();
         assertTrue("A new gedcom structure run through the validator with autorepair on should always have at least one finding",
@@ -122,6 +123,7 @@ public class GedcomValidatorTest extends AbstractValidatorTestCase {
         p.load(SAMPLE_STRESS_TEST_FILENAME);
         assertTrue(p.getErrors().isEmpty());
         rootValidator = new GedcomValidator(p.getGedcom());
+        rootValidator.setAutoRepairEnabled(true);
         rootValidator.validate();
         /*
          * The stress test file has an error in it - it says it's a 5.5 file, but uses a file-reference type multimedia object,

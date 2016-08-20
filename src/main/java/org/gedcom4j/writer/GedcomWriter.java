@@ -42,7 +42,20 @@ import org.gedcom4j.io.event.FileProgressEvent;
 import org.gedcom4j.io.event.FileProgressListener;
 import org.gedcom4j.io.writer.GedcomFileWriter;
 import org.gedcom4j.io.writer.LineTerminator;
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.AbstractEvent;
+import org.gedcom4j.model.Corporation;
+import org.gedcom4j.model.FamilyChild;
+import org.gedcom4j.model.Gedcom;
+import org.gedcom4j.model.GedcomVersion;
+import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.IndividualAttribute;
+import org.gedcom4j.model.IndividualAttributeType;
+import org.gedcom4j.model.Multimedia;
+import org.gedcom4j.model.Repository;
+import org.gedcom4j.model.StringTree;
+import org.gedcom4j.model.StringWithCustomTags;
+import org.gedcom4j.model.Submitter;
+import org.gedcom4j.model.SupportedVersion;
 import org.gedcom4j.validate.GedcomValidationFinding;
 import org.gedcom4j.validate.GedcomValidator;
 import org.gedcom4j.validate.Severity;
@@ -77,13 +90,14 @@ import org.gedcom4j.writer.event.ConstructProgressListener;
  * 
  * <p>
  * Although validation is automatically performed, autorepair is turned off by default (see
- * {@link org.gedcom4j.validate.GedcomValidator#setAutorepairEnabled(boolean)})...this way your data is not altered. Validation can
+ * {@link org.gedcom4j.validate.GedcomValidator#setAutoRepairEnabled(boolean)})...this way your data is not altered. Validation can
  * be suppressed if you want by setting {@link #validationSuppressed} to true, but this is not recommended. You can also force
  * autorepair on if you want.
  * </p>
  * 
  * @author frizbog1
  */
+@SuppressWarnings({ "PMD.GodClass", "PMD.TooManyMethods" })
 public class GedcomWriter extends AbstractEmitter<Gedcom> {
     /**
      * The text lines of the GEDCOM file we're writing, which will be written using a {@link GedcomFileWriter}. Deliberately
@@ -96,11 +110,6 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      * easy.
      */
     boolean validationSuppressed = false;
-
-    /**
-     * Whether or not to use autorepair in the validation step
-     */
-    private boolean autorepair = false;
 
     /**
      * Has this writer been cancelled?
@@ -148,6 +157,8 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     private LineTerminator lineTerminator = LineTerminator.getDefaultLineTerminator();
 
+    private boolean autorepair; // TODO REMOVE THIS
+    
     /**
      * Constructor
      * 
@@ -202,15 +213,6 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     public List<GedcomValidationFinding> getValidationFindings() {
         return validationFindings;
-    }
-
-    /**
-     * Get the auto-repair flag value
-     * 
-     * @return the auto-repair flag value
-     */
-    public boolean isAutorepair() {
-        return autorepair;
     }
 
     /**
@@ -274,13 +276,10 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     }
 
     /**
-     * Set the autorepair
-     * 
-     * @param autorepair
-     *            the autorepair to set
+     * TODO: consolidate this with general validation registration infrastructure 
      */
     public void setAutorepair(boolean autorepair) {
-        this.autorepair = autorepair;
+    	this.autorepair = autorepair;
     }
 
     /**
@@ -436,7 +435,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     protected void emit() throws GedcomWriterException {
         if (!validationSuppressed) {
             GedcomValidator gv = new GedcomValidator(writeFrom);
-            gv.setAutorepairEnabled(autorepair);
+            gv.setAutoRepairEnabled(autorepair);
             gv.validate();
             validationFindings = gv.getFindings();
             int numErrorFindings = 0;

@@ -41,10 +41,10 @@ import org.gedcom4j.model.ValidatedElement;
  */
 public class IndividualValidatorTest extends AbstractValidatorTestCase {
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
+//    @Override
+//    public void setUp() throws Exception {
+//        super.setUp();
+//    }
 
     /**
      * Test for a default individual (no xref)

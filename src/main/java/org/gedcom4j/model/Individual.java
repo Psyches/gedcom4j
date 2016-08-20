@@ -38,8 +38,8 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-@SuppressWarnings("PMD.ExcessiveClassLength")
-public class Individual extends AbstractElement {
+@SuppressWarnings({ "PMD.ExcessiveClassLength", "PMD.ExcessivePublicCount", "PMD.GodClass" })
+public class Individual extends AbstractElement implements HasXref {
 
     /**
      * Serial Version UID
@@ -186,9 +186,9 @@ public class Individual extends AbstractElement {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({ "PMD.ExcessiveMethodLength", "PMD.NcssMethodCount" })
     @Override
-    public boolean equals(Object obj) {
+    @SuppressWarnings({ "PMD.NcssMethodCount", "PMD.ExcessiveMethodLength" })
+	public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }

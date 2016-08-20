@@ -74,7 +74,6 @@ public class GedcomFileWriterTest {
      * @throws WriterCancelledException
      *             if the write operation was cancelled
      */
-    @SuppressWarnings("resource")
     @Test
     public void testEncodingDetectionAnselExplicit() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();
@@ -93,7 +92,6 @@ public class GedcomFileWriterTest {
      * @throws WriterCancelledException
      *             if the write operation was cancelled
      */
-    @SuppressWarnings("resource")
     @Test
     public void testEncodingDetectionAscii() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();
@@ -116,7 +114,6 @@ public class GedcomFileWriterTest {
      * @throws WriterCancelledException
      *             if the write operation was cancelled
      */
-    @SuppressWarnings("resource")
     @Test
     public void testEncodingDetectionDefault() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();
@@ -137,7 +134,6 @@ public class GedcomFileWriterTest {
      * @throws WriterCancelledException
      *             if the write operation was cancelled
      */
-    @SuppressWarnings("resource")
     @Test
     public void testEncodingDetectionUnicode() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();
@@ -158,7 +154,6 @@ public class GedcomFileWriterTest {
      * @throws WriterCancelledException
      *             if the write operation was cancelled
      */
-    @SuppressWarnings("resource")
     @Test
     public void testEncodingDetectionUtf8() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();

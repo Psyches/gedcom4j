@@ -44,6 +44,7 @@ import org.junit.Test;
  * 
  * @author frizbog1
  */
+@SuppressWarnings({ "PMD.TooManyMethods", "PMD.SystemPrintln", "PMD.EmptyCatchBlock", "PMD.JUnitUseExpected" })
 public class AncestryCalculatorTest {
 
     /**
@@ -55,7 +56,8 @@ public class AncestryCalculatorTest {
     /**
      * The gedcom to work with for testing
      */
-    private Gedcom g;
+    @SuppressWarnings("PMD.SingularField")
+	private Gedcom g;
 
     /**
      * A finder test fixture for the test
@@ -148,7 +150,7 @@ public class AncestryCalculatorTest {
      * ancestors are the parent's
      */
     @Test
-    public void testExtendedAncestors4() {
+	public void testExtendedAncestors4() {
         Individual robert = getPerson("Andrews", "Robert");
         Individual theresa = getPerson("Andrews", "Theresa");
 
@@ -172,7 +174,7 @@ public class AncestryCalculatorTest {
      * Test when people are siblings.
      */
     @Test
-    public void testGenerationCount0() {
+	public void testGenerationCount0() {
         Individual sally = getPerson("Struthers", "Sally");
         // Sammy is Sally's brother
         Individual sammy = getPerson("Struthers", "Sammy");
@@ -181,13 +183,13 @@ public class AncestryCalculatorTest {
         try {
             anc.getGenerationCount(sammy, sally);
             fail("Expected an IllegalArgumentException since sally is not an ancestor of sammy - they are brother and sister");
-        } catch (@SuppressWarnings("unused") IllegalArgumentException desired) {
+        } catch (IllegalArgumentException desired) {
             // Yay! It worked!
         }
         try {
             anc.getGenerationCount(sally, sammy);
             fail("Expected an IllegalArgumentException since sammy is not an ancestor of sally - they are brother and sister");
-        } catch (@SuppressWarnings("unused") IllegalArgumentException desired) {
+        } catch (IllegalArgumentException desired) {
             // Yay! It worked!
         }
     }
@@ -330,7 +332,7 @@ public class AncestryCalculatorTest {
      * @param people
      *            the set of {@link Individual}s to dump out
      */
-    private void dumpIndividuals(Set<Individual> people) {
+    private static void dumpIndividuals(Set<Individual> people) {
         if (!VERBOSE) {
             return;
         }

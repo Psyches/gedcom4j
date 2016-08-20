@@ -107,7 +107,7 @@ public abstract class AbstractElement implements Serializable, HasCustomTags {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(32);
         builder.append("AbstractElement [");
         if (customTags != null) {
             builder.append("customTags=");

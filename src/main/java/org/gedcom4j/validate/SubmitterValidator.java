@@ -44,6 +44,7 @@ class SubmitterValidator extends AbstractValidator {
      * The submitter being validated
      */
     private final Submitter submitter;
+	private int maxLanguagePrefs = 3; // TODO: use extended Options to get a configured default (via Properties?)
 
     /**
      * Constructor
@@ -57,6 +58,20 @@ class SubmitterValidator extends AbstractValidator {
         super(rootValidator);
         this.submitter = submitter;
     }
+
+    /**
+	 * @return the maxLanguagePrefs
+	 */
+	public int getMaxLanguagePrefs() {
+		return maxLanguagePrefs;
+	}
+
+	/**
+	 * @param maxLanguagePrefs the maxLanguagePrefs to set
+	 */
+	public void setMaxLanguagePrefs(int theMaxLanguagePrefs) {
+		maxLanguagePrefs = theMaxLanguagePrefs;
+	}
 
     @Override
     protected void validate() {
@@ -72,7 +87,7 @@ class SubmitterValidator extends AbstractValidator {
         if (submitter.getAddress() != null) {
             new AddressValidator(getRootValidator(), submitter.getAddress()).validate();
         }
-        new NotesValidator(getRootValidator(), submitter, submitter.getNotes()).validate();
+        new NotesValidator(getRootValidator(), submitter).validate();
     }
 
     /**
@@ -80,16 +95,13 @@ class SubmitterValidator extends AbstractValidator {
      */
     private void checkLanguagePreferences() {
         List<StringWithCustomTags> languagePref = submitter.getLanguagePref();
-        if (getRootValidator().isAutorepairEnabled()) {
-            int dups = new DuplicateEliminator<StringWithCustomTags>(languagePref).process();
-            if (dups > 0) {
-                getRootValidator().addInfo(dups + " duplicate language preferences found and removed", submitter);
-            }
+        if (getRootValidator().isAutoRepairEnabled()) {
+            eliminateDuplicatesWithInfo("language preferences", submitter, languagePref);
         }
 
         if (submitter.getLanguagePref(Options.isCollectionInitializationEnabled()) != null) {
-            if (languagePref.size() > 3) {
-                addError("Submitter exceeds limit on language preferences (3)", submitter);
+            if (languagePref.size() > maxLanguagePrefs) {
+                addError("Submitter exceeds limit on language preferences (" + maxLanguagePrefs + ")", submitter);
             }
             for (StringWithCustomTags s : languagePref) {
                 checkRequiredString(s, "language pref", submitter);

@@ -28,9 +28,7 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.Options;
 import org.gedcom4j.model.AbstractCitation;
-import org.gedcom4j.model.AbstractNameVariation;
 import org.gedcom4j.model.PersonalName;
 import org.gedcom4j.model.PersonalNameVariation;
 
@@ -69,75 +67,62 @@ class PersonalNameValidator extends AbstractValidator {
             return;
         }
         checkRequiredString(pn.getBasic(), "basic name", pn);
-        if (pn.getCitations() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                pn.getCitations(true).clear();
-                addInfo("citations collection for personal name was null - autorepaired", pn);
-            } else {
-                addError("citations collection for personal name is null", pn);
-            }
-        }
-        if (pn.getCitations() != null) {
-            for (AbstractCitation c : pn.getCitations()) {
-                new CitationValidator(getRootValidator(), c).validate();
-            }
-        }
-        checkCustomTags(pn);
         checkOptionalString(pn.getGivenName(), "given name", pn);
         checkOptionalString(pn.getNickname(), "nickname", pn);
         checkOptionalString(pn.getPrefix(), "prefix", pn);
         checkOptionalString(pn.getSuffix(), "suffix", pn);
         checkOptionalString(pn.getSurname(), "surname", pn);
         checkOptionalString(pn.getSurnamePrefix(), "surname prefix", pn);
-
-        new NotesValidator(getRootValidator(), pn, pn.getNotes()).validate();
-        List<PersonalNameVariation> phonetic = pn.getPhonetic();
-        if (phonetic == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                pn.getPhonetic(true).clear();
-                getRootValidator().addInfo("PersonalNameValidator had null list of phonetic name variations - repaired", pn);
-            } else {
-                getRootValidator().addError("PersonalNamevalidator has null list of phonetic name variations", pn);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<PersonalNameVariation>(phonetic).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate phonetic found and removed", pn);
-                }
-            }
-
-            if (phonetic != null) {
-                for (AbstractNameVariation nv : phonetic) {
-                    PersonalNameVariation pnv = (PersonalNameVariation) nv;
-                    new PersonalNameVariationValidator(getRootValidator(), pnv).validate();
-                }
-            }
-        }
-
-        List<PersonalNameVariation> romanized = pn.getRomanized();
-        if (romanized == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                pn.getRomanized(true).clear();
-                getRootValidator().addInfo("Event had null list of romanized name variations - repaired", pn);
-            } else {
-                getRootValidator().addError("Event has null list of romanized name variations", pn);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<PersonalNameVariation>(romanized).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate romanized variations found and removed", pn);
-                }
-            }
-
-            if (romanized != null) {
-                for (AbstractNameVariation nv : romanized) {
-                    PersonalNameVariation pnv = (PersonalNameVariation) nv;
-                    new PersonalNameVariationValidator(getRootValidator(), pnv).validate();
-                }
-            }
-        }
+        checkCustomTags(pn);
+        checkCitations();
+        new NotesValidator(getRootValidator(), pn).validate();
+        checkPhonetic();
+        checkRomanized();
     }
 
+    /**
+     * Check the citations
+     */
+    private void checkCitations() {
+    	// TODO: dedup citations here
+		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", false, pn,
+				new ListRef<AbstractCitation>() {
+					@Override
+					public List<AbstractCitation> get(boolean initializeIfNeeded) {
+						return pn.getCitations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
+    }
+    
+    private void checkPhonetic() {
+		checkNameVariations("Phonetics", "phonetic name variations", new ListRef<PersonalNameVariation>() {
+			@Override
+			public List<PersonalNameVariation> get(boolean initializeIfNeeded) {
+				return pn.getPhonetic(initializeIfNeeded);
+			}
+		});
+    }
+    
+    private void checkRomanized() {
+		checkNameVariations("Romanized", "romanized name variations", new ListRef<PersonalNameVariation>() {
+			@Override
+			public List<PersonalNameVariation> get(boolean initializeIfNeeded) {
+				return pn.getRomanized(initializeIfNeeded);
+			}
+		});
+    }
+    
+    private void checkNameVariations(String v, String n, ListRef<PersonalNameVariation> handler) {
+		List<PersonalNameVariation> list = validateRepairStructure(v, n, true, pn, handler);
+		if (list != null) {
+			for (PersonalNameVariation nv : list) {
+                new PersonalNameVariationValidator(getRootValidator(), nv).validate();
+			}
+		}
+    }
 }

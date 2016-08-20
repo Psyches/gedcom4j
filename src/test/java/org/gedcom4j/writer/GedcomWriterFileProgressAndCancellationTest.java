@@ -39,7 +39,13 @@ import org.gedcom4j.io.event.FileProgressEvent;
 import org.gedcom4j.io.event.FileProgressListener;
 import org.gedcom4j.io.writer.LineTerminator;
 import org.gedcom4j.io.writer.NullOutputStream;
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.AbstractEvent;
+import org.gedcom4j.model.CharacterSet;
+import org.gedcom4j.model.Family;
+import org.gedcom4j.model.GedcomVersion;
+import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.StringWithCustomTags;
+import org.gedcom4j.model.SupportedVersion;
 import org.gedcom4j.parser.GedcomParser;
 import org.gedcom4j.validate.GedcomValidationFinding;
 import org.gedcom4j.writer.event.ConstructProgressEvent;
@@ -116,7 +122,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test(expected = WriterCancelledException.class)
     public void testConstuctionCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -138,7 +143,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test(expected = WriterCancelledException.class)
     public void testFileCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -160,7 +164,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationAnselCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -195,7 +198,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationAnselCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -230,7 +232,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationAsciiCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -265,7 +266,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationAsciiCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -300,7 +300,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationUnicodeBigEndianCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -335,7 +334,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationUnicodeBigEndianCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -370,7 +368,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationUnicodeLittleEndianCrlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -405,7 +402,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationUnicodeLittleEndianCrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -440,7 +436,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationUtf8Crlf() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -475,7 +470,6 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellationUtf8CrOnly() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();

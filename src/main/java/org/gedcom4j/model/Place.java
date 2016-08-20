@@ -242,7 +242,7 @@ public class Place extends AbstractNotesElement {
      */
     public List<AbstractNameVariation> getRomanized(boolean initializeIfNeeded) {
         if (initializeIfNeeded && romanized == null) {
-            romanized = new ArrayList<AbstractNameVariation>(0);
+            romanized = new ArrayList<>(0);
         }
         return romanized;
     }
@@ -306,7 +306,7 @@ public class Place extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Place [");
         if (citations != null) {
             builder.append("citations=");

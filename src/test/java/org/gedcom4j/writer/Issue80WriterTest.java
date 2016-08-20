@@ -48,7 +48,6 @@ public class Issue80WriterTest {
      * @throws GedcomWriterException
      *             if the GEDCOM cannot be written to stdout
      */
-    @SuppressWarnings("resource")
     @Test
     public void testIssue80() throws GedcomWriterException {
 

@@ -194,7 +194,7 @@ public class PersonalNameVariation extends AbstractNameVariation implements HasN
      */
     public List<AbstractCitation> getCitations(boolean initializeIfNeeded) {
         if (initializeIfNeeded && citations == null) {
-            citations = new ArrayList<AbstractCitation>(0);
+            citations = new ArrayList<>(0);
         }
         return citations;
     }
@@ -236,16 +236,10 @@ public class PersonalNameVariation extends AbstractNameVariation implements HasN
      */
     public List<Note> getNotes(boolean initializeIfNeeded) {
         if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<Note>(0);
+            notes = new ArrayList<>(0);
         }
         return notes;
     }
-
-    @Override
-	public void setNotes(List<Note> theNotes) {
-    	getNotes(true).clear();
-    	notes.addAll(theNotes);
-	}
 
 	/**
      * Gets the prefix.
@@ -371,7 +365,7 @@ public class PersonalNameVariation extends AbstractNameVariation implements HasN
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("PersonalNameVariation [");
         if (citations != null) {
             builder.append("citations=");

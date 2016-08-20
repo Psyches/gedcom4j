@@ -48,8 +48,8 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testEmptyList() {
-        List<String> l = new ArrayList<String>();
-        int count = new DuplicateEliminator<String>(l).process();
+        List<String> l = new ArrayList<>();
+        int count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(0, count);
         assertNotNull(l);
         assertTrue(l.isEmpty());
@@ -60,14 +60,14 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testListWithDups() {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         l.add("Foo");
         l.add("Bar");
         l.add("Dup");
         l.add("Dup");
         l.add("Bat");
         assertEquals(5, l.size());
-        int count = new DuplicateEliminator<String>(l).process();
+        int count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(1, count);
         assertEquals(4, l.size());
         assertEquals("Foo", l.get(0));
@@ -78,7 +78,7 @@ public class DuplicateEliminatorTest {
         // Add a dup to end of list and re-process. The first "Foo" should be retained.
         l.add("Foo");
         assertEquals(5, l.size());
-        count = new DuplicateEliminator<String>(l).process();
+        count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(1, count);
         assertEquals(4, l.size());
         assertEquals("Foo", l.get(0));
@@ -93,14 +93,13 @@ public class DuplicateEliminatorTest {
         l.add("Bat");
         l.set(2, "Baz");
         assertEquals(8, l.size());
-        count = new DuplicateEliminator<String>(l).process();
+        count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(4, count);
         assertEquals(4, l.size());
         assertEquals("Foo", l.get(0));
         assertEquals("Bar", l.get(1));
         assertEquals("Baz", l.get(2));
         assertEquals("Bat", l.get(3));
-
     }
 
     /**
@@ -108,14 +107,14 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testListWithNulls() {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         l.add("Foo");
         l.add("Bar");
         l.add(null);
         l.add("Baz");
         l.add("Bat");
         assertEquals(5, l.size());
-        int count = new DuplicateEliminator<String>(l).process();
+        int count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(0, count);
         assertEquals(5, l.size());
         assertEquals("Foo", l.get(0));
@@ -127,7 +126,7 @@ public class DuplicateEliminatorTest {
         l.set(4, null);
         l.add(null);
         assertEquals(6, l.size());
-        count = new DuplicateEliminator<String>(l).process();
+        count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(2, count);
         assertEquals(4, l.size());
         assertEquals("Foo", l.get(0));
@@ -142,13 +141,13 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testNoDupList() {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         l.add("Foo");
         l.add("Bar");
         l.add("Baz");
         l.add("Bat");
         assertEquals(4, l.size());
-        int count = new DuplicateEliminator<String>(l).process();
+        int count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(0, count);
         assertEquals(4, l.size());
         assertEquals("Foo", l.get(0));
@@ -163,9 +162,8 @@ public class DuplicateEliminatorTest {
     @Test
     public void testNullList() {
         List<String> l = null;
-        int count = new DuplicateEliminator<String>(l).process();
+        int count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(0, count);
         assertNull(l);
     }
-
 }

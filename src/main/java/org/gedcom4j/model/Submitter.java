@@ -41,7 +41,8 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Submitter extends AbstractNotesElement {
+@SuppressWarnings("PMD.GodClass")
+public class Submitter extends AbstractNotesElement implements HasXref {
     /**
      * Serial Version UID
      */
@@ -526,7 +527,7 @@ public class Submitter extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Submitter [");
         if (address != null) {
             builder.append("address=");

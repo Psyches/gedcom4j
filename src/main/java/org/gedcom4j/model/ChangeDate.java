@@ -128,7 +128,7 @@ public class ChangeDate extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(32);
         builder.append("ChangeDate [");
         if (date != null) {
             builder.append("date=");

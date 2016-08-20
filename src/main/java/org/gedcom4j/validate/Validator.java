@@ -24,14 +24,15 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.gedcom4j.model;
 
-import java.util.List;
+package org.gedcom4j.validate;
+
+import org.gedcom4j.model.ValidatedElement;
 
 /**
  * @author Mark A Sikes
  */
-public interface HasNotes extends ValidatedElement {
-	List<Note> getNotes();
-	List<Note> getNotes(boolean initializeIfNeeded);
+public interface Validator {
+	boolean isRepairSupported();
+	void repairElement(ValidatedElement theElement);
 }

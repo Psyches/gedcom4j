@@ -357,7 +357,7 @@ public class Gedcom extends AbstractElement {
     @Override
     public String toString() {
         final int maxLen = 3;
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(128);
         builder.append("Gedcom [");
         if (families != null) {
             builder.append("families=");

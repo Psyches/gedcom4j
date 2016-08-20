@@ -31,7 +31,7 @@ package org.gedcom4j.model;
  * 
  * @author frizbog1
  */
-public class Submission extends AbstractElement {
+public class Submission extends AbstractElement implements HasXref {
     /**
      * Serial Version UID
      */
@@ -330,7 +330,7 @@ public class Submission extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Submission [");
         if (ancestorsCount != null) {
             builder.append("ancestorsCount=");

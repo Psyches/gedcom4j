@@ -28,7 +28,6 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.Options;
 import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.AbstractEvent;
 import org.gedcom4j.model.Multimedia;
@@ -39,7 +38,7 @@ import org.gedcom4j.model.StringWithCustomTags;
  * 
  * @author frizbog1
  */
-class EventValidator extends AbstractValidator {
+public class EventValidator extends AbstractValidator {
 
     /**
      * The event being validated
@@ -63,7 +62,6 @@ class EventValidator extends AbstractValidator {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("PMD.ExcessiveMethodLength")
     protected void validate() {
         if (e == null) {
             addError("Event is null and cannot be validated or autorepaired");
@@ -83,7 +81,7 @@ class EventValidator extends AbstractValidator {
         checkEmails();
         checkFaxNumbers();
         checkMultimedia();
-        new NotesValidator(getRootValidator(), e, e.getNotes()).validate();
+        new NotesValidator(getRootValidator(), e).validate();
         checkPhoneNumbers();
         checkOptionalString(e.getReligiousAffiliation(), "religious affiliation", e);
         checkOptionalString(e.getRespAgency(), "responsible agency", e);
@@ -97,164 +95,100 @@ class EventValidator extends AbstractValidator {
      * Check the citations
      */
     private void checkCitations() {
-        List<AbstractCitation> citations = e.getCitations();
-        if (citations == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                e.getCitations(true).clear();
-                getRootValidator().addInfo("Event had null list of citations - repaired", e);
-            } else {
-                getRootValidator().addError("Event has null list of citations", e);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate source citations found and removed", e);
-                }
-            }
-            if (citations != null) {
-                for (AbstractCitation c : citations) {
-                    new CitationValidator(getRootValidator(), c).validate();
-                }
-            }
-        }
+		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, e,
+				new ListRef<AbstractCitation>() {
+					@Override
+					public List<AbstractCitation> get(boolean initializeIfNeeded) {
+						return e.getCitations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
     }
 
     /**
-     * Check the emails
-     */
-    private void checkEmails() {
-        List<StringWithCustomTags> emails = e.getEmails();
-        if (emails == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                e.getEmails(true).clear();
-                getRootValidator().addInfo("Event had null list of emails - repaired", e);
-            } else {
-                getRootValidator().addError("Event has null list of emails", e);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<StringWithCustomTags>(emails).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate emails found and removed", e);
-                }
-            }
-            if (emails != null) {
-                for (StringWithCustomTags swct : emails) {
-                    checkRequiredString(swct, "email", e);
-                }
-            }
-        }
-    }
+	 * Check the multimedia
+	 */
+	private void checkMultimedia() {
+		List<Multimedia> mm = validateRepairStructure("Multimedia", "Multimedia", true, e,
+				new ListRef<Multimedia>() {
+					@Override
+					public List<Multimedia> get(boolean initializeIfNeeded) {
+						return e.getMultimedia(initializeIfNeeded);
+					}
+				});
+		if (mm != null) {
+			for (Multimedia m : mm) {
+	            new MultimediaValidator(getRootValidator(), m).validate();
+			}
+		}
+	}
 
-    /**
-     * Check the fax numbers
-     */
-    private void checkFaxNumbers() {
-        List<StringWithCustomTags> faxNumbers = e.getFaxNumbers();
-        if (faxNumbers == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                e.getFaxNumbers(true).clear();
-                getRootValidator().addInfo("Event had null list of fax numbers - repaired", e);
-            } else {
-                getRootValidator().addError("Event has null list of fax numbers", e);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<StringWithCustomTags>(faxNumbers).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate fax numbers found and removed", e);
-                }
-            }
-            if (faxNumbers != null) {
-                for (StringWithCustomTags swct : faxNumbers) {
-                    checkRequiredString(swct, "fax number", e);
-                }
-            }
-        }
-    }
+	/**
+	 * Check the emails
+	 */
+	private void checkEmails() {
+		checkValidRepairStringList("Emails", "Email address", new ListRef<StringWithCustomTags>() {
+			@Override
+			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
+				return e.getEmails(initializeIfNeeded);
+			}
+		});
+	}
 
-    /**
-     * Check the multimedia
-     */
-    private void checkMultimedia() {
-        List<Multimedia> multimedia = e.getMultimedia();
-        if (multimedia == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                e.getMultimedia(true).clear();
-                getRootValidator().addInfo("Event had null list of multimedia - repaired", e);
-            } else {
-                getRootValidator().addError("Event has null list of multimedia", e);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<Multimedia>(multimedia).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate multimedia found and removed", e);
-                }
-            }
-            if (multimedia != null) {
-                for (Multimedia m : multimedia) {
-                    new MultimediaValidator(getRootValidator(), m).validate();
-                }
-            }
-        }
-    }
+	/**
+	 * Check the fax numbers
+	 */
+	private void checkFaxNumbers() {
+		checkValidRepairStringList("Faxes", "Fax number", new ListRef<StringWithCustomTags>() {
+			@Override
+			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
+				return e.getFaxNumbers(initializeIfNeeded);
+			}
+		});
+	}
 
-    /**
-     * Check the phone numbers
-     */
-    private void checkPhoneNumbers() {
-        List<StringWithCustomTags> phoneNumbers = e.getPhoneNumbers();
-        if (phoneNumbers == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                e.getPhoneNumbers(true).clear();
-                getRootValidator().addInfo("Event had null list of phone numbers - repaired", e);
-            } else {
-                getRootValidator().addError("Event has null list of phone numbers", e);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<StringWithCustomTags>(phoneNumbers).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate phone numbers found and removed", e);
-                }
-            }
-            if (phoneNumbers != null) {
-                for (StringWithCustomTags swct : phoneNumbers) {
-                    checkRequiredString(swct, "phone number", e);
-                }
-            }
-        }
-        if (e.getPlace() != null) {
-            new PlaceValidator(getRootValidator(), e.getPlace()).validate();
-        }
-    }
+	/**
+	 * Check the phone numbers
+	 */
+	private void checkPhoneNumbers() {
+		checkValidRepairStringList("Phones", "Phone number", new ListRef<StringWithCustomTags>() {
+			@Override
+			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
+				return e.getEmails(initializeIfNeeded);
+			}
+		});
+	
+		if (e.getPlace() != null) {
+	        new PlaceValidator(getRootValidator(), e.getPlace()).validate();
+	    }
+	}
 
-    /**
-     * Check the www urls
+	/**
+	 * Check the www urls
+	 */
+	private void checkWwwUrls() {
+		checkValidRepairStringList("URLs", "www url", new ListRef<StringWithCustomTags>() {
+			@Override
+			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
+				return e.getWwwUrls(initializeIfNeeded);
+			}
+		});
+	}
+
+	/**
+     * Check list of required strings with custom tags and maybe repair
      */
-    private void checkWwwUrls() {
-        List<StringWithCustomTags> wwwUrls = e.getWwwUrls();
-        if (wwwUrls == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                e.getWwwUrls(true).clear();
-                getRootValidator().addInfo("Event had null list of www urls - repaired", e);
-            } else {
-                getRootValidator().addError("Event has null list of www url", e);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<StringWithCustomTags>(wwwUrls).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate web URLs found and removed", e);
-                }
-            }
-            if (wwwUrls != null) {
-                for (StringWithCustomTags swct : wwwUrls) {
-                    checkRequiredString(swct, "www url", e);
-                }
-            }
-        }
+    private List<StringWithCustomTags> checkValidRepairStringList(String v, String n, ListRef<StringWithCustomTags> r) {
+		List<StringWithCustomTags> list = validateRepairStructure(v, n, true, e, r);
+		if (list != null) {
+			for (StringWithCustomTags swct : list) {
+				checkRequiredString(swct, n, e);
+			}
+		}
+		return list;
     }
 }

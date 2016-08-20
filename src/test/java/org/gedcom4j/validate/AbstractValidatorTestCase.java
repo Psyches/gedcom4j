@@ -105,7 +105,7 @@ public abstract class AbstractValidatorTestCase extends TestCase {
                 }
             }
         }
-        StringBuilder sb = new StringBuilder("Expected to find at least one finding at severity " + severity);
+        StringBuilder sb = new StringBuilder("Expected to find at least one finding at severity ").append(severity);
         if (substringOfDescription != null && substringOfDescription.length > 0) {
             for (int i = 0; i < substringOfDescription.length; i++) {
                 if (i == 0) {

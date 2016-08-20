@@ -37,7 +37,7 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public class Repository extends AbstractNotesElement {
+public class Repository extends AbstractNotesElement implements HasXref {
     /**
      * Serial Version UID
      */
@@ -411,7 +411,7 @@ public class Repository extends AbstractNotesElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(64);
         builder.append("Repository [");
         if (address != null) {
             builder.append("address=");

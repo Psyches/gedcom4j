@@ -28,9 +28,9 @@ package org.gedcom4j.validate;
 
 import java.util.List;
 
-import org.gedcom4j.Options;
 import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.Note;
+import org.gedcom4j.model.UserReference;
 
 /**
  * Validator for a single {@link Note}
@@ -38,32 +38,32 @@ import org.gedcom4j.model.Note;
  * @author frizbog
  * 
  */
-class NoteValidator extends AbstractValidator {
+public class NoteValidator extends AbstractValidator {
 
     /**
      * The note being validated
      */
-    private final Note n;
+    private final Note note;
 
     /**
      * The note's ordinal location in whatever collection it's in
      */
-    private final int i;
+    private final int location;
 
     /**
      * Constructor
      * 
      * @param rootValidator
      *            the main gedcom validator that holds all the findings
-     * @param i
+     * @param theLocation
      *            the note's ordinal location in whatever collection it's in
-     * @param n
+     * @param theNote
      *            the note being validated
      */
-    public NoteValidator(GedcomValidator rootValidator, int i, Note n) {
+    public NoteValidator(GedcomValidator rootValidator, int theLocation, Note theNote) {
         super(rootValidator);
-        this.i = i;
-        this.n = n;
+        location = theLocation;
+        note = theNote;
     }
 
     /**
@@ -71,54 +71,58 @@ class NoteValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-
-        if (Options.isCollectionInitializationEnabled() && n.getLines() == null) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                n.getLines(true).clear();
-                addInfo("Lines of text collection on note was null - autorepaired");
-            } else {
-                addError("Lines of text collection on note is null", n);
-                return;
-            }
-        }
-
-        if (n.getXref() == null && (n.getLines() == null || n.getLines().isEmpty())) {
-            addError("Note " + i + " without xref has no lines", n);
-        }
-
-        checkOptionalString(n.getRecIdNumber(), "automated record id", n);
-        List<AbstractCitation> citations = n.getCitations();
-        if (citations == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                n.getCitations(true).clear();
-                addInfo("Source citations collection on note was null - autorepaired");
-            } else {
-                addError("Source citations collection on note is null", n);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate citations found and removed", n);
-                }
-            }
-            if (citations != null) {
-                for (AbstractCitation c : citations) {
-                    new CitationValidator(getRootValidator(), c).validate();
-                }
-            }
-        }
-        if (n.getUserReferences() == null && Options.isCollectionInitializationEnabled()) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                n.getUserReferences(true).clear();
-                addInfo("User references collection on note was null - autorepaired");
-            } else {
-                addError("User references collection on note is null", n);
-            }
-        } else {
-            checkUserReferences(n.getUserReferences(), n);
-        }
-        checkChangeDate(n.getChangeDate(), n);
+        checkOptionalString(note.getRecIdNumber(), "automated record id", note);
+        checkChangeDate(note.getChangeDate(), note);
+        checkLines();
+        checkCitations();
+        checkUserReferences();
     }
+    
+    /**
+     * Check the note text lines. 
+     */
+    private void checkLines() {
+        List<String> list = validateRepairStructure("Notes", "text lines in a note", false, note, new ListRef<String>() {
+			@Override
+			public List<String> get(boolean initializeIfNeeded) {
+				return note.getLines(initializeIfNeeded);
+			}
+		});
 
+        if (note.getXref() == null && (list == null || list.isEmpty())) {
+            addError("Note " + location + " without xref has no lines", note);
+        }
+    }
+    
+    /**
+     * Check the citations.
+     */
+    private void checkCitations() {
+		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, note,
+				new ListRef<AbstractCitation>() {
+					@Override
+					public List<AbstractCitation> get(boolean initializeIfNeeded) {
+						return note.getCitations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
+    }
+    
+    /**
+     * Check user references
+     */
+    private void checkUserReferences() {
+		List<UserReference> userReferences = validateRepairStructure("UserReferences", "user references", true, note,
+				new ListRef<UserReference>() {
+					@Override
+					public List<UserReference> get(boolean initializeIfNeeded) {
+						return note.getUserReferences(initializeIfNeeded);
+					}
+				});
+		checkUserReferences(userReferences, note);
+    }
 }

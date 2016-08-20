@@ -79,7 +79,6 @@ public class GedcomWriterConstructionProgressAndCancellationTest implements Cons
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test(expected = WriterCancelledException.class)
     public void testCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
@@ -100,7 +99,6 @@ public class GedcomWriterConstructionProgressAndCancellationTest implements Cons
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-    @SuppressWarnings("resource")
     @Test
     public void testNoCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();

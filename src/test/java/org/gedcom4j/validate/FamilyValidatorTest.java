@@ -68,7 +68,7 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
     public void setUp() throws Exception {
         gedcom = TestHelper.getMinimalGedcom();
         super.setUp();
-        rootValidator.setAutorepairEnabled(false);
+        rootValidator.setAutoRepairEnabled(false);
 
         dad = new Individual();
         dad.setXref("@I00001@");

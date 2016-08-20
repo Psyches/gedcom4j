@@ -36,7 +36,7 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Association extends AbstractElement {
+public class Association extends AbstractElement implements HasXref {
     /**
      * Serial Version UID
      */
@@ -135,7 +135,12 @@ public class Association extends AbstractElement {
         return associatedEntityXref;
     }
 
-    /**
+    @Override
+	public String getXref() {
+		return getAssociatedEntityXref();
+	}
+
+	/**
      * Gets the citations.
      *
      * @return the citations
@@ -154,7 +159,7 @@ public class Association extends AbstractElement {
      */
     public List<AbstractCitation> getCitations(boolean initializeIfNeeded) {
         if (initializeIfNeeded && citations == null) {
-            citations = new ArrayList<AbstractCitation>(0);
+            citations = new ArrayList<>(0);
         }
         return citations;
     }
@@ -178,7 +183,7 @@ public class Association extends AbstractElement {
      */
     public List<Note> getNotes(boolean initializeIfNeeded) {
         if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<Note>(0);
+            notes = new ArrayList<>(0);
         }
         return notes;
     }
@@ -239,7 +244,7 @@ public class Association extends AbstractElement {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(32);
         builder.append("Association [");
         if (associatedEntityType != null) {
             builder.append("associatedEntityType=");
@@ -272,5 +277,4 @@ public class Association extends AbstractElement {
         }
         builder.append("]");
         return builder.toString();
-    }
-}
+    }}

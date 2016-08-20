@@ -35,8 +35,6 @@ import org.gedcom4j.model.StringTree;
 import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.SupportedVersion;
 
-import sun.security.krb5.internal.ccache.Tag;
-
 /**
  * A base class for type-specific writers, which "render" the object model as GEDCOM text.
  * 

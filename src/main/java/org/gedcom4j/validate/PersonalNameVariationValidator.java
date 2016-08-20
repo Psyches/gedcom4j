@@ -29,6 +29,7 @@ package org.gedcom4j.validate;
 import java.util.List;
 
 import org.gedcom4j.model.AbstractCitation;
+import org.gedcom4j.model.AbstractNameVariation;
 import org.gedcom4j.model.PersonalNameVariation;
 
 /**
@@ -56,40 +57,40 @@ class PersonalNameVariationValidator extends NameVariationValidator {
     @Override
     protected void validate() {
         super.validate();
-        if (nv == null) {
-            return;
-        }
+        AbstractNameVariation nv = getNameVariation();
+        if (nv == null)
+        	return;
         if (!(nv instanceof PersonalNameVariation)) {
             addError("Name variation on person is not a PersonalNameVariation");
             return;
         }
         PersonalNameVariation pnv = (PersonalNameVariation) nv;
-        List<AbstractCitation> citations = pnv.getCitations();
-        if (citations == null) {
-            if (getRootValidator().isAutorepairEnabled()) {
-                pnv.getCitations(true).clear();
-                addInfo("citations collection for personal name was null - autorepaired", pnv);
-            } else {
-                addError("citations collection for personal name is null", pnv);
-            }
-        } else {
-            if (getRootValidator().isAutorepairEnabled()) {
-                int dups = new DuplicateEliminator<AbstractCitation>(citations).process();
-                if (dups > 0) {
-                    getRootValidator().addInfo(dups + " duplicate citations found and removed", pnv);
-                }
-            }
-
-            for (AbstractCitation c : citations) {
-                new CitationValidator(getRootValidator(), c).validate();
-            }
-        }
         checkOptionalString(pnv.getGivenName(), "given name", pnv);
         checkOptionalString(pnv.getNickname(), "nickname", pnv);
         checkOptionalString(pnv.getPrefix(), "prefix", pnv);
         checkOptionalString(pnv.getSuffix(), "suffix", pnv);
         checkOptionalString(pnv.getSurname(), "surname", pnv);
         checkOptionalString(pnv.getSurnamePrefix(), "surname prefix", pnv);
-        new NotesValidator(getRootValidator(), pnv, pnv.getNotes()).validate();
+        checkCitations(pnv);
+        new NotesValidator(getRootValidator(), pnv).validate();
     }
+    
+    /**
+     * Check the citations.
+     */
+    private void checkCitations(final PersonalNameVariation pnv) {
+		List<AbstractCitation> list = validateRepairStructure("Citations", "Citations", true, pnv,
+				new ListRef<AbstractCitation>() {
+					@Override
+					public List<AbstractCitation> get(boolean initializeIfNeeded) {
+						return pnv.getCitations(initializeIfNeeded);
+					}
+				});
+		if (list != null) {
+			for (AbstractCitation c : list) {
+				new CitationValidator(getRootValidator(), c).validate();
+			}
+		}
+    }
+    
 }
