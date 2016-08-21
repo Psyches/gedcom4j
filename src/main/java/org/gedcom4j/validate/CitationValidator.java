@@ -31,7 +31,6 @@ import java.util.List;
 import org.gedcom4j.model.AbstractCitation;
 import org.gedcom4j.model.CitationWithSource;
 import org.gedcom4j.model.CitationWithoutSource;
-import org.gedcom4j.model.Note;
 
 /**
  * A validator for source citations - both {@link CitationWithoutSource} and {@link CitationWithSource}. See

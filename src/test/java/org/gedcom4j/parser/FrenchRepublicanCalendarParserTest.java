@@ -118,7 +118,7 @@ public class FrenchRepublicanCalendarParserTest {
      */
     @Test
     public void testConvertFrenchRepublicanDateToGregorian2() {
-    	// TODO: empty test case: testConvertFrenchRepublicanDateToGregorian2
+    	// XXX: empty test case: testConvertFrenchRepublicanDateToGregorian2
     }
 
     /**
@@ -132,7 +132,7 @@ public class FrenchRepublicanCalendarParserTest {
      *            day
      * @return gregorian date
      */
-    private Date getDate(int y, int m, int d) {
+    private static Date getDate(int y, int m, int d) {
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         c.clear();
         c.set(y, m, d, 0, 0, 0);

@@ -110,7 +110,7 @@ public class EventValidator extends AbstractValidator {
 	 * Check the emails
 	 */
 	private void checkEmails() {
-		checkStringListStructure("Email address", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("Email address", event, new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
 				return event.getEmails(initializeIfNeeded);
@@ -122,7 +122,7 @@ public class EventValidator extends AbstractValidator {
 	 * Check the fax numbers
 	 */
 	private void checkFaxNumbers() {
-		checkStringListStructure("Fax number", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("Fax number", event, new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
 				return event.getFaxNumbers(initializeIfNeeded);
@@ -134,7 +134,7 @@ public class EventValidator extends AbstractValidator {
 	 * Check the phone numbers
 	 */
 	private void checkPhoneNumbers() {
-		checkStringListStructure("Phone number", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("Phone number", event, new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
 				return event.getEmails(initializeIfNeeded);
@@ -150,25 +150,11 @@ public class EventValidator extends AbstractValidator {
 	 * Check the www urls
 	 */
 	private void checkWwwUrls() {
-		checkStringListStructure("www url", new ListRef<StringWithCustomTags>() {
+		checkStringListStructure("www url", event, new ListRef<StringWithCustomTags>() {
 			@Override
 			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
 				return event.getWwwUrls(initializeIfNeeded);
 			}
 		});
 	}
-
-	/**
-     * Check list of required strings with custom tags and maybe repair
-     * TODO push to AbstractValidator
-     */
-    private List<StringWithCustomTags> checkStringListStructure(String name, ListRef<StringWithCustomTags> r) {
-		List<StringWithCustomTags> list = checkListStructure(name, true, event, r);
-		if (list != null) {
-			for (StringWithCustomTags swct : list) {
-				checkRequiredString(swct, name, event);
-			}
-		}
-		return list;
-    }
 }

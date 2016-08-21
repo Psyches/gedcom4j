@@ -416,6 +416,29 @@ public abstract class AbstractValidator {
 	}
 
 	/**
+	 * Check list of required strings with custom tags and maybe repair
+	 * 
+	 * @param fieldDescription
+	 *            the human-readable name of the field
+	 * @param objectContainingField
+	 *            the object containing the field being checked
+	 * @param stringList
+	 *            the list of StringWithCustomTags
+	 * 
+	 * @return the resulting list of StringWithCustomTags
+	 */
+	protected List<StringWithCustomTags> checkStringListStructure(String fieldDescription,
+			ValidatedElement objectContainingField, ListRef<StringWithCustomTags> stringList) {
+		List<StringWithCustomTags> list = checkListStructure(fieldDescription, true, objectContainingField, stringList);
+		if (list != null) {
+			for (StringWithCustomTags swct : list) {
+				checkRequiredString(swct, fieldDescription, objectContainingField);
+			}
+		}
+		return list;
+	}
+
+	/**
 	 * Check a string list (List&lt;String&gt;) on an object. All strings in the
 	 * list must be non-null and non-blank when trimmed.
 	 * 
