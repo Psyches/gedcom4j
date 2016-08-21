@@ -52,7 +52,7 @@ class IndividualAttributeParser extends AbstractParser<IndividualAttribute> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setType(IndividualAttributeType.getFromTag(stringTree.getTag()));
         if (IndividualAttributeType.FACT.equals(loadInto.getType()) && g55()) {
             addWarning("FACT tag specified on a GEDCOM 5.5 file at line " + stringTree.getLineNum() + ", but FACT was not added until 5.5.1."

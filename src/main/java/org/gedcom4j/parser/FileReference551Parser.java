@@ -57,7 +57,7 @@ class FileReference551Parser extends AbstractParser<FileReference> {
      * {@inheritDoc}
      */
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setReferenceToFile(new StringWithCustomTags(stringTree));
         List<StringTree> fileChildren = stringTree.getChildren();
         if (fileChildren != null) {

@@ -53,7 +53,7 @@ class CorporationParser extends AbstractParser<Corporation> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setBusinessName(stringTree.getValue());
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

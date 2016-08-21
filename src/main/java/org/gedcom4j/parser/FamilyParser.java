@@ -52,7 +52,7 @@ class FamilyParser extends AbstractParser<Family> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.HUSBAND.equalsText(ch.getTag())) {

@@ -52,7 +52,7 @@ class IndividualParser extends AbstractParser<Individual> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.NAME.equalsText(ch.getTag())) {

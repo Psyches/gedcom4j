@@ -74,7 +74,7 @@ class PersonalNameValidator extends AbstractValidator {
         checkOptionalString(pn.getSurnamePrefix(), "surname prefix", pn);
         checkCustomTags(pn);
         checkCitations(pn);
-        new NotesValidator(getRootValidator(), pn).validate();
+        checkNotes(pn);
         checkPhonetic();
         checkRomanized();
     }

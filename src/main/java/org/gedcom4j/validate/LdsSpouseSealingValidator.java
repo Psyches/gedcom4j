@@ -64,9 +64,9 @@ class LdsSpouseSealingValidator extends AbstractValidator {
             return;
         }
         checkCitations(spouseSealing);
+        checkNotes(spouseSealing);
         checkCustomTags(spouseSealing);
         checkOptionalString(spouseSealing.getDate(), "date", spouseSealing);
-        new NotesValidator(getRootValidator(), spouseSealing).validate();
         checkOptionalString(spouseSealing.getPlace(), "place", spouseSealing);
         checkOptionalString(spouseSealing.getStatus(), "status", spouseSealing);
         checkOptionalString(spouseSealing.getTemple(), "temple", spouseSealing);

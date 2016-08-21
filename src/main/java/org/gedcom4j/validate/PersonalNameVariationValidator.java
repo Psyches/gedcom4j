@@ -69,6 +69,6 @@ class PersonalNameVariationValidator extends NameVariationValidator {
         checkOptionalString(pnv.getSurname(), "surname", pnv);
         checkOptionalString(pnv.getSurnamePrefix(), "surname prefix", pnv);
         checkCitations(pnv);
-        new NotesValidator(getRootValidator(), pnv).validate();
+        checkNotes(pnv);
     }
 }

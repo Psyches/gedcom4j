@@ -56,7 +56,7 @@ class HeaderSourceDataParser extends AbstractParser<HeaderSourceData> {
      * {@inheritDoc}
      */
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setName(stringTree.getValue());
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

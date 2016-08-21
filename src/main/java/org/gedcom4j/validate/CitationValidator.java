@@ -103,14 +103,6 @@ class CitationValidator extends AbstractValidator {
         } else {
             throw new IllegalStateException("AbstractCitation references must be either CitationWithSource or CitationWithoutSource instances");
         }
-		// Structure validate and repair notes WITHOUT dedup
-		List<Note> list = checkListStructure("Note", false, citation, new ListRef<Note>() {
-			@Override
-			public List<Note> get(boolean initializeIfNeeded) {
-				return citation.getNotes(initializeIfNeeded);
-			}
-		});
-        if (list != null)
-        	new NotesValidator(getRootValidator(), citation).validate();
+        checkNotes(citation);
     }
 }

@@ -52,7 +52,7 @@ class IndividualEventParser extends AbstractParser<IndividualEvent> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setType(IndividualEventType.getFromTag(stringTree.getTag()));
         if ("Y".equals(stringTree.getValue())) {
             loadInto.setyNull(stringTree.getValue());

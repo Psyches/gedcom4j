@@ -100,9 +100,9 @@ public class HeaderValidator extends AbstractValidator {
                 return;
             }
         }
+        checkNotes(header);
         checkCustomTags(header.getGedcomVersion());
         checkOptionalString(header.getLanguage(), "language", header);
-        new NotesValidator(getRootValidator(), header).validate();
         checkOptionalString(header.getPlaceHierarchy(), "place hierarchy", header);
         checkSourceSystem();
         if (header.getSubmitter() == null) {

@@ -54,7 +54,7 @@ class MultimediaLinkParser extends AbstractParser<List<Multimedia>> {
      * {@inheritDoc}
      */
     @Override
-    void parse() {
+    protected void parse() {
         Multimedia m;
         if (referencesAnotherNode(stringTree)) {
             m = getMultimedia(stringTree.getValue());

@@ -52,7 +52,7 @@ class FamilyEventParser extends AbstractParser<FamilyEvent> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setType(FamilyEventType.getFromTag(stringTree.getTag()));
         if ("Y".equals(stringTree.getValue())) {
             loadInto.setyNull(stringTree.getValue());

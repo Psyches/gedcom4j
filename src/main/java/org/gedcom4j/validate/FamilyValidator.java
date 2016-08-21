@@ -68,8 +68,6 @@ class FamilyValidator extends AbstractValidator {
         checkOptionalString(family.getAutomatedRecordId(), "Automated record id", family);
         checkChangeDate(family.getChangeDate(), family);
         checkChildren();
-        checkCitations(family);
-        checkCustomTags(family);
         if (family.getEvents() != null) {
             for (AbstractEvent ev : family.getEvents()) {
                 new EventValidator(getRootValidator(), ev).validate();
@@ -83,12 +81,14 @@ class FamilyValidator extends AbstractValidator {
         }
         checkLdsSpouseSealings();
         checkMultimedia();
-        new NotesValidator(getRootValidator(), family).validate();
         checkOptionalString(family.getNumChildren(), "number of children", family);
         checkOptionalString(family.getRecFileNumber(), "record file number", family);
         checkOptionalString(family.getRestrictionNotice(), "restriction notice", family);
         checkSubmitters();
         checkUserReferences(family.getUserReferences(), family);
+        checkCitations(family);
+        checkNotes(family);
+        checkCustomTags(family);
     }
 
     /**

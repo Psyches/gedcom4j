@@ -37,12 +37,12 @@ import org.gedcom4j.model.*;
  *            The type of object this parser can load into
  * @author frizbog
  */
-abstract class AbstractParser<T> {
+public abstract class AbstractParser<T> {
     /** The {@link StringTree} to be parsed */
     protected final StringTree stringTree;
 
     /** a reference to the root {@link GedcomParser} */
-    protected GedcomParser gedcomParser;
+    protected final GedcomParser gedcomParser;
 
     /** a reference to the object we are loading data into */
     protected final T loadInto;
@@ -57,8 +57,8 @@ abstract class AbstractParser<T> {
      * @param loadInto
      *            the object we are loading data into
      */
-    AbstractParser(GedcomParser gedcomParser, StringTree stringTree, T loadInto) {
-        this.gedcomParser = gedcomParser;
+    protected AbstractParser(GedcomParser gedcomParser, StringTree stringTree, T loadInto) {
+        this.gedcomParser = (gedcomParser == null && this instanceof GedcomParser) ? ((GedcomParser) this) : gedcomParser;
         this.stringTree = stringTree;
         this.loadInto = loadInto;
     }
@@ -300,5 +300,5 @@ abstract class AbstractParser<T> {
     /**
      * Parse the string tree passed into the constructor, and load it into the object model
      */
-    abstract void parse();
+    protected abstract void parse();
 }

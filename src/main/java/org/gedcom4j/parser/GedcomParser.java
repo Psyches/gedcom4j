@@ -160,7 +160,6 @@ public class GedcomParser extends AbstractParser<Gedcom> {
          * This is the root level parser, so there are no parent or other root nodes to hook up to (yet)
          */
         super(null, null, null);
-        gedcomParser = this;
     }
 
     /**
@@ -471,7 +470,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
      * {@link #load(BufferedInputStream)} method.
      */
     @Override
-    void parse() {
+    protected void parse() {
         // Do nothing
     }
 

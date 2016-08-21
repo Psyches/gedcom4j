@@ -56,7 +56,7 @@ class AddressParser extends AbstractParser<Address> {
      * {@inheritDoc}
      */
     @Override
-    void parse() {
+	protected void parse() {
         if (stringTree.getValue() != null) {
             loadInto.getLines(true).add(stringTree.getValue());
         }

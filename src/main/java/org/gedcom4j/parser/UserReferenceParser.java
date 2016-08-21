@@ -55,7 +55,7 @@ class UserReferenceParser extends AbstractParser<UserReference> {
      * {@inheritDoc}
      */
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setReferenceNum(new StringWithCustomTags(stringTree.getValue()));
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

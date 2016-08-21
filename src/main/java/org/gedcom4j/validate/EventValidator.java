@@ -71,8 +71,6 @@ public class EventValidator extends AbstractValidator {
         }
         checkOptionalString(event.getAge(), "age", event);
         checkOptionalString(event.getCause(), "cause", event);
-        checkCitations(event);
-        checkCustomTags(event);
         checkOptionalString(event.getDate(), "date", event);
         if (event.getDescription() != null && event.getDescription().trim().length() != 0) {
             addError("Event has description, which is non-standard. Remove this value, or move it (perhaps to a Note).", event);
@@ -80,14 +78,15 @@ public class EventValidator extends AbstractValidator {
         checkEmails();
         checkFaxNumbers();
         checkMultimedia();
-        new NotesValidator(getRootValidator(), event).validate();
         checkPhoneNumbers();
         checkOptionalString(event.getReligiousAffiliation(), "religious affiliation", event);
         checkOptionalString(event.getRespAgency(), "responsible agency", event);
         checkOptionalString(event.getRestrictionNotice(), "restriction notice", event);
         checkOptionalString(event.getSubType(), "subtype", event);
         checkWwwUrls();
-
+        checkCitations(event);
+        checkNotes(event);
+        checkCustomTags(event);
     }
 
     /**

@@ -56,7 +56,7 @@ class NoteListParser extends AbstractParser<List<Note>> {
      * {@inheritDoc}
      */
     @Override
-    void parse() {
+    protected void parse() {
         Note note;
         if (stringTree.getId() == null && referencesAnotherNode(stringTree)) {
             note = getNote(stringTree.getValue());

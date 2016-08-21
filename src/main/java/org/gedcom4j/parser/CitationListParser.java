@@ -55,7 +55,7 @@ class CitationListParser extends AbstractParser<List<AbstractCitation>> {
      * {@inheritDoc}
      */
     @Override
-    void parse() {
+    protected void parse() {
         AbstractCitation citation;
         if (referencesAnotherNode(stringTree)) {
             citation = new CitationWithSource();

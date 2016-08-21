@@ -52,7 +52,7 @@ class PlaceParser extends AbstractParser<Place> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         loadInto.setPlaceName(stringTree.getValue());
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

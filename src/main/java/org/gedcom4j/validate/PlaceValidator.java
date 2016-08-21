@@ -66,14 +66,14 @@ public class PlaceValidator extends AbstractValidator {
         checkOptionalString(place.getLatitude(), "latitude", place);
         checkOptionalString(place.getLongitude(), "longitude", place);
         checkOptionalString(place.getPlaceFormat(), "place format", place);
-        checkCustomTags(place);
-        checkCitations(place);
-        checkPhonetic();
-        checkRomanized();
-        new NotesValidator(getRootValidator(), place).validate();
         if (place.getPlaceName() == null) {
             addError("Place name was unspecified" + (isAutoRepairEnabled() ? " and cannot be repaired" : ""));
         }
+        checkPhonetic();
+        checkRomanized();
+        checkCitations(place);
+        checkNotes(place);
+        checkCustomTags(place);
     }
 
     private void checkPhonetic() {

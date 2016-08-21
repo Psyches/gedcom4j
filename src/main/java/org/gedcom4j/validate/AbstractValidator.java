@@ -37,6 +37,7 @@ import org.gedcom4j.model.HasCustomTags;
 import org.gedcom4j.model.HasNotes;
 import org.gedcom4j.model.HasXref;
 import org.gedcom4j.model.Note;
+import org.gedcom4j.model.StringTree;
 import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.UserReference;
 import org.gedcom4j.model.ValidatedElement;
@@ -56,20 +57,6 @@ public abstract class AbstractValidator {
 	 * not an {@link AbstractValidator}
 	 */
 	private final GedcomValidator rootValidator;
-
-	public interface ListRef<T> {
-		/**
-		 * This method is used to allow generic structure validate and repair
-		 * behavior to initialize a list on an object using the existing code
-		 * pattern: OuterObject.getInnerList(boolean);
-		 * 
-		 * @param initializeIfNeeded
-		 *            if true, create a new list if it is null
-		 * @return the List of type T, which may be null unless
-		 *         initializeIfNeeded is true.
-		 */
-		List<T> get(boolean initializeIfNeeded);
-	}
 
 	protected AbstractValidator(GedcomValidator theRootValidator) {
 		rootValidator = (theRootValidator == null && this instanceof GedcomValidator) ? (GedcomValidator) this
@@ -307,8 +294,11 @@ public abstract class AbstractValidator {
 			}
 		});
 		if (list != null) {
-			// TODO: consolidate NotesValidator and NoteValidator
-			new NotesValidator(getRootValidator(), notes).validate();
+			int i = 0;
+			for (Note n : list) {
+				i++;
+				new NoteValidator(getRootValidator(), i, n).validate();
+			}
 		}
     }
     
@@ -333,17 +323,17 @@ public abstract class AbstractValidator {
 	 * Check custom tags on an object implementing HasCustomTags. If autorepair
 	 * is on, it will reflectively fix this.
 	 * 
-	 * @param o
+	 * @param element
 	 *            the object being validated
 	 */
-	protected void checkCustomTags(HasCustomTags o) {
-		List<?> customTags = o.getCustomTags();
+	protected void checkCustomTags(HasCustomTags element) {
+		List<StringTree> customTags = element.getCustomTags();
 		if (customTags == null && Options.isCollectionInitializationEnabled()) {
 			if (isAutoRepairEnabled()) {
-				o.getCustomTags(true);
-				getRootValidator().addInfo("Custom tag collection was null - repaired", o);
+				element.getCustomTags(true);
+				getRootValidator().addInfo("Custom tag collection was null - repaired", element);
 			} else {
-				getRootValidator().addError("Custom tag collection is null - must be at least an empty collection", o);
+				getRootValidator().addError("Custom tag collection is null - must be at least an empty collection", element);
 			}
 		}
 	}

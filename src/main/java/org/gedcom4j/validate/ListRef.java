@@ -24,14 +24,25 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.gedcom4j.model;
+package org.gedcom4j.validate;
 
 import java.util.List;
 
 /**
  * @author Mark A Sikes
+ *
+ * @param <T> the type of the list element.
  */
-public interface HasCustomTags extends ValidatedElement {
-	List<StringTree> getCustomTags();
-	List<StringTree> getCustomTags(boolean initialize);
+public interface ListRef<T> {
+	/**
+	 * This method is used to allow generic structure validate and repair
+	 * behavior to initialize a list on an object using the existing code
+	 * pattern: OuterObject.getInnerList(boolean);
+	 * 
+	 * @param initializeIfNeeded
+	 *            if true, create a new list if it is null
+	 * @return the List of type T, which may be null unless
+	 *         initializeIfNeeded is true.
+	 */
+	List<T> get(boolean initializeIfNeeded);
 }

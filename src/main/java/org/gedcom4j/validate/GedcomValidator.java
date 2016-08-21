@@ -223,7 +223,7 @@ public class GedcomValidator extends AbstractValidator {
 		validateSources();
 		validateSubmission(getGedcom().getSubmission());
 		validateTrailer();
-		new NotesValidator(getRootValidator(), new GedcomNotes()).validate();
+		checkNotes(new GedcomNotes());
 	}
 
 	/**

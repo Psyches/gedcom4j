@@ -75,7 +75,7 @@ public class SourceValidator extends AbstractValidator {
 		checkChangeDate(source.getChangeDate(), source);
 		final SourceData sd = source.getData();
 		if (sd != null) {
-			new NotesValidator(getRootValidator(), sd).validate();
+			checkNotes(sd);
 			checkOptionalString(sd.getRespAgency(), "responsible agency", sd);
 
 			// Structure validate, repair, and dedup the recorded events collection
@@ -109,8 +109,6 @@ public class SourceValidator extends AbstractValidator {
 			}
 		}
 		
-		new NotesValidator(getRootValidator(), source).validate();
-		
 		checkStringList(source.getOriginatorsAuthors(), "originators/authors", false);
 		checkStringList(source.getPublicationFacts(), "publication facts", false);
 		checkOptionalString(source.getRecIdNumber(), "automated record id", source);
@@ -118,10 +116,11 @@ public class SourceValidator extends AbstractValidator {
 		checkOptionalString(source.getSourceFiledBy(), "source filed by", source);
 		checkStringList(source.getTitle(), "title", true);
 		checkUserReferences(source.getUserReferences(), source);
+		checkNotes(source);
 
 		RepositoryCitation c = source.getRepositoryCitation();
 		if (c != null) {
-			new NotesValidator(getRootValidator(), c).validate();
+			checkNotes(c);
 			checkRequiredString(c.getRepositoryXref(), "repository xref", c);
 			checkCallNumbers(c);
 		}

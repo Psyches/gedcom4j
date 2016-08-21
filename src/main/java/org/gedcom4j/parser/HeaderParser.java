@@ -50,7 +50,7 @@ class HeaderParser extends AbstractParser<Header> {
     }
 
     @Override
-    void parse() {
+    protected void parse() {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.SOURCE.equalsText(ch.getTag())) {

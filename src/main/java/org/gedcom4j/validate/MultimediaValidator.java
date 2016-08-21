@@ -248,6 +248,6 @@ public class MultimediaValidator extends AbstractValidator {
             new MultimediaValidator(getRootValidator(), mm.getContinuedObject()).validate();
         }
         checkBlob();
-        new NotesValidator(getRootValidator(), mm).validate();
+        checkNotes(mm);
     }
 }
