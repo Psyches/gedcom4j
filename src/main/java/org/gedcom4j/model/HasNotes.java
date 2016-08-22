@@ -29,9 +29,22 @@ package org.gedcom4j.model;
 import java.util.List;
 
 /**
+ * This interface defines the contract for a model class that has notes.
+ * 
  * @author Mark A Sikes
  */
-public interface HasNotes extends ValidatedElement {
+public interface HasNotes extends ModelElement {
+	/**
+	 * @return the list (possibly empty) of notes or null if there is no list at all.
+	 */
 	List<Note> getNotes();
+
+	/**
+	 * @param initializeIfNeeded
+	 *            true to create an empty list if the list itself is null.
+	 * 
+	 * @return the list (possibly empty) of notes or null if there is no
+	 *         list and initializeIfNeeded is false.
+	 */
 	List<Note> getNotes(boolean initializeIfNeeded);
 }

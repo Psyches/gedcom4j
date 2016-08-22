@@ -75,7 +75,7 @@ public class MultimediaValidator extends AbstractValidator {
         Header header = gedcom == null ? null : gedcom.getHeader();
         GedcomVersion gv = header == null ? null : header.getGedcomVersion();
         if (gv == null || gv.getVersionNumber() == null) {
-            if (isAutoRepairEnabled()) {
+            if (isAutorepairEnabled()) {
                 gedcomVersion = SupportedVersion.V5_5_1;
                 addInfo("Was not able to determine GEDCOM version - assuming 5.5.1", gedcom);
             } else {
@@ -134,7 +134,7 @@ public class MultimediaValidator extends AbstractValidator {
      */
     private void checkXref() {
         // Xref is required
-    	boolean isRepairEnabled = isAutoRepairEnabled();
+    	boolean isRepairEnabled = isAutorepairEnabled();
         if (mm.getXref() == null || mm.getXref().trim().isEmpty()) {
         	addNullError(isRepairEnabled, "mandated xref", mm);
             return;
@@ -176,7 +176,7 @@ public class MultimediaValidator extends AbstractValidator {
      * Validate that the multimedia object conforms to GEDCOM 5.5 rules
      */
     private void validate55() {
-    	boolean isRepairEnabled = isAutoRepairEnabled();
+    	boolean isRepairEnabled = isAutorepairEnabled();
         if (mm.getBlob() == null || mm.getBlob().isEmpty()) {
         	addNullError(isRepairEnabled, "blob", mm);
         }
@@ -184,7 +184,7 @@ public class MultimediaValidator extends AbstractValidator {
 
         // Validate the citations - only allowed in 5.5.1
         if (mm.getCitations() != null && !mm.getCitations().isEmpty()) {
-        	isRepairEnabled = isAutoRepairEnabled();
+        	isRepairEnabled = isAutorepairEnabled();
             if (isRepairEnabled)
                 mm.getCitations(true).clear();
             addProblemFinding(isRepairEnabled, "Citations collection is populated but not allowed in gedcom v5.5", mm);
@@ -209,7 +209,7 @@ public class MultimediaValidator extends AbstractValidator {
 
 		// Blobs must be empty in 5.5.1
         if (mm.getBlob() != null && !mm.getBlob().isEmpty()) {
-        	boolean isRepairEnabled = isAutoRepairEnabled();
+        	boolean isRepairEnabled = isAutorepairEnabled();
             if (isRepairEnabled)
                 mm.getBlob().clear();
 			addProblemFinding(isRepairEnabled,
@@ -218,7 +218,7 @@ public class MultimediaValidator extends AbstractValidator {
 
         // Cannot have an embedded media format in 5.5.1
         if (mm.getEmbeddedMediaFormat() != null) {
-        	boolean isRepairEnabled = isAutoRepairEnabled();
+        	boolean isRepairEnabled = isAutorepairEnabled();
             if (isRepairEnabled)
                 mm.setEmbeddedMediaFormat(null);
 			addProblemFinding(isRepairEnabled,

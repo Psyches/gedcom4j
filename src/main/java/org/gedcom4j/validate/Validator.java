@@ -27,12 +27,19 @@
 
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.ValidatedElement;
+import org.gedcom4j.model.ModelElement;
 
 /**
  * @author Mark A Sikes
  */
 public interface Validator {
+	/**
+	 * @return true if this validator supports repair.
+	 */
 	boolean isRepairSupported();
-	void repairElement(ValidatedElement theElement);
+	
+	/**
+	 * @param theElement the model element instance to repair.
+	 */
+	void repairElement(ModelElement theElement);
 }

@@ -40,7 +40,7 @@ import org.gedcom4j.model.Note;
 import org.gedcom4j.model.StringTree;
 import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.UserReference;
-import org.gedcom4j.model.ValidatedElement;
+import org.gedcom4j.model.ModelElement;
 
 /**
  * A base class for all validators
@@ -58,6 +58,9 @@ public abstract class AbstractValidator {
 	 */
 	private final GedcomValidator rootValidator;
 
+	/**
+	 * @param theRootValidator the root GedcomValidator of the entire Gedcom tree.
+	 */
 	protected AbstractValidator(GedcomValidator theRootValidator) {
 		rootValidator = (theRootValidator == null && this instanceof GedcomValidator) ? (GedcomValidator) this
 				: theRootValidator;
@@ -65,6 +68,8 @@ public abstract class AbstractValidator {
 
 	/**
 	 * Get the root validator instance
+	 * 
+	 * @return the root validator.
 	 */
 	protected GedcomValidator getRootValidator() {
 		return rootValidator;
@@ -73,8 +78,8 @@ public abstract class AbstractValidator {
 	/**
 	 * @return true iff auto-repair is enabled on the root validator.
 	 */
-	protected boolean isAutoRepairEnabled() {
-		return getRootValidator().isAutoRepairEnabled();
+	protected boolean isAutorepairEnabled() {
+		return getRootValidator().isAutorepairEnabled();
 	}
 	
 	/**
@@ -95,7 +100,7 @@ public abstract class AbstractValidator {
 	 * @param o
 	 *            the object in error
 	 */
-	protected void addError(String description, ValidatedElement o) {
+	protected void addError(String description, ModelElement o) {
 		getRootValidator().getFindings().add(new GedcomValidationFinding(description, Severity.ERROR, o));
 	}
 
@@ -117,7 +122,7 @@ public abstract class AbstractValidator {
 	 * @param o
 	 *            the object in error
 	 */
-	protected void addInfo(String description, ValidatedElement o) {
+	protected void addInfo(String description, ModelElement o) {
 		getRootValidator().getFindings().add(new GedcomValidationFinding(description, Severity.INFO, o));
 	}
 
@@ -139,13 +144,19 @@ public abstract class AbstractValidator {
 	 * @param o
 	 *            the object in error
 	 */
-	protected void addWarning(String description, ValidatedElement o) {
+	protected void addWarning(String description, ModelElement o) {
 		getRootValidator().getFindings().add(new GedcomValidationFinding(description, Severity.WARNING, o));
 	}
 
-	protected void addProblemFinding(boolean repaired, String message, ValidatedElement o) {
+	/**
+	 * Add a new problem to the Findings.
+	 * @param repaired true iff the problem was repaired.
+	 * @param message the message to add.
+	 * @param objectContainingProblem the object with the problem.
+	 */
+	protected void addProblemFinding(boolean repaired, String message, ModelElement objectContainingProblem) {
 		getRootValidator().getFindings().add(new GedcomValidationFinding(message + (repaired ? " - repaired" : ""),
-				repaired ? Severity.INFO : Severity.ERROR, o));
+				repaired ? Severity.INFO : Severity.ERROR, objectContainingProblem));
 	}
 	/**
 	 * Add a standard error for a null entry from a model object reference
@@ -154,7 +165,7 @@ public abstract class AbstractValidator {
 	 * @param theName the friendly referenced type name
 	 * @param o the model object (the referencer)
 	 */
-	protected void addNullError(boolean repairRequested, String theName, ValidatedElement o) {
+	protected void addNullError(boolean repairRequested, String theName, ModelElement o) {
 		addError(String.format("%s is null on %s%s", theName, o.getClass().getSimpleName(),
 				repairRequested ? " - cannot repair" : ""), o);
 	}
@@ -165,8 +176,8 @@ public abstract class AbstractValidator {
 	 * @param theName the friendly list type name
 	 * @param element the model object element
 	 */
-	protected void addNullListError(String theValidator, String theName, ValidatedElement element) {
-		addNullError(isAutoRepairEnabled(), "List of " + theName, element);
+	protected void addNullListError(String theValidator, String theName, ModelElement element) {
+		addNullError(isAutorepairEnabled(), "List of " + theName, element);
 	}
 	
 	/**
@@ -192,6 +203,8 @@ public abstract class AbstractValidator {
 	/**
 	 * Process the list, eliminating duplicates
 	 * 
+	 * @param <T> the list element type.
+	 * @param items the list of items to eliminate duplicates in.
 	 * @return the number of items removed.
 	 */
 	protected static <T> int eliminateDuplicates(List<T> items) {
@@ -215,11 +228,12 @@ public abstract class AbstractValidator {
 	/**
 	 * Eliminate any duplicates in a list on an element, and give an info-level report if any were found
 	 * 
-	 * @param name the kind of the list of items duplicates are being removed on
-	 * @param element the list owner model element
-	 * @param items the list to remove duplicates on
+	 * @param <T> the list element type.
+	 * @param name the kind of the list of items duplicates are being removed on.
+	 * @param element the list owner model element.
+	 * @param items the list to remove duplicates on.
 	 */
-	protected <T> void eliminateDuplicatesWithInfo(String name, ValidatedElement element, List<T> items) {
+	protected <T> void eliminateDuplicatesWithInfo(String name, ModelElement element, List<T> items) {
 	    int dups = eliminateDuplicates(items);
 	    if (dups > 0) {
 	        addInfo(dups + " duplicates in " + name + " found and removed", element);
@@ -227,12 +241,16 @@ public abstract class AbstractValidator {
 	}
 
 	/**
-	 * checkListStructure checks lists of model sub-objects on an object.
-	 * Those lists must be non-null but may be empty. If auto-repair is enabled,
-	 * a null list will be converted to an empty list. If de-duplication is
+	 * checkListStructure checks lists of model sub-objects on an object. Those
+	 * lists must be non-null but may be empty. If auto-repair is enabled, a
+	 * null list will be converted to an empty list. If de-duplication is
 	 * requested and auto-repair is enabled, the list itself is de-duplicated
 	 * (exact duplicate entries are removed).
 	 * 
+	 * @param <E>
+	 *            the type of the model element containing a list.
+	 * @param <T>
+	 *            the list element type.
 	 * @param theName
 	 *            the name of the list to validate and maybe repair
 	 * @param handleDups
@@ -245,9 +263,9 @@ public abstract class AbstractValidator {
 	 * @return the resulting list which may be null, or newly created and/or
 	 *         de-duped depending on arguments
 	 */
-	protected <E extends ValidatedElement, T> List<T> checkListStructure(String theName,
+	protected <E extends ModelElement, T> List<T> checkListStructure(String theName,
 			boolean handleDups, E theElement, ListRef<T> theHandler) {
-		boolean isRepairEnabled = isAutoRepairEnabled();
+		boolean isRepairEnabled = isAutorepairEnabled();
 		List<T> list = theHandler.get(false);
 		String qualifiedName = String.format("List of %s on %s", theName, theElement.getClass().getSimpleName());
 		if (list == null && Options.isCollectionInitializationEnabled()) {
@@ -273,7 +291,7 @@ public abstract class AbstractValidator {
 	 * @param objectWithChangeDate
 	 *            the object with the change date
 	 */
-	protected void checkChangeDate(ChangeDate changeDate, ValidatedElement objectWithChangeDate) {
+	protected void checkChangeDate(ChangeDate changeDate, ModelElement objectWithChangeDate) {
 		if (changeDate == null) {
 			// Change dates are always optional
 			return;
@@ -285,6 +303,8 @@ public abstract class AbstractValidator {
 
     /**
      * Check the notes.
+     * 
+     * @param notes the model element that has the Notes list.
      */
     protected void checkNotes(final HasNotes notes) {
 		List<Note> list = checkListStructure("Notes", true, notes, new ListRef<Note>() {
@@ -304,6 +324,8 @@ public abstract class AbstractValidator {
     
     /**
      * Check the citations.
+     * 
+     * @param citations the model element that has the Citations list.
      */
     protected void checkCitations(final HasCitations citations) {
 		List<AbstractCitation> list = checkListStructure("Citations", true, citations, new ListRef<AbstractCitation>() {
@@ -329,7 +351,7 @@ public abstract class AbstractValidator {
 	protected void checkCustomTags(HasCustomTags element) {
 		List<StringTree> customTags = element.getCustomTags();
 		if (customTags == null && Options.isCollectionInitializationEnabled()) {
-			if (isAutoRepairEnabled()) {
+			if (isAutorepairEnabled()) {
 				element.getCustomTags(true);
 				getRootValidator().addInfo("Custom tag collection was null - repaired", element);
 			} else {
@@ -350,7 +372,7 @@ public abstract class AbstractValidator {
 	 *            the object containing the field being checked
 	 */
 	protected void checkOptionalString(String optionalString, String fieldDescription,
-			ValidatedElement objectContainingField) {
+			ModelElement objectContainingField) {
 		if (optionalString != null && !isSpecified(optionalString)) {
 			addError(fieldDescription + " on " + objectContainingField.getClass().getSimpleName()
 					+ " is specified, but has a blank value", objectContainingField);
@@ -369,7 +391,7 @@ public abstract class AbstractValidator {
 	 *            the object containing the field being checked
 	 */
 	protected void checkOptionalString(StringWithCustomTags optionalString, String fieldDescription,
-			ValidatedElement objectContainingField) {
+			ModelElement objectContainingField) {
 		if (optionalString != null && optionalString.getValue() != null && !isSpecified(optionalString.getValue())) {
 			addError(fieldDescription + " on " + objectContainingField.getClass().getSimpleName()
 					+ " is specified, but has a blank value", objectContainingField);
@@ -388,7 +410,7 @@ public abstract class AbstractValidator {
 	 *            the object containing the field being checked
 	 */
 	protected void checkRequiredString(String requiredString, String fieldDescription,
-			ValidatedElement objectContainingField) {
+			ModelElement objectContainingField) {
 		if (!isSpecified(requiredString)) {
 			addError(fieldDescription + " on " + objectContainingField.getClass().getSimpleName()
 					+ " is required, but is either null or blank", objectContainingField);
@@ -406,7 +428,7 @@ public abstract class AbstractValidator {
 	 *            the object containing the field being checked
 	 */
 	protected void checkRequiredString(StringWithCustomTags requiredString, String fieldDescription,
-			ValidatedElement objectContainingField) {
+			ModelElement objectContainingField) {
 		if (requiredString == null || requiredString.getValue() == null
 				|| requiredString.getValue().trim().length() == 0) {
 			addError(fieldDescription + " on " + objectContainingField.getClass().getSimpleName()
@@ -428,7 +450,7 @@ public abstract class AbstractValidator {
 	 * @return the resulting list of StringWithCustomTags
 	 */
 	protected List<StringWithCustomTags> checkStringListStructure(String fieldDescription,
-			ValidatedElement objectContainingField, ListRef<StringWithCustomTags> stringList) {
+			ModelElement objectContainingField, ListRef<StringWithCustomTags> stringList) {
 		List<StringWithCustomTags> list = checkListStructure(fieldDescription, true, objectContainingField, stringList);
 		if (list != null) {
 			for (StringWithCustomTags swct : list) {
@@ -455,7 +477,7 @@ public abstract class AbstractValidator {
 			while (i < stringList.size()) {
 				String a = stringList.get(i);
 				if (a == null) {
-					if (isAutoRepairEnabled()) {
+					if (isAutorepairEnabled()) {
 						addInfo("String list (" + description + ") contains null entry - removed",
 								new ValidatedItem(stringList));
 						stringList.remove(i);
@@ -463,7 +485,7 @@ public abstract class AbstractValidator {
 					}
 					addError("String list (" + description + ") contains null entry", new ValidatedItem(stringList));
 				} else if (!blanksAllowed && !isSpecified(a)) {
-					if (isAutoRepairEnabled()) {
+					if (isAutorepairEnabled()) {
 						addInfo("String list (" + description
 								+ ") contains blank entry where none are allowed - removed",
 								new ValidatedItem(stringList));
@@ -493,7 +515,7 @@ public abstract class AbstractValidator {
 	protected void checkStringTagList(List<StringWithCustomTags> stringList, String description,
 			boolean blanksAllowed) {
 		int i = 0;
-		boolean isRepairEnabled = isAutoRepairEnabled();
+		boolean isRepairEnabled = isAutorepairEnabled();
 		if (isRepairEnabled) {
 			eliminateDuplicatesWithInfo("tagged strings", new ValidatedItem(stringList), stringList);
 		}
@@ -533,7 +555,7 @@ public abstract class AbstractValidator {
 	 * @param objectWithUserReferences
 	 *            the object that contains the collection of user references
 	 */
-	protected void checkUserReferences(List<UserReference> userReferences, ValidatedElement objectWithUserReferences) {
+	protected void checkUserReferences(List<UserReference> userReferences, ModelElement objectWithUserReferences) {
 		if (userReferences != null) {
 			for (UserReference userReference : userReferences) {
 				if (userReference == null) {

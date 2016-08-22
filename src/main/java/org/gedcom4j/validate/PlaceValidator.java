@@ -67,7 +67,7 @@ public class PlaceValidator extends AbstractValidator {
         checkOptionalString(place.getLongitude(), "longitude", place);
         checkOptionalString(place.getPlaceFormat(), "place format", place);
         if (place.getPlaceName() == null) {
-            addError("Place name was unspecified" + (isAutoRepairEnabled() ? " and cannot be repaired" : ""));
+            addError("Place name was unspecified" + (isAutorepairEnabled() ? " and cannot be repaired" : ""));
         }
         checkPhonetic();
         checkRomanized();

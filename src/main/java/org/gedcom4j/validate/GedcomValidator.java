@@ -149,7 +149,7 @@ public class GedcomValidator extends AbstractValidator {
 	 * @return true if there exists at least one finding with severity ERROR
 	 */
 	public boolean hasErrors() {
-		for (GedcomValidationFinding finding : getRootValidator().findings) {
+		for (GedcomValidationFinding finding : findings) {
 			if (finding.getSeverity() == Severity.ERROR) {
 				return true;
 			}
@@ -163,7 +163,7 @@ public class GedcomValidator extends AbstractValidator {
 	 * @return true if there exists at least one finding with severity INFO
 	 */
 	public boolean hasInfo() {
-		for (GedcomValidationFinding finding : getRootValidator().findings) {
+		for (GedcomValidationFinding finding : findings) {
 			if (finding.getSeverity() == Severity.INFO) {
 				return true;
 			}
@@ -189,7 +189,7 @@ public class GedcomValidator extends AbstractValidator {
 	 * @return true if auto-repair is enabled.
 	 */
 	@Override
-	protected boolean isAutoRepairEnabled() {
+	public boolean isAutorepairEnabled() {
 		return autoRepairEnabled;
 	}
 	
@@ -199,7 +199,7 @@ public class GedcomValidator extends AbstractValidator {
 	 * @param autorepair
 	 *            the autorepair to set
 	 */
-	public void setAutoRepairEnabled(boolean autorepair) {
+	public void setAutorepairEnabled(boolean autorepair) {
 		autoRepairEnabled = autorepair;
 	}
 
@@ -250,7 +250,7 @@ public class GedcomValidator extends AbstractValidator {
 	 * Validate the families map
 	 */
 	private void validateFamilies() {
-		boolean isRepairEnabled = isAutoRepairEnabled();
+		boolean isRepairEnabled = isAutorepairEnabled();
 		for (Entry<String, Family> e : getGedcom().getFamilies().entrySet()) {
 			if (e.getKey() == null) {
 				if (isRepairEnabled) {
@@ -279,7 +279,7 @@ public class GedcomValidator extends AbstractValidator {
 	 */
 	private void validateHeader() {
 		if (getGedcom().getHeader() == null) {
-			if (isAutoRepairEnabled()) {
+			if (isAutorepairEnabled()) {
 				getGedcom().setHeader(new Header());
 				addInfo("Header was null - autorepaired");
 			} else {
@@ -382,7 +382,7 @@ public class GedcomValidator extends AbstractValidator {
 	 */
 	private void validateSubmitters() {
 		if (getGedcom().getSubmitters().isEmpty()) {
-			if (isAutoRepairEnabled()) {
+			if (isAutorepairEnabled()) {
 				Submitter s = new Submitter();
 				s.setXref("@SUBM0000@");
 				s.setName(new StringWithCustomTags("UNSPECIFIED"));
@@ -402,7 +402,7 @@ public class GedcomValidator extends AbstractValidator {
 	 */
 	private void validateTrailer() {
 		if (getGedcom().getTrailer() == null) {
-			if (isAutoRepairEnabled()) {
+			if (isAutorepairEnabled()) {
 				getGedcom().setTrailer(new Trailer());
 				getRootValidator().addInfo("Gedcom had no trailer - repaired", getGedcom());
 			} else {

@@ -34,12 +34,14 @@ import org.gedcom4j.exception.WriterCancelledException;
 import org.gedcom4j.model.StringTree;
 import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.SupportedVersion;
+import org.gedcom4j.parser.Tag;
 
 /**
  * A base class for type-specific writers, which "render" the object model as GEDCOM text.
  * 
  * @author frizbog
- * @param <T>
+ * 
+ * @param <T> the type of model element the class will write from.
  */
 abstract class AbstractEmitter<T> {
 

@@ -67,7 +67,7 @@ class SubmitterValidator extends AbstractValidator {
 	}
 
 	/**
-	 * @param maxLanguagePrefs the maxLanguagePrefs to set
+	 * @param theMaxLanguagePrefs the maxLanguagePrefs to set
 	 */
 	public void setMaxLanguagePrefs(int theMaxLanguagePrefs) {
 		maxLanguagePrefs = theMaxLanguagePrefs;
@@ -95,7 +95,7 @@ class SubmitterValidator extends AbstractValidator {
      */
     private void checkLanguagePreferences() {
         List<StringWithCustomTags> languagePref = submitter.getLanguagePref();
-        if (isAutoRepairEnabled()) {
+        if (isAutorepairEnabled()) {
             eliminateDuplicatesWithInfo("language preferences", submitter, languagePref);
         }
 

@@ -135,8 +135,8 @@ public class StringTreeTest {
      * Test to try and replicate reported <a href="https://github.com/frizbog/gedcom4j/issues/60">issue 60</a>. Loads a
      * large GEDCOM file, and invokes toString() and hashCode() on loads of StringTree objects in it.
      * 
-     * @throws GedcomParserException
-     * @throws IOException
+     * @throws GedcomParserException if a critical parsing error occurs during the test.
+     * @throws IOException if a critical IO error occurs during the test.
      */
     @Test
     public void testToStringBigFile() throws IOException, GedcomParserException {

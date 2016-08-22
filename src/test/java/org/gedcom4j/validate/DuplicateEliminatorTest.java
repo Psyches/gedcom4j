@@ -37,7 +37,7 @@ import java.util.List;
 import org.junit.Test;
 
 /**
- * Test for {@link DuplicateEliminator}
+ * Test for duplication elimination.
  * 
  * @author frizbog
  */

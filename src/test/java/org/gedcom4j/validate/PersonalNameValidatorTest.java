@@ -58,7 +58,7 @@ public class PersonalNameValidatorTest extends AbstractValidatorTestCase {
     public void setUp() throws Exception {
         gedcom = TestHelper.getMinimalGedcom();
         super.setUp();
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
 
         ind = new Individual();
         ind.setXref("@I00001@");

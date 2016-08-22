@@ -26,7 +26,7 @@
  */
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.ValidatedElement;
+import org.gedcom4j.model.ModelElement;
 
 /**
  * A class that holds information about something wrong with the gedcom data validated by {@link GedcomValidator}.
@@ -38,7 +38,7 @@ public class GedcomValidationFinding {
     /**
      * The object that had a problem with it
      */
-    private final ValidatedElement itemWithProblem;
+    private final ModelElement itemWithProblem;
 
     /**
      * A description of the problem
@@ -60,7 +60,7 @@ public class GedcomValidationFinding {
      * @param obj
      *            the item that has the problem (if applicable)
      */
-    GedcomValidationFinding(String description, Severity findingSeverity, ValidatedElement obj) {
+    GedcomValidationFinding(String description, Severity findingSeverity, ModelElement obj) {
         problemDescription = description;
         severity = findingSeverity;
         itemWithProblem = obj;
@@ -71,7 +71,7 @@ public class GedcomValidationFinding {
      * 
      * @return the itemWithProblem
      */
-    public ValidatedElement getItemWithProblem() {
+    public ModelElement getItemWithProblem() {
         return itemWithProblem;
     }
 

@@ -26,20 +26,30 @@
  */
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.ValidatedElement;
+import org.gedcom4j.model.ModelElement;
 
 /**
+ * ValidatedItem allows an arbitrary object to appear in a Finding on the Gedcom
+ * model tree. The class therefore simulates a model element as closely as
+ * possible (but perhaps not perfectly).
+ * 
  * @author Mark A Sikes
- *
  */
-public class ValidatedItem implements ValidatedElement {
+public class ValidatedItem implements ModelElement {
 
 	private final Object item;
-	
-	ValidatedItem(Object theItem) {
+
+	/**
+	 * @param theItem
+	 *            the relevant object.
+	 */
+	public ValidatedItem(Object theItem) {
 		item = theItem;
 	}
-	
+
+	/**
+	 * @return the underlying object reference for this wrapper model element.
+	 */
 	public Object getItem() {
 		return item;
 	}

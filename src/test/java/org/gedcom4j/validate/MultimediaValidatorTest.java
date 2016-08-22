@@ -48,7 +48,7 @@ public class MultimediaValidatorTest extends AbstractValidatorTestCase {
         super.setUp();
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
         s.setName(new StringWithCustomTags("test"));
@@ -67,7 +67,7 @@ public class MultimediaValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testEmbeddedMedia() {
         mm.setXref("@MM001@");
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
         rootValidator.getGedcom().getMultimedia().put(mm.getXref(), mm);
 
         // Blob can be empty in 5.5.1

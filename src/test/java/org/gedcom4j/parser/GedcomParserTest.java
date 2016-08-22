@@ -173,8 +173,8 @@ public class GedcomParserTest extends TestCase {
      * their tag level, even though the spec says not to. However, the spec also says to ignore leading spaces on lines,
      * so we're doing that. See issue 57.
      * 
-     * @throws IOException
-     * @throws GedcomParserException
+     * @throws GedcomParserException if a critical parsing error occurs during the test.
+     * @throws IOException if a critical IO error occurs during the test.
      */
     @Test
     public void testLoadIndentedMinimal55File() throws IOException, GedcomParserException {
@@ -198,8 +198,8 @@ public class GedcomParserTest extends TestCase {
     /**
      * Test loading a minimal GEDCOM 5.5 file that only has a submitter.
      * 
-     * @throws IOException
-     * @throws GedcomParserException
+     * @throws GedcomParserException if a critical parsing error occurs during the test.
+     * @throws IOException if a critical IO error occurs during the test.
      */
     @Test
     public void testLoadMinimal55File() throws IOException, GedcomParserException {

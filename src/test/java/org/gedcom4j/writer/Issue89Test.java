@@ -45,7 +45,7 @@ public class Issue89Test extends TestCase {
     /**
      * Test for issue 89 where custom tags are not being emitted by the GedcomWriter
      * 
-     * @throws GedcomWriterException
+     * @throws GedcomWriterException if a critical writer error is found during the test.
      */
     @Test
     @SuppressWarnings("PMD.SystemPrintln")

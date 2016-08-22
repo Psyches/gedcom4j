@@ -145,8 +145,8 @@ public class AncestryCalculator {
     }
 
     /**
-     * @param result
-     * @param individual
+     * @param result the resulting set of combined individuals.
+     * @param individual the individual to iterate over.
      */
     private void addIndividualAndFamilies(Set<Individual> result, Individual individual) {
         // Get every family this individual was a child of

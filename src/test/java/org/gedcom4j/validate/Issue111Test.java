@@ -60,7 +60,7 @@ public class Issue111Test {
         i.getNames().add(pn2);
         g.getIndividuals().put(i.getXref(), i);
         GedcomValidator gv = new GedcomValidator(g);
-        gv.setAutoRepairEnabled(true);
+        gv.setAutorepairEnabled(true);
         gv.validate();
         assertFalse(gv.hasErrors());
         assertFalse(gv.hasWarnings());

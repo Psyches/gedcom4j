@@ -81,7 +81,7 @@ public class IndividualValidator extends AbstractValidator {
             }
 		}
 		
-		boolean isRepairEnabled = isAutoRepairEnabled();
+		boolean isRepairEnabled = isAutorepairEnabled();
         if (isRepairEnabled) {
         	eliminateDuplicatesWithInfo("families (where individual was a child)", individual, individual.getFamiliesWhereChild());
         	eliminateDuplicatesWithInfo("families (where individual was a spouse)", individual, individual.getFamiliesWhereSpouse());

@@ -27,8 +27,10 @@
 package org.gedcom4j.model;
 
 /**
+ * ModelElement identifies Gedcom model instances, and defines the contract that
+ * all model classes must adhere to.
+ * 
  * @author Mark A Sikes
  */
-public interface ValidatedElement {
-	// Marker interface to identify a Gedcom model object
+public interface ModelElement {
 }

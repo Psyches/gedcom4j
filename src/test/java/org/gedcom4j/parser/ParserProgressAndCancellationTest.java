@@ -69,8 +69,8 @@ public class ParserProgressAndCancellationTest implements ParseProgressListener 
     /**
      * Test getting notifications and cancelling the parsing of an ascii file
      * 
-     * @throws IOException
-     * @throws GedcomParserException
+     * @throws GedcomParserException if a critical parsing error occurs during the test.
+     * @throws IOException if a critical IO error occurs during the test.
      */
     @Test(expected = ParserCancelledException.class)
     public void testCancellation() throws IOException, GedcomParserException {
@@ -83,8 +83,8 @@ public class ParserProgressAndCancellationTest implements ParseProgressListener 
     /**
      * Test getting notifications and cancelling the parsing of an ascii file
      * 
-     * @throws IOException
-     * @throws GedcomParserException
+     * @throws GedcomParserException if a critical parsing error occurs during the test.
+     * @throws IOException if a critical IO error occurs during the test.
      */
     @Test
     public void testNoCancellation() throws IOException, GedcomParserException {

@@ -45,7 +45,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     public void testCharacterSet() {
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
         s.setName(new StringWithCustomTags("test"));
@@ -85,7 +85,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     public void testCopyrightData() {
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
         s.setName(new StringWithCustomTags("test"));
@@ -107,7 +107,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     public void testGedcomVersion() {
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
         s.setName(new StringWithCustomTags("test"));
@@ -140,7 +140,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
         g.setSubmission(new Submission("@SUBN0001@"));
         g.getHeader().setSubmission(g.getSubmission());
 
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
         rootValidator.validate();
         assertFindingsContain(Severity.ERROR, "submitter", "not specified");
 
@@ -163,7 +163,7 @@ public class HeaderValidatorTest extends AbstractValidatorTestCase {
     public void testSourceSystem() {
         Gedcom g = new Gedcom();
         rootValidator = new GedcomValidator(g);
-        rootValidator.setAutoRepairEnabled(false);
+        rootValidator.setAutorepairEnabled(false);
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
         s.setName(new StringWithCustomTags("test"));

@@ -105,7 +105,7 @@ public class Issue32Test {
     /**
      * Check that the notes on Mary are as expected based on the gedcom
      * 
-     * @param notes
+     * @param notes the notes on Mary.
      */
     private void checkMary(List<Note> notes) {
         assertNotNull(notes);

@@ -39,10 +39,10 @@ import org.gedcom4j.model.Submission;
 class SubmissionEmitter extends AbstractEmitter<Submission> {
 
     /**
-     * @param baseWriter
-     * @param startLevel
-     * @param writeFrom
-     * @throws WriterCancelledException
+     * @param baseWriter the GedcomWriter base class.
+     * @param startLevel the Gedcom level to start writing at.
+     * @param writeFrom the Submission model element to write from.
+     * @throws WriterCancelledException if a cancellation request is issued during this write.
      */
     SubmissionEmitter(GedcomWriter baseWriter, int startLevel, Submission writeFrom) throws WriterCancelledException {
         super(baseWriter, startLevel, writeFrom);

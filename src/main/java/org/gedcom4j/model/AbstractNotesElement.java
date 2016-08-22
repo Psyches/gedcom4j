@@ -93,16 +93,6 @@ public abstract class AbstractNotesElement extends AbstractElement implements Ha
     }
 
     /**
-     * Set the notes
-     * 
-     * @param theNotes
-     */
-    public void setNotes(List<Note> theNotes) {
-    	getNotes(true).clear();
-    	notes.addAll(theNotes);
-    }
-    
-    /**
      * {@inheritDoc}
      */
     @Override

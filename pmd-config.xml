@@ -103,8 +103,8 @@
 	<rule ref="rulesets/java/design.xml/TooFewBranchesForASwitchStatement" />
 	<rule ref="rulesets/java/design.xml/LogicInversion" />
 	<rule ref="rulesets/java/design.xml/UseVarargs" />
-	<rule
-		ref="rulesets/java/design.xml/FieldDeclarationsShouldBeAtStartOfClass" />
+	<!-- (NOT A GREAT CHOICE WHERE STATIC AND NON-STATIC ITEMS ARE GROUPED):
+	<rule ref="rulesets/java/design.xml/FieldDeclarationsShouldBeAtStartOfClass" />  -->
 	<rule ref="rulesets/java/design.xml/GodClass" />
 	<rule ref="rulesets/java/empty.xml/EmptyCatchBlock" />
 	<rule ref="rulesets/java/empty.xml/EmptyIfStmt" />

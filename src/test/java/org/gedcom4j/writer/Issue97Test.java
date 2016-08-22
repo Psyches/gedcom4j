@@ -48,7 +48,7 @@ public class Issue97Test {
     /**
      * Test the fix for Issue 97
      * 
-     * @throws GedcomWriterException
+     * @throws GedcomWriterException if a critical writer error is found during the test.
      */
     @Test
     public void testIssue97() throws GedcomWriterException {

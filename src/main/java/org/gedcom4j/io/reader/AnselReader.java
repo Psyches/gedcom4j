@@ -262,7 +262,7 @@ final class AnselReader extends AbstractEncodingSpecificReader {
      * @param previousLine
      *            the previous line
      * 
-     * @throws GedcomParserException
+     * @throws GedcomParserException if the parser finds a critical problem preventing it from continuing.
      */
     private void insertSyntheticConcTag(String previousLine) throws GedcomParserException {
         int level = getLevelFromLine(previousLine);

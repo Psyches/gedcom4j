@@ -43,9 +43,12 @@ final public class Validators {
 	private static final List<Validator> CONFIGURED_VALIDATORS = new ArrayList<Validator>();
 	
 	/**
-	 * @param theName
-	 * @param theValidator
-	 * @return
+	 * Register a validator instance by name.
+	 * 
+	 * @param theName the name of the validator
+	 * @param theValidator the validator instance.
+	 * 
+	 * @return the old validator if one was replaced with this new registration.
 	 */
 	public static Validator registerValidator(String theName, Validator theValidator) {
 		Validator old = REGISTERED_VALIDATORS.put(theName, theValidator);
@@ -54,30 +57,29 @@ final public class Validators {
 	}
 
 	/**
-	 * @return
+	 * @return the entire, read-only map of registered validators.
 	 */
 	public static Map<String, Validator> getRegisteredValidators() {
 		return Collections.unmodifiableMap(REGISTERED_VALIDATORS);
 	}
 	
 	/**
-	 * @param theName
-	 * @return
+	 * @param theName the name of the validator.
+	 * @return the registered validator instance.
 	 */
 	public static Validator getRegisteredValidator(String theName) {
 		return REGISTERED_VALIDATORS.get(theName);
 	}
 
 	/**
-	 * @return
+	 * @return the read-only list of configured validators.
 	 */
 	public static List<Validator> getConfiguredValidators() {
 		return Collections.unmodifiableList(CONFIGURED_VALIDATORS);
 	}
 
 	/**
-	 * @param isAutoRepair
-	 * @param theNames
+	 * @param theNames the validator names to configure.
 	 */
 	public static void addConfiguredValidators(String... theNames) {
 		for (String name : theNames) {

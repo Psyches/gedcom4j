@@ -29,9 +29,22 @@ package org.gedcom4j.model;
 import java.util.List;
 
 /**
+ * This interface defines the contract for a model class that has custom tags.
+ * 
  * @author Mark A Sikes
  */
-public interface HasCustomTags extends ValidatedElement {
+public interface HasCustomTags extends ModelElement {
+	/**
+	 * @return the list (possibly empty) of custom tags or null if there is no list at all.
+	 */
 	List<StringTree> getCustomTags();
-	List<StringTree> getCustomTags(boolean initialize);
+
+	/**
+	 * @param initializeIfNeeded
+	 *            true to create an empty list if the list itself is null.
+	 * 
+	 * @return the list (possibly empty) of custom tags or null if there is no
+	 *         list and initializeIfNeeded is false.
+	 */
+	List<StringTree> getCustomTags(boolean initializeIfNeeded);
 }

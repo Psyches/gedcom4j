@@ -26,7 +26,7 @@
  */
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.ValidatedElement;
+import org.gedcom4j.model.ModelElement;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,10 +36,10 @@ import org.junit.Test;
  * @author frizbog1
  * 
  */
-public class GedcomValidationFindingTest implements ValidatedElement {
+public class GedcomValidationFindingTest implements ModelElement {
 
 	/**
-     * Test for {@link GedcomValidationFinding#GedcomValidationFinding(String, Severity, Object)} - nulls as parameters
+     * Test for {@link GedcomValidationFinding#GedcomValidationFinding(String, Severity, ModelElement)} - nulls as parameters
      */
     @Test
     public void testGedcomValidationFinding1() {
@@ -51,7 +51,7 @@ public class GedcomValidationFindingTest implements ValidatedElement {
     }
 
     /**
-     * Test for {@link GedcomValidationFinding#GedcomValidationFinding(String, Severity, Object)} - values for
+     * Test for {@link GedcomValidationFinding#GedcomValidationFinding(String, Severity, ModelElement)} - values for
      * parameters
      */
     @Test

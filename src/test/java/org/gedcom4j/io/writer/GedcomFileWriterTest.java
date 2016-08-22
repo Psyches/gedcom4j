@@ -109,12 +109,13 @@ public class GedcomFileWriterTest {
     }
 
     /**
-     * Test encoding detection when no format is explicitly asked for
-     * 
-     * @throws IOException
-     * @throws WriterCancelledException
-     *             if the write operation was cancelled
-     */
+	 * Test encoding detection when no format is explicitly asked for
+	 * 
+	 * @throws IOException
+	 *             if a critical IO error occurs during the test.
+	 * @throws WriterCancelledException
+	 *             if the write operation was cancelled
+	 */
     @Test
     public void testEncodingDetectionDefault() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();
@@ -129,12 +130,13 @@ public class GedcomFileWriterTest {
     }
 
     /**
-     * Test encoding detection for UNICODE
-     * 
-     * @throws IOException
-     * @throws WriterCancelledException
-     *             if the write operation was cancelled
-     */
+	 * Test encoding detection for UNICODE
+	 * 
+	 * @throws IOException
+	 *             if a critical IO error occurs during the test.
+	 * @throws WriterCancelledException
+	 *             if the write operation was cancelled
+	 */
     @Test
     public void testEncodingDetectionUnicode() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();
@@ -149,12 +151,13 @@ public class GedcomFileWriterTest {
     }
 
     /**
-     * Test encoding detection for UTF-8
-     * 
-     * @throws IOException
-     * @throws WriterCancelledException
-     *             if the write operation was cancelled
-     */
+	 * Test encoding detection for UTF-8
+	 * 
+	 * @throws IOException
+	 *             if a critical IO error occurs during the test.
+	 * @throws WriterCancelledException
+	 *             if the write operation was cancelled
+	 */
     @Test
     public void testEncodingDetectionUtf8() throws IOException, WriterCancelledException {
         List<String> lines = new ArrayList<String>();

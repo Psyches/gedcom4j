@@ -50,8 +50,8 @@ public class Issue87Test {
      * Test the scenario for issue 87 where a level number was skipped (a level 3 line immediately following a level 1
      * line, which is technically malformed).
      * 
-     * @throws IOException
-     * @throws GedcomParserException
+     * @throws GedcomParserException if a critical parsing error occurs during the test.
+     * @throws IOException if a critical IO error occurs during the test.
      */
     @Test
     public void testIssue87() throws IOException, GedcomParserException {

@@ -439,7 +439,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     protected void emit() throws GedcomWriterException {
         if (!validationSuppressed) {
             GedcomValidator gv = new GedcomValidator(writeFrom);
-            gv.setAutoRepairEnabled(autorepair);
+            gv.setAutorepairEnabled(autorepair);
             gv.validate();
             validationFindings = gv.getFindings();
             int numErrorFindings = 0;

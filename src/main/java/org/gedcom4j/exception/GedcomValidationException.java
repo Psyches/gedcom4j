@@ -26,10 +26,12 @@
  */
 package org.gedcom4j.exception;
 
+import org.gedcom4j.validate.GedcomValidationFinding;
+
 /**
  * An exception indicating that the process of validation failed. Does not mean
  * that there is a problem with the data -- those are found in the
- * {@link GedcomValidator#findings} collection.
+ * {@link GedcomValidationFinding} collection.
  * 
  * @author frizbog1
  * 

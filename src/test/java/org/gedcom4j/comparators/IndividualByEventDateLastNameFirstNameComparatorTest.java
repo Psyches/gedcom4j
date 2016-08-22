@@ -627,8 +627,8 @@ public class IndividualByEventDateLastNameFirstNameComparatorTest {
     /**
      * Helper method for readability, that adds a birth date to an individual
      * 
-     * @param i
-     * @param string
+     * @param i the individual.
+     * @param string a birth date string.
      */
     private static void addBirthDate(Individual i, String string) {
         IndividualEvent bd = new IndividualEvent();
