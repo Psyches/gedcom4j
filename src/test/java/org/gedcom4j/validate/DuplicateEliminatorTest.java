@@ -48,7 +48,7 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testEmptyList() {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         int count = AbstractValidator.eliminateDuplicates(l);
         assertEquals(0, count);
         assertNotNull(l);
@@ -60,7 +60,7 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testListWithDups() {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         l.add("Foo");
         l.add("Bar");
         l.add("Dup");
@@ -107,7 +107,7 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testListWithNulls() {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         l.add("Foo");
         l.add("Bar");
         l.add(null);
@@ -141,7 +141,7 @@ public class DuplicateEliminatorTest {
      */
     @Test
     public void testNoDupList() {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         l.add("Foo");
         l.add("Bar");
         l.add("Baz");

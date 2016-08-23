@@ -91,7 +91,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
     /**
      * The things that went wrong while parsing the gedcom file
      */
-    private final List<String> errors = new ArrayList<String>();
+    private final List<String> errors = new ArrayList<>();
 
     /**
      * The content of the gedcom file
@@ -115,7 +115,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
     /**
      * The warnings issued during the parsing of the gedcom file
      */
-    private final List<String> warnings = new ArrayList<String>();
+    private final List<String> warnings = new ArrayList<>();
 
     /**
      * Is the load/parse process being cancelled
@@ -130,12 +130,12 @@ public class GedcomParser extends AbstractParser<Gedcom> {
     /**
      * The list of observers on file operations
      */
-    private final List<WeakReference<FileProgressListener>> fileObservers = new CopyOnWriteArrayList<WeakReference<FileProgressListener>>();
+    private final List<WeakReference<FileProgressListener>> fileObservers = new CopyOnWriteArrayList<>();
 
     /**
      * The list of observers on parsing
      */
-    private final List<WeakReference<ParseProgressListener>> parseObservers = new CopyOnWriteArrayList<WeakReference<ParseProgressListener>>();
+    private final List<WeakReference<ParseProgressListener>> parseObservers = new CopyOnWriteArrayList<>();
 
     /**
      * Get a notification whenever this many items (or more) have been parsed
@@ -356,7 +356,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
      *            the observer you want notified
      */
     public void registerFileObserver(FileProgressListener observer) {
-        fileObservers.add(new WeakReference<FileProgressListener>(observer));
+        fileObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -366,7 +366,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
      *            the observer you want notified
      */
     public void registerParseObserver(ParseProgressListener observer) {
-        parseObservers.add(new WeakReference<ParseProgressListener>(observer));
+        parseObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -432,7 +432,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
                 i++;
             }
         }
-        fileObservers.add(new WeakReference<FileProgressListener>(observer));
+        fileObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -451,7 +451,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
                 i++;
             }
         }
-        parseObservers.add(new WeakReference<ParseProgressListener>(observer));
+        parseObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -511,7 +511,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
             }
             new SubmissionParser(this, rootLevelItem, s).parse();
         } else if (Tag.NOTE.equalsText(rootLevelItem.getTag())) {
-            List<Note> dummyList = new ArrayList<Note>();
+            List<Note> dummyList = new ArrayList<>();
             new NoteListParser(this, rootLevelItem, dummyList).parse();
             if (!dummyList.isEmpty()) {
                 throw new GedcomParserException("At root level NOTE structures should have @ID@'s");

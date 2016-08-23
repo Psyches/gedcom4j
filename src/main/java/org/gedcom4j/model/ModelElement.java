@@ -33,4 +33,5 @@ package org.gedcom4j.model;
  * @author Mark A Sikes
  */
 public interface ModelElement {
+	// contract items will go here
 }

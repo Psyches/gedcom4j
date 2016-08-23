@@ -107,7 +107,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      * The text lines of the GEDCOM file we're writing, which will be written using a {@link GedcomFileWriter}. Deliberately
      * package-private so tests can access it but others can't alter it.
      */
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
 
     /**
      * Are we suppressing the call to the validator? Deliberately package-private so unit tests can fiddle with it to make testing
@@ -128,7 +128,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     /**
      * The list of observers on string construction
      */
-    private final List<WeakReference<ConstructProgressListener>> constructObservers = new CopyOnWriteArrayList<WeakReference<ConstructProgressListener>>();
+    private final List<WeakReference<ConstructProgressListener>> constructObservers = new CopyOnWriteArrayList<>();
 
     /**
      * Send a notification whenever more than this many lines are written to a file
@@ -138,7 +138,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     /**
      * The list of observers on file operations
      */
-    private final List<WeakReference<FileProgressListener>> fileObservers = new CopyOnWriteArrayList<WeakReference<FileProgressListener>>();
+    private final List<WeakReference<FileProgressListener>> fileObservers = new CopyOnWriteArrayList<>();
 
     /**
      * The number of lines constructed as last reported to the observers
@@ -173,7 +173,6 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     public GedcomWriter(Gedcom gedcom) throws WriterCancelledException {
         super(null, 0, gedcom);
-        baseWriter = this;
     }
 
     /**
@@ -266,7 +265,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      *            the observer you want notified
      */
     public void registerConstructObserver(ConstructProgressListener observer) {
-        constructObservers.add(new WeakReference<ConstructProgressListener>(observer));
+        constructObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -276,7 +275,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      *            the observer you want notified
      */
     public void registerFileObserver(FileProgressListener observer) {
-        fileObservers.add(new WeakReference<FileProgressListener>(observer));
+        fileObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -349,7 +348,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
                 i++;
             }
         }
-        constructObservers.add(new WeakReference<ConstructProgressListener>(observer));
+        constructObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -368,7 +367,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
                 i++;
             }
         }
-        fileObservers.add(new WeakReference<FileProgressListener>(observer));
+        fileObservers.add(new WeakReference<>(observer));
     }
 
     /**

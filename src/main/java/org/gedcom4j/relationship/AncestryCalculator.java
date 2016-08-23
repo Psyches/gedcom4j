@@ -75,7 +75,7 @@ public class AncestryCalculator {
      * @return the set of all ancestors for the individual, and all their spouses
      */
     public Set<Individual> getExtendedAncestry(Individual individual) {
-        Set<Individual> result = new HashSet<Individual>();
+        Set<Individual> result = new HashSet<>();
 
         addIndividualAndFamilies(result, individual);
         result.remove(individual);
@@ -113,7 +113,7 @@ public class AncestryCalculator {
      * @return the set of lowest common ancestors
      */
     public Set<Individual> getLowestCommonAncestors(Individual individual1, Individual individual2) {
-        Set<Individual> result = new HashSet<Individual>();
+        Set<Individual> result = new HashSet<>();
 
         // Initialize the first iteration of using the lowest-common-ancestor
         // process
@@ -283,7 +283,7 @@ public class AncestryCalculator {
                     addedAnyCommonAncestors = true;
                 } else if (!checkedAlready.contains(spouse) && spouse.getFamiliesWhereChild() != null && !spouse
                         .getFamiliesWhereChild().isEmpty()) {
-                    Set<Individual> s = new HashSet<Individual>();
+                    Set<Individual> s = new HashSet<>();
                     addLowestCommonAncestorsToSet(spouse, s, level + 1);
                     if (!s.isEmpty()) {
                         /*
@@ -325,7 +325,7 @@ public class AncestryCalculator {
      */
     private void initializeLcaSearch(Individual individual1) {
         targetList = getExtendedAncestry(individual1);
-        checkedAlready = new HashSet<Individual>();
+        checkedAlready = new HashSet<>();
         addedAnyCommonAncestors = false;
     }
 

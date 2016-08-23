@@ -109,7 +109,7 @@ public class GedcomValidator extends AbstractValidator {
 	/**
 	 * The findings from validation
 	 */
-	private final List<GedcomValidationFinding> findings = new ArrayList<GedcomValidationFinding>();
+	private final List<GedcomValidationFinding> findings = new ArrayList<>();
 
 	/**
 	 * The gedcom structure being validated
@@ -418,7 +418,7 @@ public class GedcomValidator extends AbstractValidator {
 		@Override
 		public List<Note> getNotes() {
 			Map<String, Note> notes = gedcom.getNotes();
-			return notes == null ? null : new ArrayList<Note>(notes.values());
+			return notes == null ? null : new ArrayList<>(notes.values());
 		}
 
 		@Override

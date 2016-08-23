@@ -53,7 +53,7 @@ abstract class AbstractEmitter<T> {
     /**
      * write starting at this level
      */
-    protected int startLevel;
+    protected final int startLevel;
 
     /**
      * object to write
@@ -63,7 +63,7 @@ abstract class AbstractEmitter<T> {
     /**
      * The base Gedcom writer class this Emitter is partnering with to emit the entire file
      */
-    protected GedcomWriter baseWriter;
+    protected final GedcomWriter baseWriter;
 
     /**
      * Constructor
@@ -78,7 +78,7 @@ abstract class AbstractEmitter<T> {
      *             if cancellation was requested during the operation
      */
     protected AbstractEmitter(GedcomWriter baseWriter, int startLevel, T writeFrom) throws WriterCancelledException {
-        this.baseWriter = baseWriter;
+        this.baseWriter = (baseWriter == null && this instanceof GedcomWriter) ? (GedcomWriter)this : baseWriter;
         this.startLevel = startLevel;
         this.writeFrom = writeFrom;
         if (baseWriter != null) {
@@ -230,7 +230,7 @@ abstract class AbstractEmitter<T> {
             line.append(" ").append(tag);
             baseWriter.lines.add(line.toString());
         } else {
-            List<String> temp = new ArrayList<String>();
+            List<String> temp = new ArrayList<>();
             temp.add(value);
             List<String> valueLines = splitLinesOnBreakingCharacters(temp);
 
@@ -276,7 +276,7 @@ abstract class AbstractEmitter<T> {
             return;
         }
 
-        List<String> temp = new ArrayList<String>();
+        List<String> temp = new ArrayList<>();
         temp.add(valueToRightOfTag.getValue());
         List<String> valueLines = splitLinesOnBreakingCharacters(temp);
 
@@ -375,7 +375,7 @@ abstract class AbstractEmitter<T> {
      * @return a list of Strings that reflect the line breaks in the original string
      */
     List<String> splitLinesOnBreakingCharacters(List<String> linesOfText) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (linesOfText != null) {
             for (String s : linesOfText) {
                 String[] pieces = s.split("(\r\n|\n\r|\r|\n)");
@@ -430,7 +430,7 @@ abstract class AbstractEmitter<T> {
     private void emitTagIfValueNotNull(int level, String xref, String tag, Object value) {
         if (value != null) {
 
-            List<String> temp = new ArrayList<String>();
+            List<String> temp = new ArrayList<>();
             temp.add(value.toString());
             List<String> valueLines = splitLinesOnBreakingCharacters(temp);
 
@@ -474,7 +474,7 @@ abstract class AbstractEmitter<T> {
         if (e == null || e.getValue() == null || e.getValue().trim().length() == 0) {
             throw new GedcomWriterException("Required value for tag " + tag + " at level " + level + " was null or blank");
         }
-        List<String> temp = new ArrayList<String>();
+        List<String> temp = new ArrayList<>();
         temp.add(e.getValue());
         List<String> valueLines = splitLinesOnBreakingCharacters(temp);
 

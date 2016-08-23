@@ -87,7 +87,7 @@ public abstract class AbstractNotesElement extends AbstractElement implements Ha
      */
     public List<Note> getNotes(boolean initializeIfNeeded) {
         if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<Note>(0);
+            notes = new ArrayList<>(0);
         }
         return notes;
     }

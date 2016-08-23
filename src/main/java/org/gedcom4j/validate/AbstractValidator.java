@@ -210,7 +210,7 @@ public abstract class AbstractValidator {
 	protected static <T> int eliminateDuplicates(List<T> items) {
 		int result = 0;
 		if (items != null && !items.isEmpty()) {
-			HashSet<T> unique = new HashSet<T>();
+			HashSet<T> unique = new HashSet<>();
 			for (int i = 0; i < items.size();) {
 				T item = items.get(i);
 				if (unique.contains(item)) {

@@ -98,7 +98,7 @@ public class RelationshipCalculator {
     /**
      * People we have looked at already
      */
-    private Set<Individual> lookedAt = new HashSet<Individual>();
+    private Set<Individual> lookedAt = new HashSet<>();
 
     /**
      * <p>
@@ -123,7 +123,7 @@ public class RelationshipCalculator {
     public void calculateRelationships(Individual individual1, Individual individual2, boolean simplified) {
 
         // Clear out the results from last time
-        relationshipsFound = new ArrayList<Relationship>();
+        relationshipsFound = new ArrayList<>();
 
         // We are starting with the first individual
         startingIndividual = individual1;
@@ -132,9 +132,9 @@ public class RelationshipCalculator {
         targetIndividual = individual2;
 
         // We currently have taken no steps away from individual 1
-        currentChain = new ArrayList<SimpleRelationship>();
+        currentChain = new ArrayList<>();
 
-        lookedAt = new HashSet<Individual>();
+        lookedAt = new HashSet<>();
 
         // Start with individual 1 and recurse
         if (individual1 != individual2) { // NOPMD - Deliberately comparing with !=
@@ -148,7 +148,7 @@ public class RelationshipCalculator {
         }
         if (relationshipsFound.size() > 1) {
             // Remove duplicates
-            relationshipsFound = new ArrayList<Relationship>(new HashSet<Relationship>(relationshipsFound));
+            relationshipsFound = new ArrayList<>(new HashSet<>(relationshipsFound));
             Collections.sort(relationshipsFound);
 
             // Of the unique chains, the shortest ones are preferred
@@ -161,7 +161,7 @@ public class RelationshipCalculator {
 
             // Of chains of equal lengths, the simplest ones are preferred
             int simplestSimplicity = Integer.MAX_VALUE;
-            List<Relationship> keepers = new ArrayList<Relationship>();
+            List<Relationship> keepers = new ArrayList<>();
             for (int i = relationshipsFound.size() - 1; i >= 0; i--) {
                 Relationship r = relationshipsFound.get(i);
                 int totalSimplicity = r.getTotalSimplicity();
