@@ -39,10 +39,16 @@ import org.gedcom4j.model.Submission;
 class SubmissionEmitter extends AbstractEmitter<Submission> {
 
     /**
-     * @param baseWriter the GedcomWriter base class.
-     * @param startLevel the Gedcom level to start writing at.
-     * @param writeFrom the Submission model element to write from.
-     * @throws WriterCancelledException if a cancellation request is issued during this write.
+     * Constructor
+     * 
+     * @param baseWriter
+     *            The base Gedcom writer class this Emitter is partnering with to emit the entire file
+     * @param startLevel
+     *            write starting at this level
+     * @param writeFrom
+     *            object to write
+     * @throws WriterCancelledException
+     *             if cancellation was requested during the operation
      */
     SubmissionEmitter(GedcomWriter baseWriter, int startLevel, Submission writeFrom) throws WriterCancelledException {
         super(baseWriter, startLevel, writeFrom);
@@ -66,7 +72,7 @@ class SubmissionEmitter extends AbstractEmitter<Submission> {
         emitTagIfValueNotNull(1, "DESC", writeFrom.getDescendantsCount());
         emitTagIfValueNotNull(1, "ORDI", writeFrom.getOrdinanceProcessFlag());
         emitTagIfValueNotNull(1, "RIN", writeFrom.getRecIdNumber());
-        emitCustomTags(1, writeFrom.getCustomTags());
+        emitCustomFacts(1, writeFrom.getCustomFacts());
     }
 
 }

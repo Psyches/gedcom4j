@@ -28,7 +28,8 @@ package org.gedcom4j.validate;
 
 import org.gedcom4j.model.Family;
 import org.gedcom4j.model.Individual;
-import org.gedcom4j.model.StringWithCustomTags;
+import org.gedcom4j.model.IndividualReference;
+import org.gedcom4j.model.StringWithCustomFacts;
 import org.gedcom4j.model.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,16 +43,6 @@ import org.junit.Test;
 public class FamilyValidatorTest extends AbstractValidatorTestCase {
 
     /**
-     * The father in the family
-     */
-    private Individual dad;
-
-    /**
-     * The mother in the family
-     */
-    private Individual mom;
-
-    /**
      * The child in the family
      */
     private Individual jr;
@@ -62,20 +53,19 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
     private Family f;
 
     /**
-     * {@inheritDoc}
+     * Set up the test
      */
-    @Override
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         gedcom = TestHelper.getMinimalGedcom();
-        super.setUp();
-        rootValidator.setAutorepairEnabled(false);
+        validator = new Validator(gedcom);
+        validator.setAutoRepairResponder(Validator.AUTO_REPAIR_NONE);
 
-        dad = new Individual();
+        final Individual dad = new Individual();
         dad.setXref("@I00001@");
         gedcom.getIndividuals().put(dad.getXref(), dad);
 
-        mom = new Individual();
+        final Individual mom = new Individual();
         mom.setXref("@I00002@");
         gedcom.getIndividuals().put(mom.getXref(), mom);
 
@@ -85,12 +75,12 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
 
         f = new Family();
         f.setXref("@F0001@");
-        f.setHusband(dad);
-        f.setWife(mom);
-        f.getChildren(true).add(jr);
+        f.setHusband(new IndividualReference(dad));
+        f.setWife(new IndividualReference(mom));
+        f.getChildren(true).add(new IndividualReference(jr));
         gedcom.getFamilies().put(f.getXref(), f);
 
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
     }
 
@@ -99,22 +89,20 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
      */
     @Test
     public void testAutomatedRecordId() {
-        f.setAutomatedRecordId(new StringWithCustomTags((String) null));
-        rootValidator.validate();
-        assertFindingsContain(Severity.ERROR, "automated", "record", "id", "no value");
+        f.setAutomatedRecordId(new StringWithCustomFacts((String) null));
+        validator.validate();
+        assertFindingsContain(Severity.ERROR, f, ProblemCode.MISSING_REQUIRED_VALUE, "automatedRecordId");
 
-        f.setAutomatedRecordId(new StringWithCustomTags(""));
-        rootValidator.validate();
-        assertFindingsContain(Severity.ERROR, "automated", "record", "id", "blank");
-        assertFindingsContain(Severity.ERROR, "automated", "record", "id", "custom tags", "no value");
+        f.setAutomatedRecordId("");
+        validator.validate();
+        assertFindingsContain(Severity.ERROR, f, ProblemCode.MISSING_REQUIRED_VALUE, "automatedRecordId");
 
-        f.setAutomatedRecordId(new StringWithCustomTags("     "));
-        rootValidator.validate();
-        assertFindingsContain(Severity.ERROR, "automated", "record", "id", "blank");
-        assertFindingsContain(Severity.ERROR, "automated", "record", "id", "custom tags", "no value");
+        f.setAutomatedRecordId("     ");
+        validator.validate();
+        assertFindingsContain(Severity.ERROR, f, ProblemCode.MISSING_REQUIRED_VALUE, "automatedRecordId");
 
-        f.setAutomatedRecordId(new StringWithCustomTags("Frying Pan"));
-        rootValidator.validate();
+        f.setAutomatedRecordId("Frying Pan");
+        validator.validate();
         assertNoIssues();
     }
 
@@ -124,19 +112,19 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testNoCitations() {
         f.getCitations(true).clear();
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
     }
 
     /**
-     * Test when there are no custom tags
+     * Test when there are no custom facts
      */
     @Test
-    public void testNoCustomTags() {
-        rootValidator.validate();
+    public void testNoCustomFacts() {
+        validator.validate();
         assertNoIssues();
-        f.getCustomTags(true).clear();
-        rootValidator.validate();
+        f.getCustomFacts(true).clear();
+        validator.validate();
         assertNoIssues();
     }
 
@@ -147,7 +135,7 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
     public void testNoDadInFamily() {
         f.setHusband(null);
 
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
     }
 
@@ -157,11 +145,11 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testNoKidsInFamily() {
         f.getChildren(true).clear();
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
 
-        f.getChildren(true).add(jr);
-        rootValidator.validate();
+        f.getChildren(true).add(new IndividualReference(jr));
+        validator.validate();
         assertNoIssues();
     }
 
@@ -172,7 +160,7 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
     public void testNoMomInFamily() {
         f.setWife(null);
 
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
     }
 
@@ -181,10 +169,10 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
      */
     @Test
     public void testNoMultimedia() {
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
         f.getMultimedia(true).clear();
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
     }
 
@@ -197,7 +185,7 @@ public class FamilyValidatorTest extends AbstractValidatorTestCase {
         f.setWife(null);
         f.getChildren(true).clear();
 
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
     }
 

@@ -36,7 +36,7 @@ import java.util.Map.Entry;
 
 import org.gedcom4j.exception.GedcomParserException;
 import org.gedcom4j.model.Individual;
-import org.gedcom4j.model.Note;
+import org.gedcom4j.model.NoteStructure;
 import org.junit.Test;
 
 /**
@@ -69,13 +69,13 @@ public class Issue32Test {
                 foundJohn = true;
                 Individual john = i.getValue();
                 assertNotNull(john);
-                checkJohn(john.getNotes());
+                checkJohn(john.getNoteStructures());
             }
             if (i.getKey().equalsIgnoreCase("@I2@")) {
                 foundMary = true;
                 Individual mary = i.getValue();
                 assertNotNull(mary);
-                checkMary(mary.getNotes());
+                checkMary(mary.getNoteStructures());
             }
         }
         assertTrue("Didn't find john", foundJohn);
@@ -85,42 +85,45 @@ public class Issue32Test {
     /**
      * Check that the notes on John are as expected based on the gedcom
      * 
-     * @param notes
+     * @param list
      *            the notes
      */
-    private void checkJohn(List<Note> notes) {
-        assertNotNull(notes);
-        assertEquals(1, notes.size());
-        Note note = notes.get(0);
+    private void checkJohn(List<NoteStructure> list) {
+        assertNotNull(list);
+        assertEquals(1, list.size());
+        NoteStructure note = list.get(0);
         assertNotNull(note);
         assertNotNull(note.getLines());
         assertEquals(1, note.getLines().size());
-        assertEquals("Lorem ipsum dolor sit amet, consectetur adipisicing elit, " + "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-                + "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " + "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
+        assertEquals("Lorem ipsum dolor sit amet, consectetur adipisicing elit, "
+                + "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                + "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
+                + "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
                 + "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
-                + "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa " + "qui officia deserunt mollit anim id est laborum.", note
-                        .getLines().get(0));
+                + "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa "
+                + "qui officia deserunt mollit anim id est laborum.", note.getLines().get(0));
     }
 
     /**
      * Check that the notes on Mary are as expected based on the gedcom
      * 
-     * @param notes the notes on Mary.
+     * @param notes
+     *            the notes on mary
      */
-    private void checkMary(List<Note> notes) {
+    private void checkMary(List<NoteStructure> notes) {
         assertNotNull(notes);
         assertEquals(1, notes.size());
-        Note note = notes.get(0);
+        NoteStructure note = notes.get(0);
         assertNotNull(note);
         assertNotNull(note.getLines());
         assertEquals(3, note.getLines().size());
-        assertEquals("Lorem ipsum dolor sit amet, consectetur adipisicing elit, " + "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ", note
-                .getLines().get(0));
+        assertEquals("Lorem ipsum dolor sit amet, consectetur adipisicing elit, "
+                + "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ", note.getLines().get(0));
         assertEquals("Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
-                + "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " + "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
-                + "pariatur. ", note.getLines().get(1));
-        assertEquals("Excepteur sint occaecat cupidatat non proident, sunt in culpa " + "qui officia deserunt mollit anim id est laborum.", note.getLines().get(
-                2));
+                + "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
+                + "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla " + "pariatur. ", note.getLines().get(1));
+        assertEquals("Excepteur sint occaecat cupidatat non proident, sunt in culpa "
+                + "qui officia deserunt mollit anim id est laborum.", note.getLines().get(2));
 
     }
 }

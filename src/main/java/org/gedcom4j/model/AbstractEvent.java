@@ -37,26 +37,22 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
-public abstract class AbstractEvent extends AbstractNotesElement implements HasCitations {
+@SuppressWarnings("PMD.GodClass")
+public abstract class AbstractEvent extends AbstractAddressableElement implements HasCitations {
     /**
      * Serial Version UID
      */
     private static final long serialVersionUID = 2745411202618610785L;
 
     /**
-     * The address where this event took place
-     */
-    private Address address;
-
-    /**
      * The age of the person to whom this event is attached at the time it occurred
      */
-    private StringWithCustomTags age;
+    private StringWithCustomFacts age;
 
     /**
      * The cause of the event
      */
-    private StringWithCustomTags cause;
+    private StringWithCustomFacts cause;
 
     /**
      * The citations for this object
@@ -66,32 +62,17 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
     /**
      * The date of this event
      */
-    private StringWithCustomTags date;
+    private StringWithCustomFacts date;
 
     /**
      * A description of this event
      */
-    private StringWithCustomTags description;
-
-    /**
-     * The emails for this submitter. New for GEDCOM 5.5.1
-     */
-    private List<StringWithCustomTags> emails = getEmails(Options.isCollectionInitializationEnabled());
-
-    /**
-     * Fax numbers. New for GEDCOM 5.5.1.
-     */
-    private List<StringWithCustomTags> faxNumbers = getFaxNumbers(Options.isCollectionInitializationEnabled());
+    private StringWithCustomFacts description;
 
     /**
      * Multimedia links for this source citation
      */
-    private List<Multimedia> multimedia = getMultimedia(Options.isCollectionInitializationEnabled());
-
-    /**
-     * The phone numbers for this submitter
-     */
-    private List<StringWithCustomTags> phoneNumbers = getPhoneNumbers(Options.isCollectionInitializationEnabled());
+    private List<MultimediaReference> multimedia = getMultimedia(Options.isCollectionInitializationEnabled());
 
     /**
      * The place where this event occurred
@@ -101,33 +82,88 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
     /**
      * The religious affiliation of this event. New for GEDCOM 5.5.1.
      */
-    private StringWithCustomTags religiousAffiliation;
+    private StringWithCustomFacts religiousAffiliation;
 
     /**
      * The responsible agency for this event
      */
-    private StringWithCustomTags respAgency;
+    private StringWithCustomFacts respAgency;
 
     /**
-     * A notification that this record is in some way restricted. New for GEDCOM 5.5.1. Values are supposed to be
-     * "confidential", "locked", or "privacy" but this implementation allows any value.
+     * A notification that this record is in some way restricted. New for GEDCOM 5.5.1. Values are supposed to be "confidential",
+     * "locked", or "privacy" but this implementation allows any value.
      */
-    private StringWithCustomTags restrictionNotice;
+    private StringWithCustomFacts restrictionNotice;
 
     /**
      * A subtype that further qualifies the type
      */
-    private StringWithCustomTags subType;
-
-    /**
-     * Web URL's. New for GEDCOM 5.5.1.
-     */
-    private List<StringWithCustomTags> wwwUrls = getWwwUrls(Options.isCollectionInitializationEnabled());
+    private StringWithCustomFacts subType;
 
     /**
      * Either a Y or a null after the event type;
      */
     private String yNull;
+
+    /** Default constructor */
+    public AbstractEvent() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public AbstractEvent(AbstractEvent other) {
+        super(other);
+
+        if (other.age != null) {
+            age = new StringWithCustomFacts(other.age);
+        }
+        if (other.cause != null) {
+            cause = new StringWithCustomFacts(other.cause);
+        }
+        if (other.citations != null) {
+            citations = new ArrayList<>();
+            for (AbstractCitation ac : other.citations) {
+                if (ac instanceof CitationWithoutSource) {
+                    citations.add(new CitationWithoutSource((CitationWithoutSource) ac));
+                } else if (ac instanceof CitationWithSource) {
+                    citations.add(new CitationWithSource((CitationWithSource) ac));
+                }
+            }
+        }
+        if (other.date != null) {
+            date = new StringWithCustomFacts(other.date);
+        }
+        if (other.description != null) {
+            description = new StringWithCustomFacts(other.description);
+        }
+        if (other.multimedia != null) {
+            multimedia = new ArrayList<>();
+            for (MultimediaReference m : other.multimedia) {
+                multimedia.add(new MultimediaReference(m));
+            }
+        }
+        if (other.place != null) {
+            place = new Place(other.place);
+        }
+        if (other.religiousAffiliation != null) {
+            religiousAffiliation = new StringWithCustomFacts(other.religiousAffiliation);
+        }
+        if (other.respAgency != null) {
+            respAgency = new StringWithCustomFacts(other.respAgency);
+        }
+        if (other.restrictionNotice != null) {
+            restrictionNotice = new StringWithCustomFacts(other.restrictionNotice);
+        }
+        if (other.subType != null) {
+            subType = new StringWithCustomFacts(other.subType);
+        }
+        yNull = other.yNull;
+    }
 
     /**
      * {@inheritDoc}
@@ -269,20 +305,11 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
     }
 
     /**
-     * Gets the address.
-     *
-     * @return the address
-     */
-    public Address getAddress() {
-        return address;
-    }
-
-    /**
      * Gets the age.
      *
      * @return the age
      */
-    public StringWithCustomTags getAge() {
+    public StringWithCustomFacts getAge() {
         return age;
     }
 
@@ -291,7 +318,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the cause
      */
-    public StringWithCustomTags getCause() {
+    public StringWithCustomFacts getCause() {
         return cause;
     }
 
@@ -300,6 +327,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the citations
      */
+    @Override
     public List<AbstractCitation> getCitations() {
         return citations;
     }
@@ -312,6 +340,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * 
      * @return the citations
      */
+    @Override
     public List<AbstractCitation> getCitations(boolean initializeIfNeeded) {
         if (initializeIfNeeded && citations == null) {
             citations = new ArrayList<>(0);
@@ -324,7 +353,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the date
      */
-    public StringWithCustomTags getDate() {
+    public StringWithCustomFacts getDate() {
         return date;
     }
 
@@ -333,55 +362,8 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the description
      */
-    public StringWithCustomTags getDescription() {
+    public StringWithCustomFacts getDescription() {
         return description;
-    }
-
-    /**
-     * Gets the emails.
-     *
-     * @return the emails
-     */
-    public List<StringWithCustomTags> getEmails() {
-        return emails;
-    }
-
-    /**
-     * Get the emails
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection, if needed?
-     * @return the emails
-     */
-    public List<StringWithCustomTags> getEmails(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && emails == null) {
-            emails = new ArrayList<>(0);
-        }
-
-        return emails;
-    }
-
-    /**
-     * Gets the fax numbers.
-     *
-     * @return the fax numbers
-     */
-    public List<StringWithCustomTags> getFaxNumbers() {
-        return faxNumbers;
-    }
-
-    /**
-     * Get the fax numbers
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection, if needed?
-     * @return the faxNumbers
-     */
-    public List<StringWithCustomTags> getFaxNumbers(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && faxNumbers == null) {
-            faxNumbers = new ArrayList<>(0);
-        }
-        return faxNumbers;
     }
 
     /**
@@ -389,7 +371,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the multimedia
      */
-    public List<Multimedia> getMultimedia() {
+    public List<MultimediaReference> getMultimedia() {
         return multimedia;
     }
 
@@ -400,34 +382,11 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *            true if this collection should be created on-the-fly if it is currently null
      * @return the multimedia
      */
-    public List<Multimedia> getMultimedia(boolean initializeIfNeeded) {
+    public List<MultimediaReference> getMultimedia(boolean initializeIfNeeded) {
         if (initializeIfNeeded && multimedia == null) {
             multimedia = new ArrayList<>(0);
         }
         return multimedia;
-    }
-
-    /**
-     * Gets the phone numbers.
-     *
-     * @return the phone numbers
-     */
-    public List<StringWithCustomTags> getPhoneNumbers() {
-        return phoneNumbers;
-    }
-
-    /**
-     * Get the phone numbers
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection, if needed?
-     * @return the phoneNumbers
-     */
-    public List<StringWithCustomTags> getPhoneNumbers(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && phoneNumbers == null) {
-            phoneNumbers = new ArrayList<>(0);
-        }
-        return phoneNumbers;
     }
 
     /**
@@ -444,7 +403,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the religious affiliation
      */
-    public StringWithCustomTags getReligiousAffiliation() {
+    public StringWithCustomFacts getReligiousAffiliation() {
         return religiousAffiliation;
     }
 
@@ -453,7 +412,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the resp agency
      */
-    public StringWithCustomTags getRespAgency() {
+    public StringWithCustomFacts getRespAgency() {
         return respAgency;
     }
 
@@ -462,7 +421,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the restriction notice
      */
-    public StringWithCustomTags getRestrictionNotice() {
+    public StringWithCustomFacts getRestrictionNotice() {
         return restrictionNotice;
     }
 
@@ -471,39 +430,16 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      *
      * @return the sub type
      */
-    public StringWithCustomTags getSubType() {
+    public StringWithCustomFacts getSubType() {
         return subType;
     }
 
     /**
-     * Gets the www urls.
-     *
-     * @return the www urls
-     */
-    public List<StringWithCustomTags> getWwwUrls() {
-        return wwwUrls;
-    }
-
-    /**
-     * Get the www urls
+     * Get the Y or Null flag
      * 
-     * @param initializeIfNeeded
-     *            initialize the collection, if needed?
-     * @return the wwwUrls
+     * @return the Y or Null flag
      */
-    public List<StringWithCustomTags> getWwwUrls(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && wwwUrls == null) {
-            wwwUrls = new ArrayList<>(0);
-        }
-        return wwwUrls;
-    }
-
-    /**
-     * Get the yNull
-     * 
-     * @return the yNull
-     */
-    public String getyNull() {
+    public String getYNull() {
         return yNull;
     }
 
@@ -535,13 +471,13 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
     }
 
     /**
-     * Sets the address.
+     * Sets the age.
      *
-     * @param address
-     *            the new address
+     * @param age
+     *            the new age
      */
-    public void setAddress(Address address) {
-        this.address = address;
+    public void setAge(String age) {
+        this.age = age == null ? null : new StringWithCustomFacts(age);
     }
 
     /**
@@ -550,7 +486,7 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param age
      *            the new age
      */
-    public void setAge(StringWithCustomTags age) {
+    public void setAge(StringWithCustomFacts age) {
         this.age = age;
     }
 
@@ -560,7 +496,17 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param cause
      *            the new cause
      */
-    public void setCause(StringWithCustomTags cause) {
+    public void setCause(String cause) {
+        this.cause = cause == null ? null : new StringWithCustomFacts(cause);
+    }
+
+    /**
+     * Sets the cause.
+     *
+     * @param cause
+     *            the new cause
+     */
+    public void setCause(StringWithCustomFacts cause) {
         this.cause = cause;
     }
 
@@ -570,7 +516,17 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param date
      *            the new date
      */
-    public void setDate(StringWithCustomTags date) {
+    public void setDate(String date) {
+        this.date = date == null ? null : new StringWithCustomFacts(date);
+    }
+
+    /**
+     * Sets the date.
+     *
+     * @param date
+     *            the new date
+     */
+    public void setDate(StringWithCustomFacts date) {
         this.date = date;
     }
 
@@ -580,7 +536,17 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param description
      *            the new description
      */
-    public void setDescription(StringWithCustomTags description) {
+    public void setDescription(String description) {
+        this.description = description == null ? null : new StringWithCustomFacts(description);
+    }
+
+    /**
+     * Sets the description.
+     *
+     * @param description
+     *            the new description
+     */
+    public void setDescription(StringWithCustomFacts description) {
         this.description = description;
     }
 
@@ -600,7 +566,17 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param religiousAffiliation
      *            the new religious affiliation
      */
-    public void setReligiousAffiliation(StringWithCustomTags religiousAffiliation) {
+    public void setReligiousAffiliation(String religiousAffiliation) {
+        this.religiousAffiliation = religiousAffiliation == null ? null : new StringWithCustomFacts(religiousAffiliation);
+    }
+
+    /**
+     * Sets the religious affiliation.
+     *
+     * @param religiousAffiliation
+     *            the new religious affiliation
+     */
+    public void setReligiousAffiliation(StringWithCustomFacts religiousAffiliation) {
         this.religiousAffiliation = religiousAffiliation;
     }
 
@@ -610,7 +586,17 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param respAgency
      *            the new resp agency
      */
-    public void setRespAgency(StringWithCustomTags respAgency) {
+    public void setRespAgency(String respAgency) {
+        this.respAgency = respAgency == null ? null : new StringWithCustomFacts(respAgency);
+    }
+
+    /**
+     * Sets the resp agency.
+     *
+     * @param respAgency
+     *            the new resp agency
+     */
+    public void setRespAgency(StringWithCustomFacts respAgency) {
         this.respAgency = respAgency;
     }
 
@@ -620,7 +606,17 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param restrictionNotice
      *            the new restriction notice
      */
-    public void setRestrictionNotice(StringWithCustomTags restrictionNotice) {
+    public void setRestrictionNotice(String restrictionNotice) {
+        this.restrictionNotice = restrictionNotice == null ? null : new StringWithCustomFacts(restrictionNotice);
+    }
+
+    /**
+     * Sets the restriction notice.
+     *
+     * @param restrictionNotice
+     *            the new restriction notice
+     */
+    public void setRestrictionNotice(StringWithCustomFacts restrictionNotice) {
         this.restrictionNotice = restrictionNotice;
     }
 
@@ -630,17 +626,28 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
      * @param subType
      *            the new sub type
      */
-    public void setSubType(StringWithCustomTags subType) {
+    public void setSubType(String subType) {
+        this.subType = subType == null ? null : new StringWithCustomFacts(subType);
+    }
+
+    /**
+     * Sets the sub type.
+     *
+     * @param subType
+     *            the new sub type
+     */
+    public void setSubType(StringWithCustomFacts subType) {
         this.subType = subType;
     }
 
     /**
-     * Set the yNull
+     * Set the Y or Null flag
      * 
      * @param yNull
-     *            the yNull to set
+     *            the Y or Null flag to set
      */
-    public void setyNull(String yNull) {
+    @SuppressWarnings("checkstyle:HiddenField")
+    public void setYNull(String yNull) {
         this.yNull = yNull;
     }
 
@@ -659,16 +666,12 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
     /**
      * Converts only the field members into the toString() representation, for easy sub-classing.
      * 
-     * @param builder the StringBuilder to output into.
+     * @param builder
+     *            the StringBuilder to output into.
      * 
      * @return the StringBuilder that was passed in.
      */
     protected StringBuilder buildAbstractEventToString(StringBuilder builder) {
-        if (address != null) {
-            builder.append("address=");
-            builder.append(address);
-            builder.append(", ");
-        }
         if (age != null) {
             builder.append("age=");
             builder.append(age);
@@ -694,29 +697,14 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
             builder.append(description);
             builder.append(", ");
         }
-        if (emails != null) {
-            builder.append("emails=");
-            builder.append(emails);
-            builder.append(", ");
-        }
-        if (faxNumbers != null) {
-            builder.append("faxNumbers=");
-            builder.append(faxNumbers);
-            builder.append(", ");
-        }
         if (multimedia != null) {
             builder.append("multimedia=");
             builder.append(multimedia);
             builder.append(", ");
         }
-        if (getNotes() != null) {
-            builder.append("notes=");
-            builder.append(getNotes());
-            builder.append(", ");
-        }
-        if (phoneNumbers != null) {
-            builder.append("phoneNumbers=");
-            builder.append(phoneNumbers);
+        if (getNoteStructures() != null) {
+            builder.append("noteStructures=");
+            builder.append(getNoteStructures());
             builder.append(", ");
         }
         if (place != null) {
@@ -744,20 +732,16 @@ public abstract class AbstractEvent extends AbstractNotesElement implements HasC
             builder.append(subType);
             builder.append(", ");
         }
-        if (wwwUrls != null) {
-            builder.append("wwwUrls=");
-            builder.append(wwwUrls);
-            builder.append(", ");
-        }
         if (yNull != null) {
             builder.append("yNull=");
             builder.append(yNull);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        appendAddressFields(builder, true);
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(customFacts);
         }
-    	return builder;
+        return builder;
     }
 }

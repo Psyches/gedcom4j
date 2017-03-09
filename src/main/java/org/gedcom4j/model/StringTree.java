@@ -26,7 +26,6 @@
  */
 package org.gedcom4j.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,21 +33,21 @@ import org.gedcom4j.Options;
 
 /**
  * <p>
- * A structure to hold an element (as string data) from a GEDCOM file in such a way as to preserve and recognize the
- * hierarchical structure of GEDCOMs (based on the level field of each line)
+ * A structure to hold an element (as string data) from a GEDCOM file in such a way as to preserve and recognize the hierarchical
+ * structure of GEDCOMs (based on the level field of each line)
  * </p>
  * <p>
- * This is tree structure represents the parsed fields from a single line of text from the gedcom file, and all the
- * parsed fields of all the child structures as well.
+ * This is tree structure represents the parsed fields from a single line of text from the gedcom file, and all the parsed fields of
+ * all the child structures as well.
  * </p>
  * <p>
- * This class is used by the parser for temporary storage of the text of the gedcom. The class and its members are
- * deliberately package private so only the parser will reference it.
+ * This class is used by the parser for temporary storage of the text of the gedcom. The class and its members are deliberately
+ * package private so only the parser will reference it.
  * </p>
  * 
  * @author frizbog1
  */
-public class StringTree implements Serializable {
+public class StringTree implements ModelElement {
 
     /**
      * Serial Version UID
@@ -61,9 +60,9 @@ public class StringTree implements Serializable {
     private List<StringTree> children = getChildren(Options.isCollectionInitializationEnabled());
 
     /**
-     * The ID number of this element
+     * The Xref ID number of this element
      */
-    private String id;
+    private String xref;
 
     /**
      * The level of this element
@@ -80,8 +79,8 @@ public class StringTree implements Serializable {
      * The element to which this element is a child.
      * </p>
      * <p>
-     * <em>Note:</em> Should not be incuded in {@link #equals(Object)} or {@link #hashCode()} implementations because
-     * that leads to infinite recursion. See Issue #60.
+     * <em>Note:</em> Should not be incuded in {@link #equals(Object)} or {@link #hashCode()} implementations because that leads to
+     * infinite recursion. See Issue #60.
      * </p>
      */
     private StringTree parent = null;
@@ -95,6 +94,36 @@ public class StringTree implements Serializable {
      * The value for this element (basically everything after the tag)
      */
     private String value;
+
+    /**
+     * Default constructor
+     */
+    public StringTree() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor. Note that the {@link #parent} field is not copied, and must be set by the caller after construction.
+     * 
+     * @param other
+     *            the other StringTree to copy
+     */
+    public StringTree(StringTree other) {
+        xref = other.xref;
+        level = other.level;
+        lineNum = other.lineNum;
+        tag = other.tag;
+        value = other.value;
+        parent = null; // Can't copy from other - up to caller to populate
+        if (other.getChildren() != null) {
+            children = new ArrayList<>();
+            for (StringTree ch : other.children) {
+                StringTree newCh = new StringTree(ch);
+                newCh.setParent(this);
+                children.add(newCh);
+            }
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -118,11 +147,11 @@ public class StringTree implements Serializable {
         } else if (!children.equals(other.children)) {
             return false;
         }
-        if (id == null) {
-            if (other.id != null) {
+        if (xref == null) {
+            if (other.xref != null) {
                 return false;
             }
-        } else if (!id.equals(other.id)) {
+        } else if (!xref.equals(other.xref)) {
             return false;
         }
         if (level != other.level) {
@@ -145,6 +174,7 @@ public class StringTree implements Serializable {
         } else if (!value.equals(other.value)) {
             return false;
         }
+        // Parent is excluded to prevent infinite recursion
         return true;
     }
 
@@ -169,15 +199,6 @@ public class StringTree implements Serializable {
             children = new ArrayList<>(0);
         }
         return children;
-    }
-
-    /**
-     * Gets the id.
-     *
-     * @return the id
-     */
-    public String getId() {
-        return id;
     }
 
     /**
@@ -226,6 +247,15 @@ public class StringTree implements Serializable {
     }
 
     /**
+     * Gets the xref.
+     *
+     * @return the xref
+     */
+    public String getXref() {
+        return xref;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -233,22 +263,13 @@ public class StringTree implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + (children == null ? 0 : children.hashCode());
-        result = prime * result + (id == null ? 0 : id.hashCode());
+        result = prime * result + (xref == null ? 0 : xref.hashCode());
         result = prime * result + level;
         result = prime * result + lineNum;
         result = prime * result + (tag == null ? 0 : tag.hashCode());
         result = prime * result + (value == null ? 0 : value.hashCode());
+        // Note that parent is not included, to provent infinite recursion
         return result;
-    }
-
-    /**
-     * Sets the id.
-     *
-     * @param id
-     *            the new id
-     */
-    public void setId(String id) {
-        this.id = id;
     }
 
     /**
@@ -302,12 +323,22 @@ public class StringTree implements Serializable {
     }
 
     /**
+     * Sets the xref.
+     *
+     * @param xref
+     *            the new xref
+     */
+    public void setXref(String xref) {
+        this.xref = xref;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Line " + lineNum + ": " + level + (id == null ? "" : " " + id) + " " + (tag == null ? "(null tag)" : tag) + " "
-                + (value == null ? "(null value)" : value));
+        StringBuilder sb = new StringBuilder("Line " + lineNum + ": " + level + (xref == null ? "" : " " + xref) + " "
+                + (tag == null ? "(null tag)" : tag) + " " + (value == null ? "(null value)" : value));
         if (children != null) {
             for (StringTree ch : children) {
                 sb.append("\n").append(ch);

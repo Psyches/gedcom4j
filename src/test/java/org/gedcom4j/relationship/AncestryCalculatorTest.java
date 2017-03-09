@@ -26,7 +26,10 @@
  */
 package org.gedcom4j.relationship;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Set;
@@ -39,12 +42,14 @@ import org.gedcom4j.query.Finder;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Tests for the {@link AncestryCalculator} class
  * 
  * @author frizbog1
  */
-@SuppressWarnings({ "PMD.TooManyMethods", "PMD.SystemPrintln", "PMD.EmptyCatchBlock", "PMD.JUnitUseExpected" })
+@SuppressWarnings("PMD.TooManyMethods")
 public class AncestryCalculatorTest {
 
     /**
@@ -52,12 +57,6 @@ public class AncestryCalculatorTest {
      * be always set to false when checked into repository.
      */
     private static final boolean VERBOSE = false;
-
-    /**
-     * The gedcom to work with for testing
-     */
-    @SuppressWarnings("PMD.SingularField")
-	private Gedcom g;
 
     /**
      * A finder test fixture for the test
@@ -84,7 +83,7 @@ public class AncestryCalculatorTest {
         gp.load("sample/RelationshipTest.ged");
         assertTrue(gp.getErrors().isEmpty());
         assertTrue(gp.getWarnings().isEmpty());
-        g = gp.getGedcom();
+        final Gedcom g = gp.getGedcom();
         assertNotNull(g);
         assertEquals("There are supposed to be 43 people in the gedcom - are you using the right file/file version?", 43, g
                 .getIndividuals().size());
@@ -104,7 +103,7 @@ public class AncestryCalculatorTest {
     @Test
     public void testCyclicalAncestry() throws IOException, GedcomParserException {
         GedcomParser gp = new GedcomParser();
-        gp.load("sample/gedantic sample.ged");
+        gp.load("sample/problemFile.ged");
         Individual i1 = gp.getGedcom().getIndividuals().get("@I27@");
         assertNotNull(i1);
         Set<Individual> extendedAncestry = anc.getExtendedAncestry(i1);
@@ -150,7 +149,8 @@ public class AncestryCalculatorTest {
      * ancestors are the parent's
      */
     @Test
-	public void testExtendedAncestors4() {
+    @SuppressWarnings("PMD.SystemPrintln")
+    public void testExtendedAncestors4() {
         Individual robert = getPerson("Andrews", "Robert");
         Individual theresa = getPerson("Andrews", "Theresa");
 
@@ -171,86 +171,6 @@ public class AncestryCalculatorTest {
     }
 
     /**
-     * Test when people are siblings.
-     */
-    @Test
-	public void testGenerationCount0() {
-        Individual sally = getPerson("Struthers", "Sally");
-        // Sammy is Sally's brother
-        Individual sammy = getPerson("Struthers", "Sammy");
-        assertNotNull(sally);
-        assertNotNull(sammy);
-        try {
-            anc.getGenerationCount(sammy, sally);
-            fail("Expected an IllegalArgumentException since sally is not an ancestor of sammy - they are brother and sister");
-        } catch (IllegalArgumentException desired) {
-            // Yay! It worked!
-        }
-        try {
-            anc.getGenerationCount(sally, sammy);
-            fail("Expected an IllegalArgumentException since sammy is not an ancestor of sally - they are brother and sister");
-        } catch (IllegalArgumentException desired) {
-            // Yay! It worked!
-        }
-    }
-
-    /**
-     * Test when people are 1 generation apart. Includes negative test where the ancestor/descendant are swapped.
-     */
-    @Test
-    public void testGenerationCount1() {
-        Individual sally = getPerson("Struthers", "Sally");
-        Individual steven = getPerson("Struthers", "Steven");
-        assertNotNull(sally);
-        assertNotNull(steven);
-        assertEquals(1, anc.getGenerationCount(sally, steven));
-        try {
-            anc.getGenerationCount(steven, sally);
-            fail("Expected an IllegalArgumentException since sally is a descendant of steven, not an ancestor");
-        } catch (@SuppressWarnings("unused") IllegalArgumentException desired) {
-            // Yay! It worked!
-        }
-    }
-
-    /**
-     * Test when people are 2 generations apart. Includes negative test where the ancestor/descendant are swapped.
-     */
-    @Test
-    public void testGenerationCount2() {
-        Individual robert = getPerson("Andrews", "Robert");
-        // Steven is Robert's grandfather
-        Individual steven = getPerson("Struthers", "Steven");
-        assertNotNull(robert);
-        assertNotNull(steven);
-        assertEquals(2, anc.getGenerationCount(robert, steven));
-        try {
-            anc.getGenerationCount(steven, robert);
-            fail("Expected an IllegalArgumentException since robert is a descendant of steven, not an ancestor");
-        } catch (@SuppressWarnings("unused") IllegalArgumentException desired) {
-            // Yay! It worked!
-        }
-    }
-
-    /**
-     * Test when people are several generations apart. Includes negative test where the ancestor/descendant are swapped.
-     */
-    @Test
-    public void testGenerationCount3() {
-        Individual alex = getPerson("Zucco", "Alex");
-        // Kenneth is Alex's great-great-great-grandfather
-        Individual kenneth = getPerson("Struthers", "Kenneth");
-        assertNotNull(alex);
-        assertNotNull(kenneth);
-        assertEquals(5, anc.getGenerationCount(alex, kenneth));
-        try {
-            anc.getGenerationCount(kenneth, alex);
-            fail("Expected an IllegalArgumentException since alex is a descendant of kenneth, not an ancestor");
-        } catch (@SuppressWarnings("unused") IllegalArgumentException desired) {
-            // Yay! It worked!
-        }
-    }
-
-    /**
      * Test degenerate case for a married couple that has no common ancestors
      */
     @Test
@@ -260,6 +180,8 @@ public class AncestryCalculatorTest {
 
         Set<Individual> lowestCommonAncestors = anc.getLowestCommonAncestors(ulysses, abigail);
         assertEquals("Ulysses and Abigail have no common ancestors", 0, lowestCommonAncestors.size());
+
+        verifyCommonAncestorsAreReallyAncestors(ulysses, abigail, lowestCommonAncestors);
     }
 
     /**
@@ -277,6 +199,8 @@ public class AncestryCalculatorTest {
         Individual gladys = getPerson("Knight", "Gladys");
         assertTrue("Steven is a common ancestor (their dad)", lowestCommonAncestors.contains(steven));
         assertTrue("Gladys is a common ancestor (their mom)", lowestCommonAncestors.contains(gladys));
+
+        verifyCommonAncestorsAreReallyAncestors(sally, sammy, lowestCommonAncestors);
     }
 
     /**
@@ -295,6 +219,9 @@ public class AncestryCalculatorTest {
         Individual gladys = getPerson("Knight", "Gladys");
         assertTrue("Steven is a common ancestor (Sammy's dad and Robert's grandfather)", lowestCommonAncestors.contains(steven));
         assertTrue("Gladys is a common ancestor (Sammy's mom and Robert's grandmother)", lowestCommonAncestors.contains(gladys));
+
+        verifyCommonAncestorsAreReallyAncestors(robert, sammy, lowestCommonAncestors);
+
     }
 
     /**
@@ -303,6 +230,7 @@ public class AncestryCalculatorTest {
      * ancestors.
      */
     @Test
+    @SuppressWarnings("PMD.SystemPrintln")
     public void testLowestCommonAncestor4() {
         Individual robert = getPerson("Andrews", "Robert");
         Individual theresa = getPerson("Andrews", "Theresa");
@@ -314,6 +242,9 @@ public class AncestryCalculatorTest {
             }
         }
         Set<Individual> lowestCommonAncestors = anc.getLowestCommonAncestors(robert, theresa);
+
+        verifyCommonAncestorsAreReallyAncestors(robert, theresa, lowestCommonAncestors);
+
         assertEquals("Robert (father) and Theresa (daughter) should have two lowest common ancestors:"
                 + " James Andrews, and Sally Struthers", 2, lowestCommonAncestors.size());
         Individual sally = getPerson("Struthers", "Sally");
@@ -332,7 +263,9 @@ public class AncestryCalculatorTest {
      * @param people
      *            the set of {@link Individual}s to dump out
      */
-    private static void dumpIndividuals(Set<Individual> people) {
+    @SuppressWarnings("PMD.SystemPrintln")
+    @SuppressFBWarnings(value = "UC_USELESS_VOID_METHOD", justification = "In case it's needed")
+    private void dumpIndividuals(Set<Individual> people) {
         if (!VERBOSE) {
             return;
         }
@@ -356,6 +289,25 @@ public class AncestryCalculatorTest {
         Individual result = finder.findByName(surname, givenName).get(0);
         assertNotNull("Couldn't find " + givenName + " " + surname + " by name in the gedcom", result);
         return result;
+    }
+
+    /**
+     * Every nearest common ancestor should always actually be an ancestor of both individuals
+     * 
+     * @param ind1
+     *            individual 1
+     * @param ind2
+     *            individual 2
+     * @param commonAncestors
+     *            the common ancestors that were found
+     */
+    private void verifyCommonAncestorsAreReallyAncestors(Individual ind1, Individual ind2, Set<Individual> commonAncestors) {
+        Set<Individual> sallysAncestors = new AncestryCalculator().getExtendedAncestry(ind1);
+        Set<Individual> sammysAncestors = new AncestryCalculator().getExtendedAncestry(ind2);
+        for (Individual i : commonAncestors) {
+            assertTrue(sallysAncestors.contains(i));
+            assertTrue(sammysAncestors.contains(i));
+        }
     }
 
 }

@@ -37,7 +37,7 @@ import org.gedcom4j.writer.GedcomWriter;
  * 
  * @author frizbog
  */
-class AsciiWriter extends AbstractEncodingSpecificWriter {
+class AsciiWriter extends AbstractSingleByteWriter {
 
     /**
      * Constructor
@@ -45,14 +45,14 @@ class AsciiWriter extends AbstractEncodingSpecificWriter {
      * @param writer
      *            The {@link GedcomWriter} this object is assisting
      */
-    public AsciiWriter(GedcomWriter writer) {
+    AsciiWriter(GedcomWriter writer) {
         super(writer);
     }
 
     /**
      * <p>
-     * ASCII-specific file writer. Any characters in the line that are outside the 0x00-0x7F range allowed by ASCII are
-     * written out as question marks.
+     * ASCII-specific file writer. Any characters in the line that are outside the 0x00-0x7F range allowed by ASCII are written out
+     * as question marks.
      * </p>
      * 
      * {@inheritDoc}
@@ -68,38 +68,6 @@ class AsciiWriter extends AbstractEncodingSpecificWriter {
             bytesWritten++;
         }
         writeLineTerminator(out);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void writeLineTerminator(OutputStream out) throws IOException, WriterCancelledException {
-        switch (terminator) {
-            case CR_ONLY:
-                out.write((byte) 0x0D);
-                bytesWritten++;
-                break;
-            case LF_ONLY:
-                out.write((byte) 0x0A);
-                bytesWritten++;
-                break;
-            case LFCR:
-                out.write((byte) 0x0A);
-                out.write((byte) 0x0D);
-                bytesWritten += 2;
-                break;
-            case CRLF:
-                out.write((byte) 0x0D);
-                out.write((byte) 0x0A);
-                bytesWritten += 2;
-                break;
-            default:
-                throw new IllegalStateException("Terminator selection of " + terminator + " is an unrecognized value");
-        }
-        if (writer.isCancelled()) {
-            throw new WriterCancelledException("Construction and writing of GEDCOM cancelled");
-        }
     }
 
 }

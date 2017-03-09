@@ -26,6 +26,8 @@
  */
 package org.gedcom4j.model;
 
+import org.gedcom4j.model.enumerations.IndividualEventType;
+
 /**
  * Represents an individual event. Corresponds to the INDIVIDUAL_EVENT_STRUCTURE item in the GEDCOM specification.
  * 
@@ -47,6 +49,28 @@ public class IndividualEvent extends AbstractEvent {
      */
     private IndividualEventType type;
 
+    /** Default constructor */
+    public IndividualEvent() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public IndividualEvent(IndividualEvent other) {
+        super(other);
+        if (other.family != null) {
+            family = new FamilyChild(other.family, false);
+        }
+        type = other.type;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -66,7 +90,7 @@ public class IndividualEvent extends AbstractEvent {
         } else if (!family.equals(other.family)) {
             return false;
         }
-        return (type == other.type);
+        return type == other.type;
     }
 
     /**
@@ -87,6 +111,9 @@ public class IndividualEvent extends AbstractEvent {
         return type;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;

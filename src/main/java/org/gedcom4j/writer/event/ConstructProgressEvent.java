@@ -84,9 +84,12 @@ public class ConstructProgressEvent extends EventObject {
         return complete;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
-        return "FileProgressEvent [complete=" + complete + ", linesProcessed=" + linesProcessed + "]";
+        return "ConstructProgressEvent [complete=" + complete + ", linesProcessed=" + linesProcessed + "]";
     }
 
 }

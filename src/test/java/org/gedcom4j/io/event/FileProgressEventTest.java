@@ -26,7 +26,11 @@
  */
 package org.gedcom4j.io.event;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -49,6 +53,7 @@ public class FileProgressEventTest {
         assertEquals(5, e.getBytesProcessed());
         assertTrue(e.isComplete());
         assertSame(this, e.getSource());
+        assertEquals("FileProgressEvent [complete=true, linesProcessed=-1, bytesProcessed=5]", e.toString());
     }
 
     /**
@@ -62,6 +67,7 @@ public class FileProgressEventTest {
         assertEquals(Integer.MIN_VALUE, e.getBytesProcessed());
         assertFalse(e.isComplete());
         assertSame(this, e.getSource());
+        assertEquals("FileProgressEvent [complete=false, linesProcessed=50, bytesProcessed=-2147483648]", e.toString());
     }
 
 }

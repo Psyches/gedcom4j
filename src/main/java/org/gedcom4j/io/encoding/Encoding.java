@@ -41,8 +41,8 @@ public enum Encoding {
      */
     ASCII("ASCII"),
     /**
-     * ANSEL (American National Standard for Extended Latin), aka ANSI Z39.47-1985, aka MARC-8. This is the default for
-     * GEDCOM files. One byte per character.
+     * ANSEL (American National Standard for Extended Latin), aka ANSI Z39.47-1985, aka MARC-8. This is the default for GEDCOM
+     * files. One byte per character.
      */
     ANSEL("ANSEL"),
     /**
@@ -88,8 +88,8 @@ public enum Encoding {
     }
 
     /**
-     * The character set name found in the GEDCOM that represents a character set encoding. Note that multiple instances
-     * of this enum can share the same value for this field.
+     * The character set name found in the GEDCOM that represents a character set encoding. Note that multiple instances of this
+     * enum can share the same value for this field.
      */
     private final String characterSetName;
 
@@ -97,10 +97,10 @@ public enum Encoding {
      * Constructor
      *
      * @param characterSetName
-     *            the character set name in the GEDCOM that corresponds to this Encoding object. Note that this value
-     *            will not be unique among instances in the enum.
+     *            the character set name in the GEDCOM that corresponds to this Encoding object. Note that this value will not be
+     *            unique among instances in the enum.
      */
-    private Encoding(String characterSetName) {
+    Encoding(String characterSetName) {
         this.characterSetName = characterSetName.intern();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Mark A. Sikes
+ * Copyright (c) 2016 Mark A. Sikes and Matthew R Harrah
  *
  * MIT License
  *
@@ -26,12 +26,13 @@
  */
 package org.gedcom4j.model;
 
+import java.io.Serializable;
+
 /**
- * ModelElement identifies Gedcom model instances, and defines the contract that
- * all model classes must adhere to.
+ * Marks an object in the Gedcom4j object model
  * 
  * @author Mark A Sikes
+ * @author frizbog
  */
-public interface ModelElement {
-	// contract items will go here
+public interface ModelElement extends Serializable {
 }

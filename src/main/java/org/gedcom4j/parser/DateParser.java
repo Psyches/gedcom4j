@@ -26,6 +26,7 @@
  */
 package org.gedcom4j.parser;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -41,7 +42,8 @@ import java.util.regex.Pattern;
  * @author frizbog
  * @since v3.0.1
  */
-public class DateParser {
+@SuppressWarnings({ "PMD.GodClass", "PMD.TooManyMethods" })
+public class DateParser implements Serializable {
 
     /**
      * When a range or imprecise date value is found, what is the preference for handling it?
@@ -71,6 +73,11 @@ public class DateParser {
          */
         FAVOR_MIDPOINT
     }
+
+    /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = 8700681252079486414L;
 
     /**
      * Range and period prefixes
@@ -235,7 +242,7 @@ public class DateParser {
         }
 
         String[] datePieces = frds.split(" ");
-        if (datePieces == null) {
+        if (datePieces == null || datePieces.length < 1) {
             return null;
         }
 
@@ -269,7 +276,7 @@ public class DateParser {
         }
 
         String[] datePieces = hds.split(" ");
-        if (datePieces == null) {
+        if (datePieces == null || datePieces.length < 1) {
             return null;
         }
 
@@ -416,6 +423,27 @@ public class DateParser {
     }
 
     /**
+     * Get the midpoint between two dates
+     * 
+     * @param d1
+     *            first date
+     * @param d2
+     *            second date
+     * @return the midpoint between the two dates
+     */
+    private Date getMidpointOfDateRange(Date d1, Date d2) {
+        if (d1 == null || d2 == null) {
+            return null;
+        }
+        long daysBetween = TimeUnit.DAYS.convert(d2.getTime() - d1.getTime(), TimeUnit.MILLISECONDS);
+        Calendar c = Calendar.getInstance(Locale.US);
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.setTime(d1);
+        c.add(Calendar.DAY_OF_YEAR, (int) daysBetween / 2);
+        return c.getTime();
+    }
+
+    /**
      * Get a Gregorian date from a French Republican date string consisting of two dates separated by either "AND" or "TO", and with
      * a prefix like "FROM" or "BET", using the supplied method of resolving a single date from the range
      * 
@@ -445,15 +473,7 @@ public class DateParser {
             case FAVOR_MIDPOINT:
                 Date d1 = parseFrenchRepublicanSingleDate(dateStrings[0], ImpreciseDatePreference.FAVOR_EARLIEST);
                 Date d2 = parseFrenchRepublicanSingleDate(dateStrings[1], ImpreciseDatePreference.FAVOR_LATEST);
-                if (d1 == null || d2 == null) {
-                    return null;
-                }
-                long daysBetween = TimeUnit.DAYS.convert(d2.getTime() - d1.getTime(), TimeUnit.MILLISECONDS);
-                Calendar c = Calendar.getInstance(Locale.US);
-                c.setTimeZone(TimeZone.getTimeZone("UTC"));
-                c.setTime(d1);
-                c.add(Calendar.DAY_OF_YEAR, (int) daysBetween / 2);
-                return c.getTime();
+                return getMidpointOfDateRange(d1, d2);
             case PRECISE:
                 return parseFrenchRepublicanSingleDate(dateStrings[0], pref);
             default:
@@ -491,15 +511,7 @@ public class DateParser {
             case FAVOR_MIDPOINT:
                 Date d1 = parseHebrewSingleDate(dateStrings[0], ImpreciseDatePreference.FAVOR_EARLIEST);
                 Date d2 = parseHebrewSingleDate(dateStrings[1], ImpreciseDatePreference.FAVOR_LATEST);
-                if (d1 == null || d2 == null) {
-                    return null;
-                }
-                long daysBetween = TimeUnit.DAYS.convert(d2.getTime() - d1.getTime(), TimeUnit.MILLISECONDS);
-                Calendar c = Calendar.getInstance(Locale.US);
-                c.setTimeZone(TimeZone.getTimeZone("UTC"));
-                c.setTime(d1);
-                c.add(Calendar.DAY_OF_YEAR, (int) daysBetween / 2);
-                return c.getTime();
+                return getMidpointOfDateRange(d1, d2);
             case PRECISE:
                 return parseHebrewSingleDate(dateStrings[0], pref);
             default:
@@ -535,15 +547,7 @@ public class DateParser {
             case FAVOR_MIDPOINT:
                 Date d1 = parse(dateStrings[0], ImpreciseDatePreference.FAVOR_EARLIEST);
                 Date d2 = parse(dateStrings[1], ImpreciseDatePreference.FAVOR_LATEST);
-                if (d1 == null || d2 == null) {
-                    return null;
-                }
-                long daysBetween = TimeUnit.DAYS.convert(d2.getTime() - d1.getTime(), TimeUnit.MILLISECONDS);
-                Calendar c = Calendar.getInstance(Locale.US);
-                c.setTimeZone(TimeZone.getTimeZone("UTC"));
-                c.setTime(d1);
-                c.add(Calendar.DAY_OF_YEAR, (int) daysBetween / 2);
-                return c.getTime();
+                return getMidpointOfDateRange(d1, d2);
             case PRECISE:
                 return parse(dateStrings[0], pref);
             default:
@@ -652,7 +656,8 @@ public class DateParser {
      * @param frenchRepublicanDateString
      *            the French Republican date in GEDCOM spec format - see DATE_FREN and MONTH_FREN in the spec. Could be a single
      *            date, an approximate date, a date range, or a date period.
-     * @param pref the preference (choice) for handling imprecise dates.
+     * @param pref
+     *            preference on how to handle imprecise dates - return the earliest day of the month, the latest, the midpoint?
      * @return the Gregorian date that represents the French Republican date supplied
      */
     private Date parseFrenchRepublican(String frenchRepublicanDateString, ImpreciseDatePreference pref) {
@@ -812,7 +817,9 @@ public class DateParser {
      * @param hebrewDateString
      *            the Hebrew date in GEDCOM spec format - see DATE_HEBR and MONTH_HEBR in the spec. Could be a single date, an
      *            approximate date, a date range, or a date period.
-     * @param pref the preference for handling imprecise dates.
+     * @param pref
+     *            preference on how to handle imprecise dates - return the earliest day of the month, the latest, the midpoint?
+     * 
      * @return the Gregorian date that represents the Hebrew date supplied
      */
     private Date parseHebrew(String hebrewDateString, ImpreciseDatePreference pref) {
@@ -831,17 +838,15 @@ public class DateParser {
      * @return the date found, if any, or null if no date could be extracted
      */
     private Date parseHebrewDayMonthYear(String... datePieces) {
-        {
-            HebrewMonth hebrewMonth = HebrewMonth.getFromAbbreviation(datePieces[1]);
-            if (hebrewMonth == null) {
-                // Didn't find a matching month abbreviation
-                return null;
-            }
-            HebrewCalendarParser hc = new HebrewCalendarParser();
-            int hebrewDay = Integer.parseInt(datePieces[0]);
-            int hebrewYear = Integer.parseInt(datePieces[2]);
-            return hc.convertHebrewDateToGregorian(hebrewYear, hebrewMonth.getGedcomAbbrev(), hebrewDay);
+        HebrewMonth hebrewMonth = HebrewMonth.getFromAbbreviation(datePieces[1]);
+        if (hebrewMonth == null) {
+            // Didn't find a matching month abbreviation
+            return null;
         }
+        HebrewCalendarParser hc = new HebrewCalendarParser();
+        int hebrewDay = Integer.parseInt(datePieces[0]);
+        int hebrewYear = Integer.parseInt(datePieces[2]);
+        return hc.convertHebrewDateToGregorian(hebrewYear, hebrewMonth.getGedcomAbbrev(), hebrewDay);
     }
 
     /**
@@ -855,32 +860,30 @@ public class DateParser {
      * @return the date found, if any, or null if no date could be extracted
      */
     private Date parseHebrewMonthYear(ImpreciseDatePreference pref, String... datePieces) {
-        {
-            HebrewMonth hebrewMonth = HebrewMonth.getFromAbbreviation(datePieces[0]);
-            if (hebrewMonth == null) {
-                return null;
-            }
-            HebrewCalendarParser hc = new HebrewCalendarParser();
-            int hebrewYear = Integer.parseInt(datePieces[1]);
-            int hebrewDay;
-            switch (pref) {
-                case FAVOR_EARLIEST:
-                    hebrewDay = 1;
-                    break;
-                case FAVOR_LATEST:
-                    hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth);
-                    break;
-                case FAVOR_MIDPOINT:
-                    hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth) / 2;
-                    break;
-                case PRECISE:
-                    hebrewDay = 1;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unexpected value for imprecise date preference: " + pref);
-            }
-            return hc.convertHebrewDateToGregorian(hebrewYear, hebrewMonth.getGedcomAbbrev(), hebrewDay);
+        HebrewMonth hebrewMonth = HebrewMonth.getFromAbbreviation(datePieces[0]);
+        if (hebrewMonth == null) {
+            return null;
         }
+        HebrewCalendarParser hc = new HebrewCalendarParser();
+        int hebrewYear = Integer.parseInt(datePieces[1]);
+        int hebrewDay;
+        switch (pref) {
+            case FAVOR_EARLIEST:
+                hebrewDay = 1;
+                break;
+            case FAVOR_LATEST:
+                hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth);
+                break;
+            case FAVOR_MIDPOINT:
+                hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth) / 2;
+                break;
+            case PRECISE:
+                hebrewDay = 1;
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected value for imprecise date preference: " + pref);
+        }
+        return hc.convertHebrewDateToGregorian(hebrewYear, hebrewMonth.getGedcomAbbrev(), hebrewDay);
     }
 
     /**
@@ -894,33 +897,31 @@ public class DateParser {
      * @return the date found, if any, or null if no date could be extracted
      */
     private Date parseHebrewYearOnly(ImpreciseDatePreference pref, String... datePieces) {
-        {
-            HebrewCalendarParser hc = new HebrewCalendarParser();
-            int hebrewYear = Integer.parseInt(datePieces[0]);
-            HebrewMonth hebrewMonth;
-            int hebrewDay;
-            switch (pref) {
-                case FAVOR_EARLIEST:
-                    hebrewMonth = HebrewMonth.TISHREI;
-                    hebrewDay = 1;
-                    break;
-                case FAVOR_LATEST:
-                    hebrewMonth = HebrewMonth.ELUL;
-                    hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth);
-                    break;
-                case FAVOR_MIDPOINT:
-                    hebrewMonth = HebrewMonth.ADAR;
-                    hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth) / 2;
-                    break;
-                case PRECISE:
-                    hebrewMonth = HebrewMonth.TISHREI;
-                    hebrewDay = 1;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unexpected value for imprecise date preference: " + pref);
-            }
-            return hc.convertHebrewDateToGregorian(hebrewYear, hebrewMonth.getGedcomAbbrev(), hebrewDay);
+        HebrewCalendarParser hc = new HebrewCalendarParser();
+        int hebrewYear = Integer.parseInt(datePieces[0]);
+        HebrewMonth hebrewMonth;
+        int hebrewDay;
+        switch (pref) {
+            case FAVOR_EARLIEST:
+                hebrewMonth = HebrewMonth.TISHREI;
+                hebrewDay = 1;
+                break;
+            case FAVOR_LATEST:
+                hebrewMonth = HebrewMonth.ELUL;
+                hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth);
+                break;
+            case FAVOR_MIDPOINT:
+                hebrewMonth = HebrewMonth.ADAR;
+                hebrewDay = hc.getMonthLength(hebrewYear, hebrewMonth) / 2;
+                break;
+            case PRECISE:
+                hebrewMonth = HebrewMonth.TISHREI;
+                hebrewDay = 1;
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected value for imprecise date preference: " + pref);
         }
+        return hc.convertHebrewDateToGregorian(hebrewYear, hebrewMonth.getGedcomAbbrev(), hebrewDay);
     }
 
     /**

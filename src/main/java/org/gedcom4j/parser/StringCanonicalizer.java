@@ -30,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A class to handle canonical strings, to reduce memory consumption by repeated instances of frequently used string
- * values. Unlike string.intern(), this implementation does not put things in permgen (or does it)? It also has a max
- * size, only canonicalizes strings repeated more than a certain number of times.
+ * A class to handle canonical strings, to reduce memory consumption by repeated instances of frequently used string values. Unlike
+ * string.intern(), this implementation does not put things in permgen (or does it)? It also has a max size, only canonicalizes
+ * strings repeated more than a certain number of times.
  * 
  * @author frizbog
  *
@@ -44,7 +44,7 @@ class StringCanonicalizer {
      * 
      * @author frizbog
      */
-    class CanonicalizedString {
+    static class CanonicalizedString {
         /**
          * The number of times this entry is used
          */
@@ -71,7 +71,7 @@ class StringCanonicalizer {
          */
         @Override
         public String toString() {
-            StringBuilder builder = new StringBuilder(64);
+            StringBuilder builder = new StringBuilder(30);
             builder.append("CanonicalizedString [count=");
             builder.append(count);
             builder.append(", ");
@@ -118,7 +118,7 @@ class StringCanonicalizer {
     /**
      * Default constructor
      */
-    public StringCanonicalizer() {
+    StringCanonicalizer() {
         this(500, 25);
     }
 
@@ -240,8 +240,8 @@ class StringCanonicalizer {
             }
         }
         int after = stringPool.size();
-        numEvictedCumulative += (before - after);
-        if ((before - after) < 2) {
+        numEvictedCumulative += before - after;
+        if (before - after < 2) {
             maxedOut = true;
         }
         // System.out.println((before - after) + " item(s) evicted from string pool - was " + before + ", now " +

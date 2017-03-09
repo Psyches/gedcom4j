@@ -39,17 +39,16 @@ import java.util.TimeZone;
 class FrenchRepublicanCalendarParser {
 
     /**
-	 * This function converts a French Republican date into the Gregorian date.
-	 * 
-	 * @param frenchRepublicanYear
-	 *            the French Republican year. French year 1 corresponds to
-	 *            Gregorian year 1792
-	 * @param frenchRepublicanMonthAbbrev
-	 *            the French Republican month abbreviation in GEDCOM format
-	 * @param dayOfMonth
-	 *            the day of the month
-	 * @return the date in Gregorian form
-	 */
+     * This function converts a French Republican date into the Gregorian date.
+     * 
+     * @param frenchRepublicanYear
+     *            the French Republican year. French year 1 corresponds to Gregorian year 1792
+     * @param frenchRepublicanMonthAbbrev
+     *            the French Republican month abbreviation in GEDCOM format
+     * @param dayOfMonth
+     *            the day within the month
+     * @return the date in Gregorian form
+     */
     Date convertFrenchRepublicanDateToGregorian(int frenchRepublicanYear, String frenchRepublicanMonthAbbrev, int dayOfMonth) {
         // Validate year
         if (frenchRepublicanYear < 1) {
@@ -117,7 +116,7 @@ class FrenchRepublicanCalendarParser {
             // Probably a leap year
             if (frenchRepublicanYear % 100 == 0) {
                 // Must be divisible by 400 if it's also divisible by 100 to be a leap year
-                return (frenchRepublicanYear % 400 == 0);
+                return frenchRepublicanYear % 400 == 0;
             }
             return true;
         }

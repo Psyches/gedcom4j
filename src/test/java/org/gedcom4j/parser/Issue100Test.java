@@ -37,13 +37,13 @@ import java.util.List;
 import org.gedcom4j.exception.GedcomParserException;
 import org.gedcom4j.model.Gedcom;
 import org.gedcom4j.model.Individual;
-import org.gedcom4j.model.Note;
+import org.gedcom4j.model.NoteStructure;
 import org.gedcom4j.query.Finder;
 import org.junit.Test;
 
 /**
- * Test for fix to Issue 100, where the parser can be relaxed for text with line breaks that are not done according to
- * standard (CONT or CONC tags).
+ * Test for fix to Issue 100, where the parser can be relaxed for text with line breaks that are not done according to standard
+ * (CONT or CONC tags).
  * 
  * @author frizbog
  */
@@ -74,12 +74,13 @@ public class Issue100Test {
         List<Individual> matches = f.findByName(null, "Soprano", "Anthony John", "Sr.");
         assertEquals(1, matches.size());
         Individual i = matches.get(0);
-        assertNotNull(i.getNotes());
-        assertEquals(1, i.getNotes().size());
-        Note n = i.getNotes().get(0);
+        assertNotNull(i.getNoteStructures());
+        assertEquals(1, i.getNoteStructures().size());
+        NoteStructure n = i.getNoteStructures().get(0);
         assertNotNull(n.getLines());
         assertEquals(3, n.getLines().size());
-        assertEquals("This note was deliberately hand-edited to put a line break in the text without a CONT line.", n.getLines().get(0));
+        assertEquals("This note was deliberately hand-edited to put a line break in the text without a CONT line.", n.getLines()
+                .get(0));
         assertEquals("This is the next line of the text that should have been tagged as a CONTinuation.", n.getLines().get(1));
         assertEquals("This is another line of continuation text that should have been tagged.", n.getLines().get(2));
     }

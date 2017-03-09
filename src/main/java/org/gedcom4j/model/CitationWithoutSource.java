@@ -32,8 +32,8 @@ import java.util.List;
 import org.gedcom4j.Options;
 
 /**
- * A citation without a source. Corresponds to the second form of the SOURCE_CITATION structure (which you'd do in
- * Pascal with a variant record, but here we use subclasses of a parent abstract class).
+ * A citation without a source. Corresponds to the second form of the SOURCE_CITATION structure (which you'd do in Pascal with a
+ * variant record, but here we use subclasses of a parent abstract class).
  * 
  * @author frizbog1
  */
@@ -53,6 +53,33 @@ public class CitationWithoutSource extends AbstractCitation {
      */
     private List<List<String>> textFromSource = getTextFromSource(Options.isCollectionInitializationEnabled());
 
+    /** Default constructor */
+    public CitationWithoutSource() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public CitationWithoutSource(CitationWithoutSource other) {
+        super(other);
+        if (other.description != null) {
+            description = new ArrayList<>(other.description);
+        }
+        if (other.textFromSource != null) {
+            textFromSource = new ArrayList<>();
+            for (List<String> t : other.textFromSource) {
+                textFromSource.add(new ArrayList<>(t));
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -61,7 +88,7 @@ public class CitationWithoutSource extends AbstractCitation {
         if (!super.equals(obj)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof CitationWithoutSource)) {
             return false;
         }
         CitationWithoutSource other = (CitationWithoutSource) obj;
@@ -70,13 +97,6 @@ public class CitationWithoutSource extends AbstractCitation {
                 return false;
             }
         } else if (!description.equals(other.description)) {
-            return false;
-        }
-        if (getNotes() == null) {
-            if (other.getNotes() != null) {
-                return false;
-            }
-        } else if (!getNotes().equals(other.getNotes())) {
             return false;
         }
         if (textFromSource == null) {
@@ -135,13 +155,15 @@ public class CitationWithoutSource extends AbstractCitation {
         return textFromSource;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + (description == null ? 0 : description.hashCode());
-        result = prime * result + (getNotes() == null ? 0 : getNotes().hashCode());
-        result = prime * result + (textFromSource == null ? 0 : textFromSource.hashCode());
+        result = prime * result + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + ((textFromSource == null) ? 0 : textFromSource.hashCode());
         return result;
     }
 
@@ -150,16 +172,46 @@ public class CitationWithoutSource extends AbstractCitation {
      */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(64);
+        StringBuilder builder = new StringBuilder(50);
         builder.append("CitationWithoutSource [");
+        if (certainty != null) {
+            builder.append("certainty=");
+            builder.append(certainty);
+            builder.append(", ");
+        }
         if (description != null) {
             builder.append("description=");
             builder.append(description);
             builder.append(", ");
         }
+        if (multimedia != null) {
+            builder.append("multimedia=");
+            builder.append(multimedia);
+            builder.append(", ");
+        }
         if (textFromSource != null) {
             builder.append("textFromSource=");
             builder.append(textFromSource);
+            builder.append(", ");
+        }
+        if (getDescription() != null) {
+            builder.append("description()=");
+            builder.append(getDescription());
+            builder.append(", ");
+        }
+        if (getTextFromSource() != null) {
+            builder.append("textFromSource()=");
+            builder.append(getTextFromSource());
+            builder.append(", ");
+        }
+        if (getNoteStructures() != null) {
+            builder.append("notes()=");
+            builder.append(getNoteStructures());
+            builder.append(", ");
+        }
+        if (getCustomFacts() != null) {
+            builder.append("customFacts()=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

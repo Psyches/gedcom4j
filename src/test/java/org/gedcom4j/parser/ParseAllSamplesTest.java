@@ -52,29 +52,34 @@ public class ParseAllSamplesTest {
      */
     @Test
     @SuppressWarnings("PMD.SystemPrintln")
-	public void testLoadAllSamples() throws IOException, GedcomParserException {
+    public void testLoadAllSamples() throws IOException, GedcomParserException {
         GedcomParser gp = new GedcomParser();
         gp.setStrictCustomTags(false);
         gp.setStrictLineBreaks(false);
         File sampleFolder = new File("sample");
         String[] allFiles = sampleFolder.list(new FilenameFilter() {
 
+            /**
+             * {@inheritDoc}
+             */
             @Override
             public boolean accept(File dir, String name) {
                 // Return the names of the good files
                 return name.endsWith(".ged");
             }
         });
-        for (String s : allFiles) {
-            try {
-                gp.load("sample/" + s);
-                assertNotNull(gp.getGedcom());
-            } catch (IOException e) {
-                System.out.println("Loading " + s);
-                throw e;
-            } catch (GedcomParserException e) {
-                System.out.println("Loading " + s);
-                throw e;
+        if (allFiles != null) {
+            for (String s : allFiles) {
+                try {
+                    gp.load("sample/" + s);
+                    assertNotNull(gp.getGedcom());
+                } catch (IOException e) {
+                    System.out.println("Loading " + s);
+                    throw e;
+                } catch (GedcomParserException e) {
+                    System.out.println("Loading " + s);
+                    throw e;
+                }
             }
         }
 

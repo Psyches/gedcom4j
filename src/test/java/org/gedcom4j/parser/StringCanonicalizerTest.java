@@ -73,7 +73,7 @@ public class StringCanonicalizerTest {
         final int numValues = classUnderTest.getMaxPoolSize() + 100;
         for (int values = 0; values < numValues; values++) {
             for (int uses = 0; uses < 20 + random.nextInt(20); uses++) {
-				String s = "" + values;
+                String s = Integer.toString(values);
                 String c = classUnderTest.getCanonicalVersion(s);
                 assertEquals(s, c);
             }
@@ -88,7 +88,7 @@ public class StringCanonicalizerTest {
 
         // Make sure we get canonical versions
         for (int values = 0; values < numValues; values++) {
-            String s = "" + values;
+            String s = Integer.toString(values);
             String c2 = classUnderTest.getCanonicalVersion(s);
             assertEquals(s, c2);
             StringCanonicalizer.CanonicalizedString cv = classUnderTest.stringPool.get(s);
@@ -109,7 +109,7 @@ public class StringCanonicalizerTest {
         String[] canons = new String[numValues];
         for (int values = 0; values < numValues; values++) {
             for (int uses = 0; uses < 25 + random.nextInt(25); uses++) {
-                String s = "" + values;
+                String s = Integer.toString(values);
                 canons[values] = classUnderTest.getCanonicalVersion(s);
                 assertEquals(s, canons[values]);
             }
@@ -117,7 +117,7 @@ public class StringCanonicalizerTest {
 
         // Make sure we get canonical versions
         for (int values = 0; values < numValues; values++) {
-            String s = "" + values;
+            String s = Integer.toString(values);
             String c = classUnderTest.getCanonicalVersion(s);
             assertEquals(c, canons[values]);
             assertSame(c, canons[values]);
@@ -134,7 +134,7 @@ public class StringCanonicalizerTest {
         String[] canons = new String[numValues];
         for (int values = 0; values < numValues; values++) {
             for (int uses = 0; uses < 25 + random.nextInt(25); uses++) {
-                String s = "" + values;
+                String s = Integer.toString(values);
                 canons[values] = classUnderTest.getCanonicalVersion(s);
                 assertEquals(s, canons[values]);
             }
@@ -142,7 +142,7 @@ public class StringCanonicalizerTest {
 
         // Make sure we get canonical versions
         for (int values = 0; values < numValues; values++) {
-            String s = "" + values;
+            String s = Integer.toString(values);
             String c = classUnderTest.getCanonicalVersion(s);
             assertEquals(c, canons[values]);
             assertSame(c, canons[values]);
@@ -160,7 +160,7 @@ public class StringCanonicalizerTest {
         final int numValues = classUnderTest.getMaxPoolSize() * 3;
         for (int values = 0; values < numValues; values++) {
             for (int uses = 0; uses < 20 + random.nextInt(20); uses++) {
-                String s = "" + values;
+                String s = Integer.toString(values);
                 String c = classUnderTest.getCanonicalVersion(s);
                 assertEquals(s, c);
             }
@@ -179,7 +179,7 @@ public class StringCanonicalizerTest {
 
         // Make sure we get canonical versions
         for (int values = 0; values < numValues; values++) {
-            String s = "" + values;
+            String s = Integer.toString(values);
             StringCanonicalizer.CanonicalizedString cv = classUnderTest.stringPool.get(s);
             if (cv != null) {
                 String c2 = classUnderTest.getCanonicalVersion(s);

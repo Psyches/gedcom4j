@@ -82,6 +82,17 @@ public class IndividualByLastNameFirstNameComparatorTest {
     }
 
     /**
+     * Test for {@link IndividualByLastNameFirstNameComparator#compare(Individual, Individual)} . Tests when last names differ.
+     */
+    @Test
+    public void testEmptyLists() {
+        i1.getNames(true);
+        i2.getNames(true);
+        assertTrue(c.compare(i1, i2) == 0);
+        assertTrue(c.compare(i2, i1) == 0);
+    }
+
+    /**
      * Test for {@link IndividualByLastNameFirstNameComparator#compare(Individual, Individual)} . Tests when neither individual has
      * any names.
      */

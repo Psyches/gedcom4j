@@ -26,7 +26,11 @@
  */
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.Gedcom;
+import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.PersonalName;
+import org.gedcom4j.model.PersonalNameVariation;
+import org.gedcom4j.model.TestHelper;
 import org.junit.Test;
 
 /**
@@ -43,7 +47,7 @@ public class PersonalNameVariationValidatorTest extends AbstractValidatorTestCas
     @Test
     public void testOne() {
         Gedcom g = TestHelper.getMinimalGedcom();
-        rootValidator = new GedcomValidator(g);
+        validator = new Validator(g);
 
         Individual i = new Individual();
         i.setXref("@I00001@");
@@ -54,27 +58,27 @@ public class PersonalNameVariationValidatorTest extends AbstractValidatorTestCas
 
         pn.setBasic("Bj\u00F8rn /J\u00F8orgen/");
 
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
 
         PersonalNameVariation romanized = new PersonalNameVariation();
         pn.getRomanized(true).add(romanized);
-        romanized.setGivenName(new StringWithCustomTags("Bjorn"));
-        romanized.setSurname(new StringWithCustomTags("Jorgen"));
-        rootValidator.validate();
-        assertFindingsContain(Severity.ERROR, "variation", "name", "required");
+        romanized.setGivenName("Bjorn");
+        romanized.setSurname("Jorgen");
+        validator.validate();
+        assertFindingsContain(Severity.ERROR, romanized, ProblemCode.MISSING_REQUIRED_VALUE, "variation");
         romanized.setVariation("Bjorn /Jorgen/");
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
 
         PersonalNameVariation phonetic = new PersonalNameVariation();
         pn.getPhonetic(true).add(phonetic);
-        phonetic.setGivenName(new StringWithCustomTags("Byorn"));
-        phonetic.setSurname(new StringWithCustomTags("Yorgen"));
-        rootValidator.validate();
-        assertFindingsContain(Severity.ERROR, "variation", "name", "required");
+        phonetic.setGivenName("Byorn");
+        phonetic.setSurname("Yorgen");
+        validator.validate();
+        assertFindingsContain(Severity.ERROR, phonetic, ProblemCode.MISSING_REQUIRED_VALUE, "variation");
         phonetic.setVariation("Byorn /Yorgen/");
-        rootValidator.validate();
+        validator.validate();
         assertNoIssues();
 
     }

@@ -44,11 +44,33 @@ public abstract class AbstractNameVariation extends AbstractElement {
     protected String variation;
 
     /**
-     * The variation type. For romanized names, the method used in transforming the text to a romanized variation. For
-     * phonetic names, the method used in transforming the text to the phonetic variation.
+     * The variation type. For romanized names, the method used in transforming the text to a romanized variation. For phonetic
+     * names, the method used in transforming the text to the phonetic variation.
      */
-    protected StringWithCustomTags variationType;
+    protected StringWithCustomFacts variationType;
 
+    /** Default constructor */
+    public AbstractNameVariation() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public AbstractNameVariation(AbstractNameVariation other) {
+        super(other);
+        variation = other.variation;
+        if (other.variationType != null) {
+            variationType = new StringWithCustomFacts(other.variationType);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -92,10 +114,13 @@ public abstract class AbstractNameVariation extends AbstractElement {
      *
      * @return the variation type
      */
-    public StringWithCustomTags getVariationType() {
+    public StringWithCustomFacts getVariationType() {
         return variationType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -121,7 +146,17 @@ public abstract class AbstractNameVariation extends AbstractElement {
      * @param variationType
      *            the new variation type
      */
-    public void setVariationType(StringWithCustomTags variationType) {
+    public void setVariationType(String variationType) {
+        this.variationType = new StringWithCustomFacts(variationType);
+    }
+
+    /**
+     * Sets the variation type.
+     *
+     * @param variationType
+     *            the new variation type
+     */
+    public void setVariationType(StringWithCustomFacts variationType) {
         this.variationType = variationType;
     }
 
@@ -142,9 +177,9 @@ public abstract class AbstractNameVariation extends AbstractElement {
             builder.append(variationType);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

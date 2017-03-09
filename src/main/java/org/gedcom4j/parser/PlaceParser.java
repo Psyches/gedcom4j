@@ -28,7 +28,12 @@ package org.gedcom4j.parser;
 
 import java.util.List;
 
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.AbstractCitation;
+import org.gedcom4j.model.AbstractNameVariation;
+import org.gedcom4j.model.NoteStructure;
+import org.gedcom4j.model.Place;
+import org.gedcom4j.model.PlaceNameVariation;
+import org.gedcom4j.model.StringTree;
 
 /**
  * Parser for {@link Place} objects
@@ -57,29 +62,30 @@ class PlaceParser extends AbstractParser<Place> {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.FORM.equalsText(ch.getTag())) {
-                    loadInto.setPlaceFormat(new StringWithCustomTags(ch));
+                    loadInto.setPlaceFormat(parseStringWithCustomFacts(ch));
                 } else if (Tag.SOURCE.equalsText(ch.getTag())) {
                     List<AbstractCitation> citations = loadInto.getCitations(true);
                     new CitationListParser(gedcomParser, ch, citations).parse();
                 } else if (Tag.NOTE.equalsText(ch.getTag())) {
-                    List<Note> notes = loadInto.getNotes(true);
-                    new NoteListParser(gedcomParser, ch, notes).parse();
+                    List<NoteStructure> notes = loadInto.getNoteStructures(true);
+                    new NoteStructureListParser(gedcomParser, ch, notes).parse();
                 } else if (Tag.CONCATENATION.equalsText(ch.getTag())) {
                     loadInto.setPlaceName(loadInto.getPlaceName() + (ch.getValue() == null ? "" : ch.getValue()));
                 } else if (Tag.CONTINUATION.equalsText(ch.getTag())) {
                     loadInto.setPlaceName(loadInto.getPlaceName() + "\n" + (ch.getValue() == null ? "" : ch.getValue()));
                 } else if (Tag.ROMANIZED.equalsText(ch.getTag())) {
                     if (g55()) {
-                        addWarning("GEDCOM version is 5.5 but a romanized variation was specified on a place on line " + ch.getLineNum()
-                                + ", which is a GEDCOM 5.5.1 feature." + "  Data loaded but cannot be re-written unless GEDCOM version changes.");
+                        addWarning("GEDCOM version is 5.5 but a romanized variation was specified on a place on line " + ch
+                                .getLineNum() + ", which is a GEDCOM 5.5.1 feature."
+                                + "  Data loaded but cannot be re-written unless GEDCOM version changes.");
                     }
-                    AbstractNameVariation nv = new PersonalNameVariation();
+                    AbstractNameVariation nv = new PlaceNameVariation();
                     loadInto.getRomanized(true).add(nv);
                     nv.setVariation(ch.getValue());
                     if (ch.getChildren() != null) {
                         for (StringTree gch : ch.getChildren()) {
                             if (Tag.TYPE.equalsText(gch.getTag())) {
-                                nv.setVariationType(new StringWithCustomTags(gch));
+                                nv.setVariationType(parseStringWithCustomFacts(gch));
                             } else {
                                 unknownTag(gch, nv);
                             }
@@ -87,16 +93,17 @@ class PlaceParser extends AbstractParser<Place> {
                     }
                 } else if (Tag.PHONETIC.equalsText(ch.getTag())) {
                     if (g55()) {
-                        addWarning("GEDCOM version is 5.5 but a phonetic variation was specified on a place on line " + ch.getLineNum()
-                                + ", which is a GEDCOM 5.5.1 feature." + "  Data loaded but cannot be re-written unless GEDCOM version changes.");
+                        addWarning("GEDCOM version is 5.5 but a phonetic variation was specified on a place on line " + ch
+                                .getLineNum() + ", which is a GEDCOM 5.5.1 feature."
+                                + "  Data loaded but cannot be re-written unless GEDCOM version changes.");
                     }
-                    AbstractNameVariation nv = new PersonalNameVariation();
+                    AbstractNameVariation nv = new PlaceNameVariation();
                     loadInto.getPhonetic(true).add(nv);
                     nv.setVariation(ch.getValue());
                     if (ch.getChildren() != null) {
                         for (StringTree gch : ch.getChildren()) {
                             if (Tag.TYPE.equalsText(gch.getTag())) {
-                                nv.setVariationType(new StringWithCustomTags(gch));
+                                nv.setVariationType(parseStringWithCustomFacts(gch));
                             } else {
                                 unknownTag(gch, nv);
                             }
@@ -105,14 +112,15 @@ class PlaceParser extends AbstractParser<Place> {
                 } else if (Tag.MAP.equalsText(ch.getTag())) {
                     if (g55()) {
                         addWarning("GEDCOM version is 5.5 but a map coordinate was specified on a place on line " + ch.getLineNum()
-                                + ", which is a GEDCOM 5.5.1 feature." + "  Data loaded but cannot be re-written unless GEDCOM version changes.");
+                                + ", which is a GEDCOM 5.5.1 feature."
+                                + "  Data loaded but cannot be re-written unless GEDCOM version changes.");
                     }
                     if (ch.getChildren() != null) {
                         for (StringTree gch : ch.getChildren()) {
                             if (Tag.LATITUDE.equalsText(gch.getTag())) {
-                                loadInto.setLatitude(new StringWithCustomTags(gch));
+                                loadInto.setLatitude(parseStringWithCustomFacts(gch));
                             } else if (Tag.LONGITUDE.equalsText(gch.getTag())) {
-                                loadInto.setLongitude(new StringWithCustomTags(gch));
+                                loadInto.setLongitude(parseStringWithCustomFacts(gch));
                             } else {
                                 unknownTag(gch, loadInto);
                             }

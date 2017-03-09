@@ -31,8 +31,8 @@ package org.gedcom4j.model;
  * Information about the header source data.
  * </p>
  * <p>
- * If instantiating one of these programmatically rather than through parsing an existing GEDCOM file, you will probably
- * want to change the value of the {@link HeaderSourceData#name} field.
+ * If instantiating one of these programmatically rather than through parsing an existing GEDCOM file, you will probably want to
+ * change the value of the {@link HeaderSourceData#name} field.
  * </p>
  * 
  * @author frizbog1
@@ -47,18 +47,43 @@ public class HeaderSourceData extends AbstractElement {
     /**
      * Copyright information
      */
-    private StringWithCustomTags copyright;
+    private StringWithCustomFacts copyright;
 
     /**
      * The name of the source data. This field must be valued to pass validation, so the default value is "UNSPECIFIED".
      */
-    private String name = "UNSPECIFIED";
+    private StringWithCustomFacts name = new StringWithCustomFacts("UNSPECIFIED");
 
     /**
      * The publish date
      */
-    private StringWithCustomTags publishDate;
+    private StringWithCustomFacts publishDate;
 
+    /** Default constructor */
+    public HeaderSourceData() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public HeaderSourceData(HeaderSourceData other) {
+        super(other);
+        if (other.copyright != null) {
+            copyright = new StringWithCustomFacts(other.copyright);
+        }
+        name = other.name;
+        if (other.publishDate != null) {
+            publishDate = new StringWithCustomFacts(other.publishDate);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -100,7 +125,7 @@ public class HeaderSourceData extends AbstractElement {
      *
      * @return the copyright
      */
-    public StringWithCustomTags getCopyright() {
+    public StringWithCustomFacts getCopyright() {
         return copyright;
     }
 
@@ -109,7 +134,7 @@ public class HeaderSourceData extends AbstractElement {
      *
      * @return the name
      */
-    public String getName() {
+    public StringWithCustomFacts getName() {
         return name;
     }
 
@@ -118,10 +143,13 @@ public class HeaderSourceData extends AbstractElement {
      *
      * @return the publish date
      */
-    public StringWithCustomTags getPublishDate() {
+    public StringWithCustomFacts getPublishDate() {
         return publishDate;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -138,7 +166,17 @@ public class HeaderSourceData extends AbstractElement {
      * @param copyright
      *            the new copyright
      */
-    public void setCopyright(StringWithCustomTags copyright) {
+    public void setCopyright(String copyright) {
+        this.copyright = copyright == null ? null : new StringWithCustomFacts(copyright);
+    }
+
+    /**
+     * Sets the copyright.
+     *
+     * @param copyright
+     *            the new copyright
+     */
+    public void setCopyright(StringWithCustomFacts copyright) {
         this.copyright = copyright;
     }
 
@@ -149,6 +187,20 @@ public class HeaderSourceData extends AbstractElement {
      *            the new name
      */
     public void setName(String name) {
+        if (this.name != null) {
+            this.name.setValue(name);
+        } else {
+            this.name = new StringWithCustomFacts(name);
+        }
+    }
+
+    /**
+     * Sets the name.
+     *
+     * @param name
+     *            the new name
+     */
+    public void setName(StringWithCustomFacts name) {
         this.name = name;
     }
 
@@ -158,7 +210,17 @@ public class HeaderSourceData extends AbstractElement {
      * @param publishDate
      *            the new publish date
      */
-    public void setPublishDate(StringWithCustomTags publishDate) {
+    public void setPublishDate(String publishDate) {
+        this.publishDate = publishDate == null ? null : new StringWithCustomFacts(publishDate);
+    }
+
+    /**
+     * Sets the publish date.
+     *
+     * @param publishDate
+     *            the new publish date
+     */
+    public void setPublishDate(StringWithCustomFacts publishDate) {
         this.publishDate = publishDate;
     }
 
@@ -184,9 +246,9 @@ public class HeaderSourceData extends AbstractElement {
             builder.append(publishDate);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

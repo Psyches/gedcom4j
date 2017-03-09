@@ -48,7 +48,8 @@ class HebrewCalendarParser {
      *            the hebrew year
      * @param hebrewMonthAbbrev
      *            the hebrew month abbreviation in GEDCOM format
-     * @param dayOfMonth the day of the month.
+     * @param dayOfMonth
+     *            the day within the month
      * @return the date in Gregorian form
      */
     Date convertHebrewDateToGregorian(int hebrewYear, String hebrewMonthAbbrev, int dayOfMonth) {
@@ -88,8 +89,8 @@ class HebrewCalendarParser {
          * If the year is shorter by one less day, it is called a haser year. Kislev on a haser year has 29 days. If the year is
          * longer by one day, it is called a shalem year. Cheshvan on a shalem year is 30 days.
          */
-        boolean haserYear = (lenHebrewYear == 353 || lenHebrewYear == 383);
-        boolean shalemYear = (lenHebrewYear == 355 || lenHebrewYear == 385);
+        boolean haserYear = lenHebrewYear == 353 || lenHebrewYear == 383;
+        boolean shalemYear = lenHebrewYear == 355 || lenHebrewYear == 385;
         int monthLength = 0;
         if (hebrewMonthNum == 1 || hebrewMonthNum == 5 || hebrewMonthNum == 8 || hebrewMonthNum == 10 || hebrewMonthNum == 12) {
             monthLength = 30;
@@ -97,11 +98,11 @@ class HebrewCalendarParser {
                 || hebrewMonthNum == 13) {
             monthLength = 29;
         } else if (hebrewMonthNum == 6) {
-            monthLength = (leapYear ? 30 : 0);
+            monthLength = leapYear ? 30 : 0;
         } else if (hebrewMonthNum == 2) {
-            monthLength = (shalemYear ? 30 : 29);
+            monthLength = shalemYear ? 30 : 29;
         } else if (hebrewMonthNum == 3) {
-            monthLength = (haserYear ? 29 : 30);
+            monthLength = haserYear ? 29 : 30;
         }
         return monthLength;
     }
@@ -125,14 +126,14 @@ class HebrewCalendarParser {
         int chalakim = 793 * monthsSinceFirstMolad;
         chalakim += 204;
         // carry the excess Chalakim over to the hours
-        int hours = (int) Math.floor(chalakim / 1080);
+        int hours = (int) Math.floor(chalakim / 1080.0);
         chalakim = chalakim % 1080;
 
         hours += monthsSinceFirstMolad * 12;
         hours += 5;
 
         // carry the excess hours over to the days
-        int days = (int) Math.floor(hours / 24);
+        int days = (int) Math.floor(hours / 24.0);
         hours = hours % 24;
 
         days += 29 * monthsSinceFirstMolad;
@@ -156,14 +157,14 @@ class HebrewCalendarParser {
          * 
          * This code handles these exceptions.
          */
-        if (!isLeapYear(hebrewYear) && dayOfWeek == 3 && (hours * 1080) + chalakim >= (9 * 1080) + 204) {
+        if (!isLeapYear(hebrewYear) && dayOfWeek == 3 && hours * 1080 + chalakim >= 9 * 1080 + 204) {
             /*
              * This prevents the year from being 356 days. We have to push Rosh Hashanah off two days because if we pushed it off
              * only one day, Rosh Hashanah would comes out on a Wednesday. Check the Hebrew year 5745 for an example.
              */
             dayOfWeek = 5;
             days += 2;
-        } else if (isLeapYear(hebrewYear - 1) && dayOfWeek == 2 && (hours * 1080) + chalakim >= (15 * 1080) + 589) {
+        } else if (isLeapYear(hebrewYear - 1) && dayOfWeek == 2 && hours * 1080 + chalakim >= 15 * 1080 + 589) {
             /*
              * This prevents the previous year from being 382 days. Check the Hebrew Year 5766 for an example. If Rosh Hashanah was
              * not pushed off a day then 5765 would be 382 days
@@ -233,7 +234,7 @@ class HebrewCalendarParser {
         int y = hebrewYear - 1;
 
         // Get how many 19 year cycles there has been and multiply it by 235 (which is the number of months in a 19-year cycle)
-        int result = (int) (Math.floor(y / 19) * 235);
+        int result = (int) (Math.floor(y / 19.0) * 235.0);
 
         // Get the remaining years after the last complete 19 year cycle.
         y = yearInLeapCycle(y);
@@ -268,8 +269,8 @@ class HebrewCalendarParser {
     private boolean isLeapYear(int hebrewYear) {
         int yearInCycle = yearInLeapCycle(hebrewYear);
 
-        return (yearInCycle == 3 || yearInCycle == 6 || yearInCycle == 8 || yearInCycle == 11 || yearInCycle == 14
-                || yearInCycle == 17 || yearInCycle == 0);
+        return yearInCycle == 3 || yearInCycle == 6 || yearInCycle == 8 || yearInCycle == 11 || yearInCycle == 14
+                || yearInCycle == 17 || yearInCycle == 0;
     }
 
     /**

@@ -41,23 +41,53 @@ public class FileReference extends AbstractElement {
     /**
      * The format of the referenced file
      */
-    private StringWithCustomTags format;
+    private StringWithCustomFacts format;
 
     /**
      * The media type of the referenced file
      */
-    private StringWithCustomTags mediaType;
+    private StringWithCustomFacts mediaType;
 
     /**
      * The actual reference to the file - a URL, a file name, something
      */
-    private StringWithCustomTags referenceToFile;
+    private StringWithCustomFacts referenceToFile;
 
     /**
      * The descriptive title for this file reference
      */
-    private StringWithCustomTags title;
+    private StringWithCustomFacts title;
 
+    /** Default constructor */
+    public FileReference() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public FileReference(FileReference other) {
+        super(other);
+        if (other.format != null) {
+            format = new StringWithCustomFacts(other.format);
+        }
+        if (other.mediaType != null) {
+            mediaType = new StringWithCustomFacts(other.mediaType);
+        }
+        if (other.referenceToFile != null) {
+            referenceToFile = new StringWithCustomFacts(other.referenceToFile);
+        }
+        if (other.title != null) {
+            title = new StringWithCustomFacts(other.title);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -106,7 +136,7 @@ public class FileReference extends AbstractElement {
      *
      * @return the format
      */
-    public StringWithCustomTags getFormat() {
+    public StringWithCustomFacts getFormat() {
         return format;
     }
 
@@ -115,7 +145,7 @@ public class FileReference extends AbstractElement {
      *
      * @return the media type
      */
-    public StringWithCustomTags getMediaType() {
+    public StringWithCustomFacts getMediaType() {
         return mediaType;
     }
 
@@ -124,7 +154,7 @@ public class FileReference extends AbstractElement {
      *
      * @return the reference to file
      */
-    public StringWithCustomTags getReferenceToFile() {
+    public StringWithCustomFacts getReferenceToFile() {
         return referenceToFile;
     }
 
@@ -133,10 +163,13 @@ public class FileReference extends AbstractElement {
      *
      * @return the title
      */
-    public StringWithCustomTags getTitle() {
+    public StringWithCustomFacts getTitle() {
         return title;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -154,7 +187,17 @@ public class FileReference extends AbstractElement {
      * @param format
      *            the new format
      */
-    public void setFormat(StringWithCustomTags format) {
+    public void setFormat(String format) {
+        this.format = format == null ? null : new StringWithCustomFacts(format);
+    }
+
+    /**
+     * Sets the format.
+     *
+     * @param format
+     *            the new format
+     */
+    public void setFormat(StringWithCustomFacts format) {
         this.format = format;
     }
 
@@ -164,7 +207,17 @@ public class FileReference extends AbstractElement {
      * @param mediaType
      *            the new media type
      */
-    public void setMediaType(StringWithCustomTags mediaType) {
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType == null ? null : new StringWithCustomFacts(mediaType);
+    }
+
+    /**
+     * Sets the media type.
+     *
+     * @param mediaType
+     *            the new media type
+     */
+    public void setMediaType(StringWithCustomFacts mediaType) {
         this.mediaType = mediaType;
     }
 
@@ -174,7 +227,17 @@ public class FileReference extends AbstractElement {
      * @param referenceToFile
      *            the new reference to file
      */
-    public void setReferenceToFile(StringWithCustomTags referenceToFile) {
+    public void setReferenceToFile(String referenceToFile) {
+        this.referenceToFile = referenceToFile == null ? null : new StringWithCustomFacts(referenceToFile);
+    }
+
+    /**
+     * Sets the reference to file.
+     *
+     * @param referenceToFile
+     *            the new reference to file
+     */
+    public void setReferenceToFile(StringWithCustomFacts referenceToFile) {
         this.referenceToFile = referenceToFile;
     }
 
@@ -184,7 +247,17 @@ public class FileReference extends AbstractElement {
      * @param title
      *            the new title
      */
-    public void setTitle(StringWithCustomTags title) {
+    public void setTitle(String title) {
+        this.title = title == null ? null : new StringWithCustomFacts(title);
+    }
+
+    /**
+     * Sets the title.
+     *
+     * @param title
+     *            the new title
+     */
+    public void setTitle(StringWithCustomFacts title) {
         this.title = title;
     }
 
@@ -215,9 +288,9 @@ public class FileReference extends AbstractElement {
             builder.append(title);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

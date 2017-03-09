@@ -29,128 +29,119 @@ package org.gedcom4j.validate;
 import java.util.List;
 
 import org.gedcom4j.model.EventRecorded;
-import org.gedcom4j.model.Multimedia;
+import org.gedcom4j.model.MultimediaReference;
 import org.gedcom4j.model.RepositoryCitation;
 import org.gedcom4j.model.Source;
 import org.gedcom4j.model.SourceCallNumber;
 import org.gedcom4j.model.SourceData;
+import org.gedcom4j.validate.Validator.Finding;
 
 /**
- * A validator for {@link Source} objects. See {@link GedcomValidator} for usage
- * information.
+ * A validator for {@link Source} objects. See {@link Validator} for usage information.
  * 
  * @author frizbog1
  * 
  */
 public class SourceValidator extends AbstractValidator {
 
-	/**
-	 * The source being validated
-	 */
-	private final Source source;
+    /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -1329075355558483196L;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param rootValidator
-	 *            the root validator
-	 * @param source
-	 *            the source being validated
-	 */
-	public SourceValidator(GedcomValidator rootValidator, Source source) {
-		super(rootValidator);
-		this.source = source;
-	}
+    /**
+     * The source being validated
+     */
+    private final Source source;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void validate() {
-		if (source == null) {
-			addError("Source is null and cannot be validated");
-			return;
-		}
-		checkXref(source);
-		checkChangeDate(source.getChangeDate(), source);
-		final SourceData sd = source.getData();
-		if (sd != null) {
-			checkNotes(sd);
-			checkOptionalString(sd.getRespAgency(), "responsible agency", sd);
+    /**
+     * Constructor
+     * 
+     * @param validator
+     *            the root validator
+     * @param source
+     *            the source being validated
+     */
+    SourceValidator(Validator validator, Source source) {
+        super(validator);
+        this.source = source;
+    }
 
-			// Structure validate, repair, and dedup the recorded events collection
-			List<EventRecorded> erList = checkListStructure("recorded event", true, sd, new ListRef<EventRecorded>() {
-				@Override
-				public List<EventRecorded> get(boolean initializeIfNeeded) {
-					return sd.getEventsRecorded(initializeIfNeeded);
-				}
-			});
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void validate() {
+        xrefMustBePresentAndWellFormed(source);
+        checkChangeDate(source.getChangeDate(), source);
+        if (source.getData() != null) {
+            SourceData sd = source.getData();
+            new NoteStructureListValidator(getValidator(), sd).validate();
+            mustHaveValueOrBeOmitted(sd, "respAgency");
+            List<EventRecorded> eventsRecorded = sd.getEventsRecorded();
+            if (eventsRecorded == null) {
+                Finding vf = newFinding(sd, Severity.INFO, ProblemCode.UNINITIALIZED_COLLECTION, "eventsRecorded");
+                initializeCollectionIfAllowed(vf);
+            } else {
+                checkListOfModelElementsForDups(sd, "eventsRecorded");
+                checkListOfModelElementsForNulls(sd, "eventsRecorded");
 
-			if (erList != null) {
-				for (EventRecorded er : erList) {
-					checkOptionalString(er.getDatePeriod(), "date period", er);
-					checkOptionalString(er.getEventType(), "event type", er);
-					checkOptionalString(er.getJurisdiction(), "jurisdiction", er);
-				}
-			}
-		}
+                for (EventRecorded er : eventsRecorded) {
+                    mustHaveValueOrBeOmitted(er, "datePeriod");
+                    mustHaveValueOrBeOmitted(er, "eventType");
+                    mustHaveValueOrBeOmitted(er, "jurisdiction");
+                }
+            }
+        }
+        checkUninitializedCollection(source, "multimedia");
+        if (source.getMultimedia() != null) {
+            checkListOfModelElementsForDups(source, "multimedia");
+            checkListOfModelElementsForNulls(source, "multimedia");
+            for (MultimediaReference mRef : source.getMultimedia()) {
+                if (mRef == null) {
+                    continue;
+                }
+                new MultimediaValidator(getValidator(), mRef.getMultimedia()).validate();
+            }
+        }
+        new NoteStructureListValidator(getValidator(), source).validate();
+        checkStringList(source, "originatorsAuthors", false);
+        checkStringList(source, "publicationFacts", false);
+        mustHaveValueOrBeOmitted(source, "recIdNumber");
+        checkStringList(source, "sourceText", true);
+        mustHaveValueOrBeOmitted(source, "sourceFiledBy");
+        checkStringList(source, "title", true);
+        checkUserReferences(source.getUserReferences(), source);
 
-		// Structure validate, repair, and dedup the multimedia collection
-		List<Multimedia> mmList = checkListStructure("multimedia", true, source, new ListRef<Multimedia>() {
-			@Override
-			public List<Multimedia> get(boolean initializeIfNeeded) {
-				return source.getMultimedia(initializeIfNeeded);
-			}
-		});
+        RepositoryCitation c = source.getRepositoryCitation();
+        if (c != null) {
+            new NoteStructureListValidator(getValidator(), c).validate();
+            mustHaveValue(c, "repositoryXref");
+            checkCallNumbers(c);
+        }
+    }
 
-		if (mmList != null) {
-			for (Multimedia mm : mmList) {
-				new MultimediaValidator(getRootValidator(), mm).validate();
-			}
-		}
-		
-		checkStringList(source.getOriginatorsAuthors(), "originators/authors", false);
-		checkStringList(source.getPublicationFacts(), "publication facts", false);
-		checkOptionalString(source.getRecIdNumber(), "automated record id", source);
-		checkStringList(source.getSourceText(), "source text", true);
-		checkOptionalString(source.getSourceFiledBy(), "source filed by", source);
-		checkStringList(source.getTitle(), "title", true);
-		checkUserReferences(source.getUserReferences(), source);
-		checkNotes(source);
-
-		RepositoryCitation c = source.getRepositoryCitation();
-		if (c != null) {
-			checkNotes(c);
-			checkRequiredString(c.getRepositoryXref(), "repository xref", c);
-			checkCallNumbers(c);
-		}
-	}
-
-	/**
-	 * Check the call numbers on a RepositoryCitation object
-	 * 
-	 * @param citation
-	 *            the citation to check the call numbers on
-	 */
-	private void checkCallNumbers(final RepositoryCitation citation) {
-		List<SourceCallNumber> scnList = checkListStructure("source call number", true, citation, new ListRef<SourceCallNumber>() {
-			@Override
-			public List<SourceCallNumber> get(boolean initializeIfNeeded) {
-				return citation.getCallNumbers(initializeIfNeeded);
-			}
-		});
-
-		if (scnList != null) {
-			for (SourceCallNumber scn : scnList) {
-				checkOptionalString(scn.getCallNumber(), "call number", scn);
-				if (scn.getCallNumber() == null) {
-					if (scn.getMediaType() != null) {
-						addError("You cannot specify media type without a call number in a SourceCallNumber structure", scn);
-					}
-				} else {
-					checkOptionalString(scn.getMediaType(), "media type", scn);
-				}
-			}
-		}
-	}
+    /**
+     * Check the call numbers on a RepositoryCitation object
+     * 
+     * @param citation
+     *            the citation to check the call numbers on
+     */
+    private void checkCallNumbers(RepositoryCitation citation) {
+        checkUninitializedCollection(citation, "callNumbers");
+        if (citation.getCallNumbers() != null) {
+            checkListOfModelElementsForDups(citation, "callNumbers");
+            checkListOfModelElementsForNulls(citation, "callNumbers");
+            for (SourceCallNumber scn : citation.getCallNumbers()) {
+                mustHaveValueOrBeOmitted(scn, "callNumber");
+                if (scn.getCallNumber() == null) {
+                    if (scn.getMediaType() != null) {
+                        newFinding(scn, Severity.ERROR, ProblemCode.ILLEGAL_VALUE, "mediaType");
+                    }
+                } else {
+                    mustHaveValueOrBeOmitted(scn, "mediaType");
+                }
+            }
+        }
+    }
 }

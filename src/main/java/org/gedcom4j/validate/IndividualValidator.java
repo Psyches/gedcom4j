@@ -29,20 +29,28 @@ package org.gedcom4j.validate;
 import java.util.List;
 
 import org.gedcom4j.model.Association;
+import org.gedcom4j.model.FamilyChild;
+import org.gedcom4j.model.FamilySpouse;
 import org.gedcom4j.model.Individual;
 import org.gedcom4j.model.IndividualAttribute;
 import org.gedcom4j.model.IndividualEvent;
+import org.gedcom4j.model.LdsIndividualOrdinance;
 import org.gedcom4j.model.PersonalName;
-import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.Submitter;
+import org.gedcom4j.model.enumerations.RestrictionNoticeType;
 
 /**
- * A validator for an {@link Individual}. See {@link GedcomValidator} for usage information.
+ * A validator for an {@link Individual}. See {@link Validator} for usage information.
  * 
  * @author frizbog1
  * 
  */
 public class IndividualValidator extends AbstractValidator {
+
+    /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -4569551561960734159L;
 
     /**
      * The individual being validated
@@ -52,47 +60,65 @@ public class IndividualValidator extends AbstractValidator {
     /**
      * Constructor
      * 
-     * @param gedcomValidator
+     * @param validator
      *            the root validator
      * @param individual
      *            the individual being validated
      */
-    public IndividualValidator(GedcomValidator gedcomValidator, Individual individual) {
-        super(gedcomValidator);
+    IndividualValidator(Validator validator, Individual individual) {
+        super(validator);
         this.individual = individual;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void validate() {
-        if (individual == null) {
-            addError("Individual is null");
-            return;
-        }
-        checkXref(individual);
-		List<PersonalName> list = checkListStructure("names", true, individual, new ListRef<PersonalName>() {
-			@Override
-			public List<PersonalName> get(boolean initializeIfNeeded) {
-				return individual.getNames(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-            for (PersonalName pn : list) {
-                new PersonalNameValidator(getRootValidator(), pn).validate();
+        xrefMustBePresentAndWellFormed(individual);
+        checkUninitializedCollection(individual, "names");
+        List<PersonalName> names = individual.getNames();
+        if (names != null) {
+            checkListOfModelElementsForDups(individual, "names");
+            checkListOfModelElementsForNulls(individual, "names");
+            for (PersonalName pn : names) {
+                if (pn != null) {
+                    new PersonalNameValidator(getValidator(), pn).validate();
+                }
             }
-		}
-		
-		boolean isRepairEnabled = isAutorepairEnabled();
-        if (isRepairEnabled) {
-        	eliminateDuplicatesWithInfo("families (where individual was a child)", individual, individual.getFamiliesWhereChild());
-        	eliminateDuplicatesWithInfo("families (where individual was a spouse)", individual, individual.getFamiliesWhereSpouse());
         }
-
+        checkUninitializedCollection(individual, "familiesWhereChild");
+        if (individual.getFamiliesWhereChild() != null) {
+            checkListOfModelElementsForDups(individual, "familiesWhereChild");
+            checkListOfModelElementsForNulls(individual, "familiesWhereChild");
+            for (FamilyChild fc : individual.getFamiliesWhereChild()) {
+                new FamilyChildValidator(getValidator(), fc).validate();
+            }
+        }
+        checkUninitializedCollection(individual, "familiesWhereSpouse");
+        if (individual.getFamiliesWhereSpouse() != null) {
+            checkListOfModelElementsForDups(individual, "familiesWhereSpouse");
+            checkListOfModelElementsForNulls(individual, "familiesWhereSpouse");
+            for (FamilySpouse fs : individual.getFamiliesWhereSpouse()) {
+                new FamilySpouseValidator(getValidator(), fs).validate();
+            }
+        }
+        if (individual.getRestrictionNotice() != null) {
+            mustBeInEnumIfSpecified(RestrictionNoticeType.class, individual, "restrictionNotice");
+        }
         checkAliases();
         checkAssociations();
         checkCitations(individual);
         checkIndividualAttributes();
         checkSubmitters();
         checkIndividualEvents();
+        checkLdsIndividualOrdinances();
+        checkNotes(individual);
+        checkCustomFacts(individual);
+        checkEmails(individual);
+        checkFaxNumbers(individual);
+        checkPhoneNumbers(individual);
+        checkWwwUrls(individual);
     }
 
     /**
@@ -100,55 +126,41 @@ public class IndividualValidator extends AbstractValidator {
      * 
      */
     private void checkAliases() {
-		List<StringWithCustomTags> list = checkListStructure("aliases", true, individual, new ListRef<StringWithCustomTags>() {
-			@Override
-			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return individual.getAliases(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-			checkStringTagList(list, "aliases", false);
-		}
+        checkUninitializedCollection(individual, "aliases");
+        if (individual.getAliases() != null) {
+            checkListOfModelElementsForDups(individual, "aliases");
+            checkListOfModelElementsForNulls(individual, "aliases");
+            checkStringList(individual, "aliases", false);
+        }
     }
 
     /**
      * Validate the {@link Individual#associations} collection
      */
     private void checkAssociations() {
-		List<Association> list = checkListStructure("associations", true, individual, new ListRef<Association>() {
-			@Override
-			public List<Association> get(boolean initializeIfNeeded) {
-				return individual.getAssociations(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-            for (Association a : list) {
-                if (a == null) {
-                    addError("associations collection for individual contains null entry", individual);
-                } else {
-                    checkRequiredString(a.getAssociatedEntityType(), "associated entity type", a);
-                    checkXref(a, "association xref");
-                }
+        checkUninitializedCollection(individual, "associations");
+        if (individual.getAssociations() != null) {
+            checkListOfModelElementsForDups(individual, "associations");
+            checkListOfModelElementsForNulls(individual, "associations");
+            for (Association a : individual.getAssociations()) {
+                mustHaveValue(a, "associatedEntityType");
+                checkAlternateXref(a, "associatedEntityXref");
             }
-		}
+        }
+
     }
 
     /**
      * Validate the {@link Individual#attributes} collection
      */
     private void checkIndividualAttributes() {
-		List<IndividualAttribute> list = checkListStructure("attributes", true, individual, new ListRef<IndividualAttribute>() {
-			@Override
-			public List<IndividualAttribute> get(boolean initializeIfNeeded) {
-				return individual.getAttributes(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-			for (IndividualAttribute l : list) {
-                if (l.getType() == null) {
-                    addError("Individual attribute requires a type", l);
-                }
-			}
+        checkUninitializedCollection(individual, "attributes");
+        if (individual.getAttributes() != null) {
+            checkListOfModelElementsForDups(individual, "attributes");
+            checkListOfModelElementsForNulls(individual, "attributes");
+            for (IndividualAttribute a : individual.getAttributes()) {
+                new IndividualAttributeValidator(getValidator(), a).validate();
+            }
 		}
     }
 
@@ -156,52 +168,46 @@ public class IndividualValidator extends AbstractValidator {
      * Validate the {@link Individual#events} collection
      */
     private void checkIndividualEvents() {
-		List<IndividualEvent> list = checkListStructure("events", true, individual, new ListRef<IndividualEvent>() {
-			@Override
-			public List<IndividualEvent> get(boolean initializeIfNeeded) {
-				return individual.getEvents(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-			for (IndividualEvent l : list) {
-                if (l.getType() == null) {
-                    addError("Individual event requires a type", l);
-                }
-                new EventValidator(getRootValidator(), l).validate();
-			}
-		}
+        checkUninitializedCollection(individual, "events");
+        if (individual.getEvents() != null) {
+            checkListOfModelElementsForDups(individual, "events");
+            checkListOfModelElementsForNulls(individual, "events");
+            for (IndividualEvent a : individual.getEvents()) {
+                new EventValidator(getValidator(), a).validate();
+            }
+        }
     }
 
     /**
-	 * Validate the two submitters collections: {@link Individual#ancestorInterest} and
-	 * {@link Individual#descendantInterest}
-	 */
-	private void checkSubmitters() {
-		checkSubmitters("ancestor interest", new ListRef<Submitter>() {
-			@Override
-			public List<Submitter> get(boolean initializeIfNeeded) {
-				return individual.getAncestorInterest(initializeIfNeeded);
-			}
-		});
-		
-		checkSubmitters("descendant interest", new ListRef<Submitter>() {
-			@Override
-			public List<Submitter> get(boolean initializeIfNeeded) {
-				return individual.getDescendantInterest(initializeIfNeeded);
-			}
-		});
-	}
-
-	/**
-     * @param whichName ancestor or descendant interest list name
-     * @param whichList ancestor or descendant interest list reference
+     * Validate the LdsIndividualOrinances
      */
-    private void checkSubmitters(String whichName, ListRef<Submitter> whichList) {
-    	List<Submitter> list = checkListStructure(whichName, true, individual, whichList);
-		if (list != null) {
-			for (Submitter s : list) {
-				new SubmitterValidator(getRootValidator(), s).validate();
-			}
-		}
+    private void checkLdsIndividualOrdinances() {
+        checkUninitializedCollection(individual, "ldsIndividualOrdinances");
+        if (individual.getLdsIndividualOrdinances() != null) {
+            checkListOfModelElementsForDups(individual, "ldsIndividualOrdinances");
+            checkListOfModelElementsForNulls(individual, "ldsIndividualOrdinances");
+            for (LdsIndividualOrdinance o : individual.getLdsIndividualOrdinances()) {
+                new LdsIndividualOrdinanceValidator(getValidator(), o).validate();
+            }
+        }
+    }
+
+    /**
+     * Validate the two submitters collections: {@link Individual#ancestorInterest} and {@link Individual#descendantInterest}
+     */
+    private void checkSubmitters() {
+        checkUninitializedCollection(individual, "ancestorInterest");
+        if (individual.getAncestorInterest() != null) {
+            for (Submitter submitter : individual.getAncestorInterest()) {
+                new SubmitterValidator(getValidator(), submitter).validate();
+            }
+        }
+        checkUninitializedCollection(individual, "descendantInterest");
+        if (individual.getDescendantInterest() != null) {
+            for (Submitter submitter : individual.getDescendantInterest()) {
+                new SubmitterValidator(getValidator(), submitter).validate();
+            }
+        }
+
     }
 }

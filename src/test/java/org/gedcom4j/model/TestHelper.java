@@ -35,20 +35,20 @@ package org.gedcom4j.model;
 public final class TestHelper {
 
     /**
-     * Factory method to get a minimally populated Gedcom structure for use in tests. Creates a bogus submission and
-     * submitter record and makes sure the references that are needed are there.
+     * Factory method to get a minimally populated Gedcom structure for use in tests. Creates a bogus submission and submitter
+     * record and makes sure the references that are needed are there.
      * 
      * @return a minimally populated Gedcom with fake data
      */
     public static Gedcom getMinimalGedcom() {
         Gedcom g = new Gedcom();
         g.setSubmission(new Submission("@SUBN0001@"));
-        g.getHeader().setSubmission(g.getSubmission());
+        g.getHeader().setSubmissionReference(new SubmissionReference(g.getSubmission()));
         Submitter s = new Submitter();
         s.setXref("@SUBM0001@");
-        s.setName(new StringWithCustomTags("Joe Tester"));
+        s.setName("Joe Tester");
         g.getSubmitters().put(s.getXref(), s);
-        g.getHeader().setSubmitter(s);
+        g.getHeader().setSubmitterReference(new SubmitterReference(s));
         return g;
     }
 

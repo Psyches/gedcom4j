@@ -26,12 +26,17 @@
  */
 package org.gedcom4j.validate;
 
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import org.gedcom4j.model.Association;
+import org.gedcom4j.model.CustomFact;
 import org.gedcom4j.model.Gedcom;
 import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.StringWithCustomFacts;
 import org.gedcom4j.model.TestHelper;
-import org.gedcom4j.model.ModelElement;
+import org.gedcom4j.validate.Validator.Finding;
 import org.junit.Test;
 
 /**
@@ -42,27 +47,104 @@ import org.junit.Test;
  */
 public class IndividualValidatorTest extends AbstractValidatorTestCase {
 
-//    @Override
-//    public void setUp() throws Exception {
-//        super.setUp();
-//    }
+    /**
+     * Test aliases
+     */
+    @Test
+    public void testAliases() {
+        Individual i = new Individual();
+        i.setXref("@I1@");
+        i.getAliases(true).add(new StringWithCustomFacts("Bubba"));
+        i.getAliases(true).add(null);
+        i.getAliases(true).add(new StringWithCustomFacts(""));
+        validator.getGedcom().getIndividuals().put(i.getXref(), i);
+        AbstractValidator v = new IndividualValidator(validator, i);
+        v.validate();
+
+        assertFindingsContain(Severity.ERROR, Individual.class, ProblemCode.LIST_WITH_NULL_VALUE.getCode(), "aliases");
+    }
+
+    /**
+     * test associations
+     */
+    @Test
+    public void testAssociations() {
+        Individual i = new Individual();
+        Association a = new Association();
+        i.getAssociations(true).add(a);
+        AbstractValidator v = new IndividualValidator(validator, i);
+        v.validate();
+        assertFindingsContain(Severity.ERROR, i, ProblemCode.MISSING_REQUIRED_VALUE, "xref");
+
+        a.setAssociatedEntityXref(" ");
+        v.validate();
+        assertFindingsContain(Severity.ERROR, i, ProblemCode.MISSING_REQUIRED_VALUE, "xref");
+
+        a.setAssociatedEntityXref("BADFORMAT");
+        v.validate();
+        assertFindingsContain(Severity.ERROR, i, ProblemCode.MISSING_REQUIRED_VALUE, "xref");
+
+        a.setAssociatedEntityXref("@I1@");
+        v.validate();
+        assertFindingsContain(Severity.ERROR, i, ProblemCode.MISSING_REQUIRED_VALUE, "xref");
+    }
+
+    /**
+     * Test custom facts
+     */
+    @Test
+    public void testCustomFacts1() {
+        Individual i = new Individual();
+        i.setXref("@I1@");
+        i.getCustomFacts(true).add(null);
+        i.getCustomFacts(true).add(new CustomFact("_X"));
+        i.getCustomFacts(true).add(null);
+
+        validator.setAutoRepairResponder(Validator.AUTO_REPAIR_NONE);
+        AbstractValidator v = new IndividualValidator(validator, i);
+        v.validate();
+
+        assertFindingsContain(Severity.ERROR, Individual.class, ProblemCode.LIST_WITH_NULL_VALUE.getCode(), "customFacts");
+
+        validator.setAutoRepairResponder(Validator.AUTO_REPAIR_ALL);
+        v = new IndividualValidator(validator, i);
+        v.validate();
+
+        assertFindingsContain(Severity.ERROR, Individual.class, ProblemCode.LIST_WITH_NULL_VALUE.getCode(), "customFacts");
+    }
+
+    /**
+     * Test emails
+     */
+    @Test
+    public void testEmails() {
+        Individual i = new Individual();
+        i.setXref("@I1@");
+        i.getEmails(true).add(new StringWithCustomFacts("bad email format"));
+        validator.getGedcom().getIndividuals().put(i.getXref(), i);
+        AbstractValidator v = new IndividualValidator(validator, i);
+        v.validate();
+
+        assertFindingsContain(Severity.WARNING, StringWithCustomFacts.class, ProblemCode.NOT_VALID_EMAIL_ADDRESS.getCode(),
+                "value");
+    }
 
     /**
      * Test for a default individual (no xref)
      */
-	@Test
+    @Test
     public void testValidateIndividual() {
         Individual i = new Individual();
-        AbstractValidator v = new IndividualValidator(rootValidator, i);
+        AbstractValidator v = new IndividualValidator(validator, i);
         v.validate();
-        assertFindingsContain(Severity.ERROR, "xref", "null");
+        assertFindingsContain(Severity.ERROR, i, ProblemCode.MISSING_REQUIRED_VALUE, "xref");
     }
 
     /**
-     * Test for {@link GedcomValidator#validateIndividuals()} with a malformed xref on an individual, which does not match its key
-     * in the individuals map
+     * Test for {@link Validator#checkIndividuals()} with a malformed xref on an individual, which does not match its key in the
+     * individuals map
      */
-	@Test
+    @Test
     public void testValidateIndividuals2() {
         Gedcom g = TestHelper.getMinimalGedcom();
 
@@ -72,20 +154,18 @@ public class IndividualValidatorTest extends AbstractValidatorTestCase {
         g.getIndividuals().put("WrongKey", i);
 
         // Go validate
-        rootValidator = new GedcomValidator(g);
-        verbose = true;
-        rootValidator.validate();
+        validator = new Validator(g);
+        validator.validate();
 
         // Assert stuff
         int errorsCount = 0;
-        for (GedcomValidationFinding f : rootValidator.getFindings()) {
+        for (Finding f : validator.getResults().getAllFindings()) {
             assertNotNull(f);
-            ModelElement ve = f.getItemWithProblem();
-            assertTrue("The finding should have a ValidatedItem object attached", ve instanceof ValidatedItem);
+            assertNotNull("The finding should have an object attached", f.getItemOfConcern());
             if (f.getSeverity() == Severity.ERROR) {
                 errorsCount++;
-                ValidatedItem item = (ValidatedItem)ve;
-                assertTrue("The item object attached should be a Map entry", item.getItem() instanceof Map.Entry);
+                assertTrue("The " + f.getItemOfConcern().getClass().getName() + " object attached should be a Map entry", f
+                        .getItemOfConcern() instanceof Individual);
             }
         }
         assertEquals("There should be one finding of severity ERROR", 1, errorsCount);

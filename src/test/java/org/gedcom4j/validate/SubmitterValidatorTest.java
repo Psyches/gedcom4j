@@ -26,12 +26,11 @@
  */
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.StringWithCustomTags;
 import org.gedcom4j.model.Submitter;
 import org.junit.Test;
 
 /**
- * Test cas for {@link SubmitterValidator}
+ * Test case for {@link SubmitterValidator}
  * 
  * @author frizbog1
  * 
@@ -41,11 +40,10 @@ public class SubmitterValidatorTest extends AbstractValidatorTestCase {
     /**
      * Test method for {@link org.gedcom4j.validate.SubmitterValidator#validate()}.
      */
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testValidateNullSubmitter() {
-        AbstractValidator sv = new SubmitterValidator(rootValidator, null);
+        AbstractValidator sv = new SubmitterValidator(validator, null);
         sv.validate();
-        assertFindingsContain(Severity.ERROR, "submitter", "null");
     }
 
     /**
@@ -54,11 +52,11 @@ public class SubmitterValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testValidateSubmitterHappyPath() {
         Submitter submitter = new Submitter();
-        submitter.setName(new StringWithCustomTags("somebody"));
+        submitter.setName("somebody");
         submitter.setXref("@nobody@");
-        AbstractValidator sv = new SubmitterValidator(rootValidator, submitter);
+        AbstractValidator sv = new SubmitterValidator(validator, submitter);
         sv.validate();
-        assertTrue(rootValidator.getFindings().isEmpty());
+        assertNoIssues();
     }
 
     /**
@@ -68,10 +66,10 @@ public class SubmitterValidatorTest extends AbstractValidatorTestCase {
     public void testValidateSubmitterHasBlankName() {
         Submitter submitter = new Submitter();
         submitter.setXref("@SOMEVALUE@");
-        submitter.setName(new StringWithCustomTags(""));
-        AbstractValidator sv = new SubmitterValidator(rootValidator, submitter);
+        submitter.setName("");
+        AbstractValidator sv = new SubmitterValidator(validator, submitter);
         sv.validate();
-        assertFindingsContain(Severity.ERROR, "name", "blank", "null");
+        assertFindingsContain(Severity.ERROR, submitter, ProblemCode.MISSING_REQUIRED_VALUE, "name");
     }
 
     /**
@@ -80,13 +78,11 @@ public class SubmitterValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testValidateSubmitterHasBlankXref() {
         Submitter submitter = new Submitter();
-        submitter.setName(new StringWithCustomTags("somebody"));
+        submitter.setName("somebody");
         submitter.setXref("");
-        AbstractValidator sv = new SubmitterValidator(rootValidator, submitter);
+        AbstractValidator sv = new SubmitterValidator(validator, submitter);
         sv.validate();
-        assertFindingsContain(Severity.ERROR, "xref", "too short");
-        assertFindingsContain(Severity.ERROR, "xref", "null");
-        assertFindingsContain(Severity.ERROR, "xref", "@");
+        assertFindingsContain(Severity.ERROR, submitter, ProblemCode.MISSING_REQUIRED_VALUE, "xref");
     }
 
     /**
@@ -96,9 +92,9 @@ public class SubmitterValidatorTest extends AbstractValidatorTestCase {
     public void testValidateSubmitterHasNoName() {
         Submitter submitter = new Submitter();
         submitter.setXref("@SOMEVALUE@");
-        AbstractValidator sv = new SubmitterValidator(rootValidator, submitter);
+        AbstractValidator sv = new SubmitterValidator(validator, submitter);
         sv.validate();
-        assertFindingsContain(Severity.ERROR, "name", "blank", "null");
+        assertFindingsContain(Severity.ERROR, submitter, ProblemCode.MISSING_REQUIRED_VALUE, "name");
     }
 
     /**
@@ -107,10 +103,10 @@ public class SubmitterValidatorTest extends AbstractValidatorTestCase {
     @Test
     public void testValidateSubmitterHasNoXref() {
         Submitter submitter = new Submitter();
-        submitter.setName(new StringWithCustomTags("somebody"));
-        AbstractValidator sv = new SubmitterValidator(rootValidator, submitter);
+        submitter.setName("somebody");
+        AbstractValidator sv = new SubmitterValidator(validator, submitter);
         sv.validate();
-        assertFindingsContain(Severity.ERROR, "xref", "blank", "null");
+        assertFindingsContain(Severity.ERROR, submitter, ProblemCode.MISSING_REQUIRED_VALUE, "xref");
     }
 
 }

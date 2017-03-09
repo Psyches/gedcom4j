@@ -42,13 +42,37 @@ public class CharacterSet extends AbstractElement {
     /**
      * The name of a character set
      */
-    private StringWithCustomTags characterSetName = new StringWithCustomTags(Encoding.ANSEL.toString());
+    private StringWithCustomFacts characterSetName = new StringWithCustomFacts(Encoding.ANSEL.toString());
 
     /**
      * A version number of the character set
      */
-    private StringWithCustomTags versionNum;
+    private StringWithCustomFacts versionNum;
 
+    /** Default constructor */
+    public CharacterSet() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public CharacterSet(CharacterSet other) {
+        super(other);
+        if (other.characterSetName != null) {
+            characterSetName = new StringWithCustomFacts(other.characterSetName);
+        }
+        if (other.versionNum != null) {
+            versionNum = new StringWithCustomFacts(other.versionNum);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -83,7 +107,7 @@ public class CharacterSet extends AbstractElement {
      *
      * @return the character set name
      */
-    public StringWithCustomTags getCharacterSetName() {
+    public StringWithCustomFacts getCharacterSetName() {
         return characterSetName;
     }
 
@@ -92,10 +116,13 @@ public class CharacterSet extends AbstractElement {
      *
      * @return the version num
      */
-    public StringWithCustomTags getVersionNum() {
+    public StringWithCustomFacts getVersionNum() {
         return versionNum;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -111,7 +138,17 @@ public class CharacterSet extends AbstractElement {
      * @param characterSetName
      *            the new character set name
      */
-    public void setCharacterSetName(StringWithCustomTags characterSetName) {
+    public void setCharacterSetName(String characterSetName) {
+        this.characterSetName = characterSetName == null ? null : new StringWithCustomFacts(characterSetName);
+    }
+
+    /**
+     * Sets the character set name.
+     *
+     * @param characterSetName
+     *            the new character set name
+     */
+    public void setCharacterSetName(StringWithCustomFacts characterSetName) {
         this.characterSetName = characterSetName;
     }
 
@@ -121,7 +158,17 @@ public class CharacterSet extends AbstractElement {
      * @param versionNum
      *            the new version num
      */
-    public void setVersionNum(StringWithCustomTags versionNum) {
+    public void setVersionNum(String versionNum) {
+        this.versionNum = versionNum == null ? null : new StringWithCustomFacts(versionNum);
+    }
+
+    /**
+     * Sets the version num.
+     *
+     * @param versionNum
+     *            the new version num
+     */
+    public void setVersionNum(StringWithCustomFacts versionNum) {
         this.versionNum = versionNum;
     }
 
@@ -142,9 +189,9 @@ public class CharacterSet extends AbstractElement {
             builder.append(versionNum);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

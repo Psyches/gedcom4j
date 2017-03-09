@@ -26,6 +26,8 @@
  */
 package org.gedcom4j.model;
 
+import org.gedcom4j.model.enumerations.IndividualAttributeType;
+
 /**
  * A class for an individual attribute. Corresponds to INDIVIDUAL_ATTRIBUTE_STRUCTURE in the GEDCOM standard
  * 
@@ -43,6 +45,25 @@ public class IndividualAttribute extends AbstractEvent {
      */
     private IndividualAttributeType type;
 
+    /** Default constructor */
+    public IndividualAttribute() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public IndividualAttribute(IndividualAttribute other) {
+        super(other);
+        type = other.type;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -55,7 +76,7 @@ public class IndividualAttribute extends AbstractEvent {
             return false;
         }
         IndividualAttribute other = (IndividualAttribute) obj;
-        return (type == other.type);
+        return type == other.type;
     }
 
     /**
@@ -67,6 +88,9 @@ public class IndividualAttribute extends AbstractEvent {
         return type;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;

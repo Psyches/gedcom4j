@@ -29,17 +29,24 @@ package org.gedcom4j.validate;
 import java.util.List;
 
 import org.gedcom4j.model.AbstractCitation;
+import org.gedcom4j.model.CitationData;
 import org.gedcom4j.model.CitationWithSource;
 import org.gedcom4j.model.CitationWithoutSource;
+import org.gedcom4j.validate.Validator.Finding;
 
 /**
- * A validator for source citations - both {@link CitationWithoutSource} and {@link CitationWithSource}. See
- * {@link GedcomValidator} for usage information.
+ * A validator for source citations - both {@link CitationWithoutSource} and {@link CitationWithSource}. See {@link Validator} for
+ * usage information.
  * 
  * @author frizbog1
  * 
  */
 class CitationValidator extends AbstractValidator {
+
+    /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -5330593557253049349L;
 
     /**
      * The citation being validated
@@ -49,59 +56,87 @@ class CitationValidator extends AbstractValidator {
     /**
      * Constructor
      * 
-     * @param rootValidator
+     * @param validator
      *            the root validator with the collection of findings
      * @param citation
      *            the citation being validated
      */
-    public CitationValidator(GedcomValidator rootValidator, AbstractCitation citation) {
-        super(rootValidator);
+    CitationValidator(Validator validator, AbstractCitation citation) {
+        super(validator);
         this.citation = citation;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void validate() {
-        if (citation == null) {
-            addError("Citation is null");
-            return;
-        }
         if (citation instanceof CitationWithSource) {
-            CitationWithSource cws = (CitationWithSource) citation;
-            if (cws.getSource() == null) {
-                addError("CitationWithSource requires a non-null source reference", cws);
-            }
-            checkOptionalString(cws.getWhereInSource(), "where within source", cws);
-            checkOptionalString(cws.getEventCited(), "event type cited from", cws);
-            if (cws.getEventCited() == null) {
-                if (cws.getRoleInEvent() != null) {
-                    addError("CitationWithSource has role in event but a null event");
-                }
-            } else {
-                checkOptionalString(cws.getRoleInEvent(), "role in event", cws);
-            }
-            checkOptionalString(cws.getCertainty(), "certainty/quality", cws);
+            validateCitationWithSource();
         } else if (citation instanceof CitationWithoutSource) {
-            final CitationWithoutSource cwns = (CitationWithoutSource) citation;
-            checkStringList(cwns.getDescription(), "description on a citation without a source", true);
-			// Structure validate, repair, and dedup text from source collection
-			List<List<String>> texts = checkListStructure("Texts from source (list of lists)", true, cwns, new ListRef<List<String>>() {
-				@Override
-				public List<List<String>> get(boolean initializeIfNeeded) {
-					return cwns.getTextFromSource(initializeIfNeeded);
-				}
-			});
-            if (texts != null) {
-                for (List<String> text : texts) {
-                    if (text == null) {
-                        addError("Text from source collection (the list of lists) in CitationWithoutSource contains a null", citation);
-                    } else {
-                        checkStringList(text, "one of the sublists in the textFromSource collection on a source citation", true);
-                    }
-                }
-            }
+            validateCitationWithoutSource();
         } else {
-            throw new IllegalStateException("AbstractCitation references must be either CitationWithSource or CitationWithoutSource instances");
+            throw new IllegalStateException("AbstractCitation references must be either CitationWithSource"
+                    + " instances or CitationWithoutSource instances");
         }
         checkNotes(citation);
+        checkCustomFacts(citation);
+    }
+
+    /**
+     * Validate a citation without source
+     */
+    private void validateCitationWithoutSource() {
+        CitationWithoutSource c = (CitationWithoutSource) citation;
+        checkNotes(c);
+        checkStringList(c, "description", true);
+        checkUninitializedCollection(c, "textFromSource");
+        List<List<String>> textFromSource = c.getTextFromSource();
+        if (textFromSource == null || textFromSource.isEmpty()) {
+            return;
+        }
+        DuplicateHandler<List<String>> dh = new DuplicateHandler<>(textFromSource);
+        if (dh.count() > 0) {
+            Finding vf = newFinding(c, Severity.ERROR, ProblemCode.DUPLICATE_VALUE, "textFromSource");
+            if (mayRepair(vf)) {
+                CitationWithoutSource before = new CitationWithoutSource(c);
+                dh.remove();
+                vf.addRepair(new AutoRepair(before, new CitationWithoutSource(c)));
+            }
+        }
+        checkForNullEntries(c, "textFromSource");
+    }
+
+    /**
+     * Validate a citation with source
+     */
+    private void validateCitationWithSource() {
+        CitationWithSource c = (CitationWithSource) citation;
+        if (c.getSource() == null) {
+            newFinding(c, Severity.ERROR, ProblemCode.MISSING_REQUIRED_VALUE, "source");
+        }
+        mustHaveValueOrBeOmitted(c, "whereInSource");
+        mustHaveValueOrBeOmitted(c, "eventCited");
+        if (c.getEventCited() == null) {
+            mustNotHaveValue(c, "roleInEvent");
+        } else {
+            mustHaveValueOrBeOmitted(c, "roleInEvent");
+        }
+        mustHaveValueOrBeOmitted(c, "certainty");
+        if (c.getCertainty() != null && c.getCertainty().getValue() != null && !"0".equals(c.getCertainty().getValue()) && !"1"
+                .equals(c.getCertainty().getValue()) && !"2".equals(c.getCertainty().getValue()) && !"3".equals(c.getCertainty()
+                        .getValue())) {
+            newFinding(c, Severity.ERROR, ProblemCode.ILLEGAL_VALUE, "certainty");
+        }
+        checkUninitializedCollection(c, "data");
+        checkListOfModelElementsForDups(c, "data");
+        checkListOfModelElementsForNulls(c, "data");
+        if (c.getData() != null) {
+            for (CitationData cd : c.getData()) {
+                checkCustomFacts(cd);
+                mustBeDateIfSpecified(cd, "entryDate");
+                checkUninitializedCollection(cd, "sourceText");
+            }
+        }
     }
 }

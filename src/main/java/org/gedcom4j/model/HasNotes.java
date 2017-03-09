@@ -29,22 +29,25 @@ package org.gedcom4j.model;
 import java.util.List;
 
 /**
- * This interface defines the contract for a model class that has notes.
+ * Marks an object that has note strucutres (inline notes, or references to root level notes - see {@link NoteStructure})
  * 
  * @author Mark A Sikes
+ * @author frizbog
  */
 public interface HasNotes extends ModelElement {
-	/**
-	 * @return the list (possibly empty) of notes or null if there is no list at all.
-	 */
-	List<Note> getNotes();
+    /**
+     * Get the notes on this object
+     * 
+     * @return the notes on this object
+     */
+    List<NoteStructure> getNoteStructures();
 
-	/**
-	 * @param initializeIfNeeded
-	 *            true to create an empty list if the list itself is null.
-	 * 
-	 * @return the list (possibly empty) of notes or null if there is no
-	 *         list and initializeIfNeeded is false.
-	 */
-	List<Note> getNotes(boolean initializeIfNeeded);
+    /**
+     * Get the notes on this object, initializing the collection if needed
+     * 
+     * @param initializeIfNeeded
+     *            set to true if you want the backing collection to be instantiated/initialized if it is currently null
+     * @return the notes on this object, or null if there are none and <tt>initializeIfNeeded</tt> is false
+     */
+    List<NoteStructure> getNoteStructures(boolean initializeIfNeeded);
 }

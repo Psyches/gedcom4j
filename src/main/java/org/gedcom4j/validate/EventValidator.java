@@ -29,8 +29,16 @@ package org.gedcom4j.validate;
 import java.util.List;
 
 import org.gedcom4j.model.AbstractEvent;
-import org.gedcom4j.model.Multimedia;
-import org.gedcom4j.model.StringWithCustomTags;
+import org.gedcom4j.model.FamilyEvent;
+import org.gedcom4j.model.IndividualEvent;
+import org.gedcom4j.model.ModelElement;
+import org.gedcom4j.model.MultimediaReference;
+import org.gedcom4j.model.NoteStructure;
+import org.gedcom4j.model.StringWithCustomFacts;
+import org.gedcom4j.model.enumerations.FamilyEventType;
+import org.gedcom4j.model.enumerations.IndividualEventType;
+import org.gedcom4j.model.enumerations.RestrictionNoticeType;
+import org.gedcom4j.validate.Validator.Finding;
 
 /**
  * Validator for events
@@ -40,6 +48,17 @@ import org.gedcom4j.model.StringWithCustomTags;
 public class EventValidator extends AbstractValidator {
 
     /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -1272765738333620248L;
+
+    /**
+     * Regexes that match the age formats defined in AGE_AT_EVENT structure
+     */
+    private static final String[] AGE_FORMATS = { "CHILD", "INFANT", "STILLBORN", "[<>]?\\s?\\d+y", "[<>]?\\s?\\d+m",
+            "[<>]\\s?\\d+d", "[<>]\\s?\\d+y \\d+m \\d+d", "[<>]\\s?\\d+y \\d+m", "[<>]\\s?\\d+y \\d+d", "[<>]\\s?\\d+m \\d+d" };
+
+    /**
      * The event being validated
      */
     private final AbstractEvent event;
@@ -47,14 +66,14 @@ public class EventValidator extends AbstractValidator {
     /**
      * Constructor
      * 
-     * @param rootValidator
-     *            the root {@link GedcomValidator} that contains the findings and the settings
+     * @param validator
+     *            the {@link Validator} that contains the findings and the settings
      * @param e
      *            the event beign validated
      */
-    public EventValidator(GedcomValidator rootValidator, AbstractEvent e) {
-        super(rootValidator);
-        event = e;
+    EventValidator(Validator validator, AbstractEvent e) {
+        super(validator);
+        this.e = e;
     }
 
     /**
@@ -62,99 +81,112 @@ public class EventValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        if (event == null) {
-            addError("Event is null and cannot be validated or autorepaired");
-            return;
+        if (e instanceof IndividualEvent) {
+            IndividualEvent ie = (IndividualEvent) e;
+            mustHaveValue(ie, "type");
+            if (ie.getType() == IndividualEventType.BIRTH || ie.getType() == IndividualEventType.CHRISTENING || ie
+                    .getType() == IndividualEventType.DEATH) {
+                mustHaveValueOrBeOmitted(ie, "yNull");
+            } else {
+                mustNotHaveValue(ie, "yNull");
+            }
+            if (ie.getType() != IndividualEventType.BIRTH && ie.getType() != IndividualEventType.CHRISTENING && ie
+                    .getType() != IndividualEventType.ADOPTION) {
+                mustNotHaveValue(ie, "family");
+            }
+        } else if (e instanceof FamilyEvent) {
+            FamilyEvent fe = (FamilyEvent) e;
+            mustHaveValue(fe, "type");
+            if (fe.getType() == FamilyEventType.MARRIAGE) {
+                mustHaveValueOrBeOmitted(fe, "yNull");
+            } else {
+                mustNotHaveValue(fe, "yNull");
+            }
+            if (fe.getType() == FamilyEventType.EVENT) {
+                mustHaveValueOrBeOmitted(fe, "description");
+            } else {
+                mustNotHaveValue(fe, "description");
+            }
+            mustBeAgeFormatIfSpecified(fe, fe.getHusbandAge(), "husbandAge");
+            mustBeAgeFormatIfSpecified(fe, fe.getWifeAge(), "husbandAge");
+            mustNotHaveValue(fe, "age");
         }
-        if (event.getAddress() != null) {
-            new AddressValidator(getRootValidator(), event.getAddress()).validate();
+        if (e.getAddress() != null) {
+            new AddressValidator(getValidator(), e.getAddress()).validate();
         }
-        checkOptionalString(event.getAge(), "age", event);
-        checkOptionalString(event.getCause(), "cause", event);
-        checkOptionalString(event.getDate(), "date", event);
-        if (event.getDescription() != null && event.getDescription().trim().length() != 0) {
-            addError("Event has description, which is non-standard. Remove this value, or move it (perhaps to a Note).", event);
+        mustBeAgeFormatIfSpecified(e, e.getAge(), "age");
+        mustHaveValueOrBeOmitted(e, "cause");
+        checkCitations(e);
+        checkCustomFacts(e);
+        mustHaveValueOrBeOmitted(e, "date");
+        mustBeDateIfSpecified(e, "date");
+        if (e.getDescription() != null && e.getDescription().trim().length() != 0 && !"Y".equals(e.getDescription().trim())) {
+            Finding vf = newFinding(e, Severity.ERROR, ProblemCode.ILLEGAL_VALUE, "description");
+            if (mayRepair(vf)) {
+                ModelElement before = makeCopy(e);
+                NoteStructure n = new NoteStructure();
+                n.getLines(true).add(e.getDescription().getValue());
+                e.getNoteStructures(true).add(n);
+                e.getDescription().setValue(null);
+                vf.addRepair(new AutoRepair(before, makeCopy(e)));
+            }
         }
-        checkEmails();
-        checkFaxNumbers();
+        checkEmails(e);
+        checkFaxNumbers(e);
         checkMultimedia();
-        checkPhoneNumbers();
-        checkOptionalString(event.getReligiousAffiliation(), "religious affiliation", event);
-        checkOptionalString(event.getRespAgency(), "responsible agency", event);
-        checkOptionalString(event.getRestrictionNotice(), "restriction notice", event);
-        checkOptionalString(event.getSubType(), "subtype", event);
-        checkWwwUrls();
-        checkCitations(event);
-        checkNotes(event);
-        checkCustomTags(event);
+        new NoteStructureListValidator(getValidator(), e).validate();
+        checkPhoneNumbers(e);
+        mustHaveValueOrBeOmitted(e, "religiousAffiliation");
+        mustHaveValueOrBeOmitted(e, "respAgency");
+        mustHaveValueOrBeOmitted(e, "restrictionNotice");
+        if (e.getRestrictionNotice() != null) {
+            mustBeInEnumIfSpecified(RestrictionNoticeType.class, e, "restrictionNotice");
+        }
+        if (e.getPlace() != null) {
+            new PlaceValidator(getValidator(), e.getPlace()).validate();
+        }
+        checkWwwUrls(e);
+
     }
 
     /**
-	 * Check the multimedia
-	 */
-	private void checkMultimedia() {
-		List<Multimedia> mm = checkListStructure("Multimedia", true, event, new ListRef<Multimedia>() {
-			@Override
-			public List<Multimedia> get(boolean initializeIfNeeded) {
-				return event.getMultimedia(initializeIfNeeded);
-			}
-		});
-		if (mm != null) {
-			for (Multimedia m : mm) {
-	            new MultimediaValidator(getRootValidator(), m).validate();
-			}
-		}
-	}
+     * Check the multimedia
+     */
+    private void checkMultimedia() {
+        checkUninitializedCollection(e, "multimedia");
+        List<MultimediaReference> multimedia = e.getMultimedia();
+        if (multimedia != null) {
+            checkListOfModelElementsForDups(e, "multimedia");
+            checkListOfModelElementsForNulls(e, "multimedia");
+            for (MultimediaReference mRef : multimedia) {
+                if (mRef == null) {
+                    continue;
+                }
+                new MultimediaValidator(getValidator(), mRef.getMultimedia()).validate();
+            }
+        }
+    }
 
-	/**
-	 * Check the emails
-	 */
-	private void checkEmails() {
-		checkStringListStructure("Email address", event, new ListRef<StringWithCustomTags>() {
-			@Override
-			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return event.getEmails(initializeIfNeeded);
-			}
-		});
-	}
-
-	/**
-	 * Check the fax numbers
-	 */
-	private void checkFaxNumbers() {
-		checkStringListStructure("Fax number", event, new ListRef<StringWithCustomTags>() {
-			@Override
-			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return event.getFaxNumbers(initializeIfNeeded);
-			}
-		});
-	}
-
-	/**
-	 * Check the phone numbers
-	 */
-	private void checkPhoneNumbers() {
-		checkStringListStructure("Phone number", event, new ListRef<StringWithCustomTags>() {
-			@Override
-			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return event.getEmails(initializeIfNeeded);
-			}
-		});
-	
-		if (event.getPlace() != null) {
-	        new PlaceValidator(getRootValidator(), event.getPlace()).validate();
-	    }
-	}
-
-	/**
-	 * Check the www urls
-	 */
-	private void checkWwwUrls() {
-		checkStringListStructure("www url", event, new ListRef<StringWithCustomTags>() {
-			@Override
-			public List<StringWithCustomTags> get(boolean initializeIfNeeded) {
-				return event.getWwwUrls(initializeIfNeeded);
-			}
-		});
-	}
+    /**
+     * Age values must be in proper format if specified
+     * 
+     * @param ev
+     *            the event
+     * @param val
+     *            the age value to be checked
+     * @param fieldName
+     *            the name of the age field
+     */
+    private void mustBeAgeFormatIfSpecified(AbstractEvent ev, StringWithCustomFacts val, String fieldName) {
+        if (val == null || !isSpecified(val.getValue())) {
+            return;
+        }
+        String s = val.getValue().trim();
+        for (String regex : AGE_FORMATS) {
+            if (regex.matches(s)) {
+                return;
+            }
+        }
+        newFinding(ev, Severity.ERROR, ProblemCode.ILLEGAL_VALUE, fieldName);
+    }
 }

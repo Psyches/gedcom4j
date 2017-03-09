@@ -49,11 +49,37 @@ public class RepositoryCitation extends AbstractNotesElement {
     private List<SourceCallNumber> callNumbers = getCallNumbers(Options.isCollectionInitializationEnabled());
 
     /**
-     * The xref of the repository. Kept as a string copy of the xref deliberately to avoid circular references in the
-     * object graph (particularly, Note -&gt; Citation -&gt; Source -&gt; Repository -&gt; Note -&gt; Citation...)
+     * The xref of the repository. Kept as a string copy of the xref deliberately to avoid circular references in the object graph
+     * (particularly, Note -&gt; Citation -&gt; Source -&gt; Repository -&gt; Note -&gt; Citation...)
      */
     private String repositoryXref;
 
+    /** Default constructor */
+    public RepositoryCitation() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public RepositoryCitation(RepositoryCitation other) {
+        super(other);
+        if (other.callNumbers != null) {
+            callNumbers = new ArrayList<>();
+            for (SourceCallNumber cn : other.callNumbers) {
+                callNumbers.add(new SourceCallNumber(cn));
+            }
+        }
+        repositoryXref = other.repositoryXref;
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -115,6 +141,9 @@ public class RepositoryCitation extends AbstractNotesElement {
         return repositoryXref;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -146,9 +175,9 @@ public class RepositoryCitation extends AbstractNotesElement {
             builder.append(callNumbers);
             builder.append(", ");
         }
-        if (getNotes() != null) {
-            builder.append("notes=");
-            builder.append(getNotes());
+        if (getNoteStructures() != null) {
+            builder.append("noteStructures=");
+            builder.append(getNoteStructures());
             builder.append(", ");
         }
         if (repositoryXref != null) {
@@ -156,9 +185,9 @@ public class RepositoryCitation extends AbstractNotesElement {
             builder.append(repositoryXref);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

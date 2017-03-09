@@ -26,8 +26,6 @@
  */
 package org.gedcom4j.validate;
 
-import java.util.List;
-
 import org.gedcom4j.model.AbstractNameVariation;
 import org.gedcom4j.model.Place;
 
@@ -40,6 +38,11 @@ import org.gedcom4j.model.Place;
 public class PlaceValidator extends AbstractValidator {
 
     /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = 3340140076536125787L;
+
+    /**
      * The place being validated
      */
     private final Place place;
@@ -47,33 +50,64 @@ public class PlaceValidator extends AbstractValidator {
     /**
      * Constructor
      * 
-     * @param rootValidator
+     * @param validator
      *            the gedcom validator that holds all the findings
      * @param place
      *            the {@link Place} begin validated
      */
-    public PlaceValidator(GedcomValidator rootValidator, Place place) {
-        super(rootValidator);
+    PlaceValidator(Validator validator, Place place) {
+        super(validator);
         this.place = place;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void validate() {
-        if (place == null) {
-            addError("Place is null and cannot be validated or repaired");
+        checkCitations(place);
+        checkCustomFacts(place);
+
+        mustHaveValueOrBeOmitted(place, "latitude");
+        mustHaveValueOrBeOmitted(place, "longitude");
+        new NoteStructureListValidator(getValidator(), place).validate();
+        mustHaveValueOrBeOmitted(place, "placeFormat");
+        if (place.getPlaceName() == null) {
+            newFinding(place, Severity.ERROR, ProblemCode.MISSING_REQUIRED_VALUE, "placeName");
+        }
+
+        checkPhoneticVariations();
+        checkRomanizedVariations();
+    }
+
+    /**
+     * Check the phonetic variations on the place name
+     */
+    private void checkPhoneticVariations() {
+        checkUninitializedCollection(place, "phonetic");
+        if (place.getPhonetic() == null) {
             return;
         }
-        checkOptionalString(place.getLatitude(), "latitude", place);
-        checkOptionalString(place.getLongitude(), "longitude", place);
-        checkOptionalString(place.getPlaceFormat(), "place format", place);
-        if (place.getPlaceName() == null) {
-            addError("Place name was unspecified" + (isAutorepairEnabled() ? " and cannot be repaired" : ""));
+        checkListOfModelElementsForDups(place, "phonetic");
+        checkListOfModelElementsForNulls(place, "phonetic");
+        for (AbstractNameVariation nv : place.getPhonetic()) {
+            new NameVariationValidator(getValidator(), nv).validate();
         }
-        checkPhonetic();
-        checkRomanized();
-        checkCitations(place);
-        checkNotes(place);
-        checkCustomTags(place);
+    }
+
+    /**
+     * Check the romanized variations on the place name
+     */
+    private void checkRomanizedVariations() {
+        checkUninitializedCollection(place, "romanized");
+        if (place.getRomanized() == null) {
+            return;
+        }
+        checkListOfModelElementsForDups(place, "romanized");
+        checkListOfModelElementsForNulls(place, "romanized");
+        for (AbstractNameVariation nv : place.getRomanized()) {
+            new NameVariationValidator(getValidator(), nv).validate();
+        }
     }
 
     private void checkPhonetic() {

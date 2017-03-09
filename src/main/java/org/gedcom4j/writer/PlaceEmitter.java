@@ -64,13 +64,14 @@ class PlaceEmitter extends AbstractEmitter<Place> {
         }
         emitTagWithOptionalValue(startLevel, "PLAC", writeFrom.getPlaceName());
         emitTagIfValueNotNull(startLevel + 1, "FORM", writeFrom.getPlaceFormat());
-        new SourceCitationEmitter(baseWriter, startLevel + 1, writeFrom.getCitations()).emit();
-        new NotesEmitter(baseWriter, startLevel + 1, writeFrom.getNotes()).emit();
+        new CitationEmitter(baseWriter, startLevel + 1, writeFrom.getCitations()).emit();
+        new NoteStructureEmitter(baseWriter, startLevel + 1, writeFrom.getNoteStructures()).emit();
         if (writeFrom.getRomanized() != null) {
             for (AbstractNameVariation nv : writeFrom.getRomanized()) {
                 if (g55()) {
-                    throw new GedcomWriterVersionDataMismatchException("GEDCOM version is 5.5, but romanized variation was specified on place " + writeFrom
-                            .getPlaceName() + ", which is only allowed in GEDCOM 5.5.1");
+                    throw new GedcomWriterVersionDataMismatchException(
+                            "GEDCOM version is 5.5, but romanized variation was specified on place " + writeFrom.getPlaceName()
+                                    + ", which is only allowed in GEDCOM 5.5.1");
                 }
                 emitTagWithRequiredValue(startLevel + 1, "ROMN", nv.getVariation());
                 emitTagIfValueNotNull(startLevel + 2, "TYPE", nv.getVariationType());
@@ -79,8 +80,9 @@ class PlaceEmitter extends AbstractEmitter<Place> {
         if (writeFrom.getPhonetic() != null) {
             for (AbstractNameVariation nv : writeFrom.getPhonetic()) {
                 if (g55()) {
-                    throw new GedcomWriterVersionDataMismatchException("GEDCOM version is 5.5, but phonetic variation was specified on place " + writeFrom
-                            .getPlaceName() + ", which is only allowed in GEDCOM 5.5.1");
+                    throw new GedcomWriterVersionDataMismatchException(
+                            "GEDCOM version is 5.5, but phonetic variation was specified on place " + writeFrom.getPlaceName()
+                                    + ", which is only allowed in GEDCOM 5.5.1");
                 }
                 emitTagWithRequiredValue(startLevel + 1, "FONE", nv.getVariation());
                 emitTagIfValueNotNull(startLevel + 2, "TYPE", nv.getVariationType());
@@ -91,11 +93,12 @@ class PlaceEmitter extends AbstractEmitter<Place> {
             emitTagWithRequiredValue(startLevel + 2, "LATI", writeFrom.getLatitude());
             emitTagWithRequiredValue(startLevel + 2, "LONG", writeFrom.getLongitude());
             if (g55()) {
-                throw new GedcomWriterVersionDataMismatchException("GEDCOM version is 5.5, but map coordinates were specified on place " + writeFrom
-                        .getPlaceName() + ", which is only allowed in GEDCOM 5.5.1");
+                throw new GedcomWriterVersionDataMismatchException(
+                        "GEDCOM version is 5.5, but map coordinates were specified on place " + writeFrom.getPlaceName()
+                                + ", which is only allowed in GEDCOM 5.5.1");
             }
         }
-        emitCustomTags(startLevel + 1, writeFrom.getCustomTags());
+        emitCustomFacts(startLevel + 1, writeFrom.getCustomFacts());
     }
 
 }

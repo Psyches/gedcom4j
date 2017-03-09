@@ -27,13 +27,15 @@
 package org.gedcom4j.model;
 
 /**
- * This interface defines the contract for a model class that has an xref.
+ * Marks an object that has an xref element, so it can be pointed to by other elements.
  * 
  * @author Mark A Sikes
  */
 public interface HasXref extends ModelElement {
-	/**
-	 * @return the Xref string value.
-	 */
-	String getXref();
+    /**
+     * Get the xref on this object
+     * 
+     * @return the xref on this object
+     */
+    String getXref();
 }

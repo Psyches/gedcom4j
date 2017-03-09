@@ -87,6 +87,7 @@ public class Relationship implements Comparable<Relationship> {
      * @return -1 if this relationship is simpler than the other, 0 if equally complex, and 1 if the other one is longer (or null)
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
+    @Override
     public int compareTo(Relationship other) {
         if (other == null) {
             return 1;
@@ -94,6 +95,9 @@ public class Relationship implements Comparable<Relationship> {
         return Math.round(Math.signum((float) chain.size() - other.chain.size()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

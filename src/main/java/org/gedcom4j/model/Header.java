@@ -37,12 +37,12 @@ import org.gedcom4j.Options;
  * @author frizbog1
  * 
  */
+@SuppressWarnings("PMD.GodClass")
 public class Header extends AbstractNotesElement {
     /**
-     * Notes on this header. Technically, the spec does not allow multiple notes or multiline notes in headers, but it
-     * happens so often it's better to allow it than to stop people from being able to parse files.
+     * Notes on this header. Technically, the spec does not allow multiple notes or multiline notes in headers, but it happens so
+     * often it's better to allow it than to stop people from being able to parse files.
      */
-
 
     /**
      * Serial Version UID
@@ -62,17 +62,17 @@ public class Header extends AbstractNotesElement {
     /**
      * The date of the GEDCOM file
      */
-    private StringWithCustomTags date;
+    private StringWithCustomFacts date;
 
     /**
      * The destination system for the GEDCOM file.
      */
-    private StringWithCustomTags destinationSystem;
+    private StringWithCustomFacts destinationSystem;
 
     /**
      * The filename for the GEDCOM file
      */
-    private StringWithCustomTags fileName;
+    private StringWithCustomFacts fileName;
 
     /**
      * The version information for the GEDCOM file
@@ -82,12 +82,12 @@ public class Header extends AbstractNotesElement {
     /**
      * The language for the file
      */
-    private StringWithCustomTags language;
+    private StringWithCustomFacts language;
 
     /**
      * The place structure for the file
      */
-    private StringWithCustomTags placeHierarchy;
+    private StringWithCustomFacts placeHierarchy;
 
     /**
      * The source system for the GEDCOM file
@@ -95,19 +95,94 @@ public class Header extends AbstractNotesElement {
     private SourceSystem sourceSystem = new SourceSystem();
 
     /**
-     * Information about the file submission
+     * Information about the file submissionReference
      */
-    private Submission submission;
+    private SubmissionReference submissionReference;
 
     /**
      * Information about the submitter of the file
      */
-    private Submitter submitter;
+    private SubmitterReference submitterReference = new SubmitterReference(new Submitter("@SUBMITTER@", "UNSPECIFIED"));
 
     /**
      * The time of the file
      */
-    private StringWithCustomTags time;
+    private StringWithCustomFacts time;
+
+    /** Default constructor */
+    public Header() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public Header(Header other) {
+        super(other);
+        if (other.characterSet != null) {
+            characterSet = new CharacterSet(other.characterSet);
+        } else {
+            characterSet = null;
+        }
+        if (other.copyrightData != null) {
+            copyrightData = new ArrayList<>(other.copyrightData);
+        } else {
+            copyrightData = null;
+        }
+        if (other.date != null) {
+            date = new StringWithCustomFacts(other.date);
+        } else {
+            date = null;
+        }
+        if (other.destinationSystem != null) {
+            destinationSystem = new StringWithCustomFacts(other.destinationSystem);
+        } else {
+            destinationSystem = null;
+        }
+        if (other.fileName != null) {
+            fileName = new StringWithCustomFacts(other.fileName);
+        } else {
+            fileName = null;
+        }
+        if (other.gedcomVersion != null) {
+            gedcomVersion = new GedcomVersion(other.gedcomVersion);
+        } else {
+            gedcomVersion = null;
+        }
+        if (other.language != null) {
+            language = new StringWithCustomFacts(other.language);
+        } else {
+            language = null;
+        }
+        if (other.placeHierarchy != null) {
+            placeHierarchy = new StringWithCustomFacts(other.placeHierarchy);
+        } else {
+            placeHierarchy = null;
+        }
+        if (other.sourceSystem != null) {
+            sourceSystem = new SourceSystem(other.sourceSystem);
+        } else {
+            sourceSystem = null;
+        }
+        if (other.submissionReference != null) {
+            submissionReference = new SubmissionReference(other.submissionReference);
+        } else {
+            submissionReference = null;
+        }
+        if (other.submitterReference != null) {
+            submitterReference = new SubmitterReference(other.submitterReference);
+        } else {
+            submitterReference = null;
+        }
+        if (other.time != null) {
+            time = new StringWithCustomFacts(other.time);
+        } else {
+            time = null;
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -119,9 +194,6 @@ public class Header extends AbstractNotesElement {
             return true;
         }
         if (!super.equals(obj)) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
             return false;
         }
         Header other = (Header) obj;
@@ -188,18 +260,18 @@ public class Header extends AbstractNotesElement {
         } else if (!sourceSystem.equals(other.sourceSystem)) {
             return false;
         }
-        if (submission == null) {
-            if (other.submission != null) {
+        if (submissionReference == null) {
+            if (other.submissionReference != null) {
                 return false;
             }
-        } else if (!submission.equals(other.submission)) {
+        } else if (!submissionReference.equals(other.submissionReference)) {
             return false;
         }
-        if (submitter == null) {
-            if (other.submitter != null) {
+        if (submitterReference == null) {
+            if (other.submitterReference != null) {
                 return false;
             }
-        } else if (!submitter.equals(other.submitter)) {
+        } else if (!submitterReference.equals(other.submitterReference)) {
             return false;
         }
         if (time == null) {
@@ -249,7 +321,7 @@ public class Header extends AbstractNotesElement {
      *
      * @return the date
      */
-    public StringWithCustomTags getDate() {
+    public StringWithCustomFacts getDate() {
         return date;
     }
 
@@ -258,7 +330,7 @@ public class Header extends AbstractNotesElement {
      *
      * @return the destination system
      */
-    public StringWithCustomTags getDestinationSystem() {
+    public StringWithCustomFacts getDestinationSystem() {
         return destinationSystem;
     }
 
@@ -267,7 +339,7 @@ public class Header extends AbstractNotesElement {
      *
      * @return the file name
      */
-    public StringWithCustomTags getFileName() {
+    public StringWithCustomFacts getFileName() {
         return fileName;
     }
 
@@ -285,7 +357,7 @@ public class Header extends AbstractNotesElement {
      *
      * @return the language
      */
-    public StringWithCustomTags getLanguage() {
+    public StringWithCustomFacts getLanguage() {
         return language;
     }
 
@@ -294,7 +366,7 @@ public class Header extends AbstractNotesElement {
      *
      * @return the place hierarchy
      */
-    public StringWithCustomTags getPlaceHierarchy() {
+    public StringWithCustomFacts getPlaceHierarchy() {
         return placeHierarchy;
     }
 
@@ -308,21 +380,21 @@ public class Header extends AbstractNotesElement {
     }
 
     /**
-     * Gets the submission.
+     * Gets the submission reference.
      *
-     * @return the submission
+     * @return the submission reference
      */
-    public Submission getSubmission() {
-        return submission;
+    public SubmissionReference getSubmissionReference() {
+        return submissionReference;
     }
 
     /**
-     * Gets the submitter.
+     * Gets the submitter reference
      *
-     * @return the submitter
+     * @return the submitter reference
      */
-    public Submitter getSubmitter() {
-        return submitter;
+    public SubmitterReference getSubmitterReference() {
+        return submitterReference;
     }
 
     /**
@@ -330,10 +402,13 @@ public class Header extends AbstractNotesElement {
      *
      * @return the time
      */
-    public StringWithCustomTags getTime() {
+    public StringWithCustomFacts getTime() {
         return time;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -347,8 +422,8 @@ public class Header extends AbstractNotesElement {
         result = prime * result + (language == null ? 0 : language.hashCode());
         result = prime * result + (placeHierarchy == null ? 0 : placeHierarchy.hashCode());
         result = prime * result + (sourceSystem == null ? 0 : sourceSystem.hashCode());
-        result = prime * result + (submission == null ? 0 : submission.hashCode());
-        result = prime * result + (submitter == null ? 0 : submitter.hashCode());
+        result = prime * result + (submissionReference == null ? 0 : submissionReference.hashCode());
+        result = prime * result + (submitterReference == null ? 0 : submitterReference.hashCode());
         result = prime * result + (time == null ? 0 : time.hashCode());
 
         return result;
@@ -370,7 +445,17 @@ public class Header extends AbstractNotesElement {
      * @param date
      *            the new date
      */
-    public void setDate(StringWithCustomTags date) {
+    public void setDate(String date) {
+        this.date = new StringWithCustomFacts(date);
+    }
+
+    /**
+     * Sets the date.
+     *
+     * @param date
+     *            the new date
+     */
+    public void setDate(StringWithCustomFacts date) {
         this.date = date;
     }
 
@@ -380,7 +465,17 @@ public class Header extends AbstractNotesElement {
      * @param destinationSystem
      *            the new destination system
      */
-    public void setDestinationSystem(StringWithCustomTags destinationSystem) {
+    public void setDestinationSystem(String destinationSystem) {
+        this.destinationSystem = destinationSystem == null ? null : new StringWithCustomFacts(destinationSystem);
+    }
+
+    /**
+     * Sets the destination system.
+     *
+     * @param destinationSystem
+     *            the new destination system
+     */
+    public void setDestinationSystem(StringWithCustomFacts destinationSystem) {
         this.destinationSystem = destinationSystem;
     }
 
@@ -390,7 +485,17 @@ public class Header extends AbstractNotesElement {
      * @param fileName
      *            the new file name
      */
-    public void setFileName(StringWithCustomTags fileName) {
+    public void setFileName(String fileName) {
+        this.fileName = fileName == null ? null : new StringWithCustomFacts(fileName);
+    }
+
+    /**
+     * Sets the file name.
+     *
+     * @param fileName
+     *            the new file name
+     */
+    public void setFileName(StringWithCustomFacts fileName) {
         this.fileName = fileName;
     }
 
@@ -410,7 +515,17 @@ public class Header extends AbstractNotesElement {
      * @param language
      *            the new language
      */
-    public void setLanguage(StringWithCustomTags language) {
+    public void setLanguage(String language) {
+        this.language = language == null ? null : new StringWithCustomFacts(language);
+    }
+
+    /**
+     * Sets the language.
+     *
+     * @param language
+     *            the new language
+     */
+    public void setLanguage(StringWithCustomFacts language) {
         this.language = language;
     }
 
@@ -420,7 +535,17 @@ public class Header extends AbstractNotesElement {
      * @param placeHierarchy
      *            the new place hierarchy
      */
-    public void setPlaceHierarchy(StringWithCustomTags placeHierarchy) {
+    public void setPlaceHierarchy(String placeHierarchy) {
+        this.placeHierarchy = placeHierarchy == null ? null : new StringWithCustomFacts(placeHierarchy);
+    }
+
+    /**
+     * Sets the place hierarchy.
+     *
+     * @param placeHierarchy
+     *            the new place hierarchy
+     */
+    public void setPlaceHierarchy(StringWithCustomFacts placeHierarchy) {
         this.placeHierarchy = placeHierarchy;
     }
 
@@ -435,23 +560,23 @@ public class Header extends AbstractNotesElement {
     }
 
     /**
-     * Sets the submission.
+     * Sets the submission reference.
      *
-     * @param submission
-     *            the new submission
+     * @param submissionReference
+     *            the new submissionReference
      */
-    public void setSubmission(Submission submission) {
-        this.submission = submission;
+    public void setSubmissionReference(SubmissionReference submissionReference) {
+        this.submissionReference = submissionReference;
     }
 
     /**
      * Sets the submitter.
      *
-     * @param submitter
+     * @param submitterReference
      *            the new submitter
      */
-    public void setSubmitter(Submitter submitter) {
-        this.submitter = submitter;
+    public void setSubmitterReference(SubmitterReference submitterReference) {
+        this.submitterReference = submitterReference;
     }
 
     /**
@@ -460,7 +585,17 @@ public class Header extends AbstractNotesElement {
      * @param time
      *            the new time
      */
-    public void setTime(StringWithCustomTags time) {
+    public void setTime(String time) {
+        this.time = time == null ? null : new StringWithCustomFacts(time);
+    }
+
+    /**
+     * Sets the time.
+     *
+     * @param time
+     *            the new time
+     */
+    public void setTime(StringWithCustomFacts time) {
         this.time = time;
     }
 
@@ -506,9 +641,9 @@ public class Header extends AbstractNotesElement {
             builder.append(language);
             builder.append(", ");
         }
-        if (getNotes() != null) {
-            builder.append("notes=");
-            builder.append(getNotes());
+        if (getNoteStructures() != null) {
+            builder.append("noteStructures=");
+            builder.append(getNoteStructures());
             builder.append(", ");
         }
         if (placeHierarchy != null) {
@@ -521,14 +656,14 @@ public class Header extends AbstractNotesElement {
             builder.append(sourceSystem);
             builder.append(", ");
         }
-        if (submission != null) {
-            builder.append("submission=");
-            builder.append(submission);
+        if (submissionReference != null) {
+            builder.append("submissionReference=");
+            builder.append(submissionReference);
             builder.append(", ");
         }
-        if (submitter != null) {
+        if (submitterReference != null) {
             builder.append("submitter=");
-            builder.append(submitter);
+            builder.append(submitterReference);
             builder.append(", ");
         }
         if (time != null) {
@@ -536,9 +671,9 @@ public class Header extends AbstractNotesElement {
             builder.append(time);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

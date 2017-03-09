@@ -37,35 +37,35 @@ import java.util.Map;
  * </p>
  * 
  * <p>
- * Note that if you are creating a Gedcom object graph programmatically from scratch (as opposed to by parsing a GEDCOM
- * file), you will (probably) want to do the following things...some are required for the structure to pass validation,
- * and the results of autorepair (if enabled) may not be what you want (see
- * {@link org.gedcom4j.validate.GedcomValidator}).
+ * Note that if you are creating a Gedcom object graph programmatically from scratch (as opposed to by parsing a GEDCOM file), you
+ * will (probably) want to do the following things. (Some are required for the structure to pass validation, and the results of
+ * autorepair (if enabled) may not be what you want - see {@link org.gedcom4j.validate.Validator}).
  * </p>
  * <ol type="1">
- * <li>Define a {@link Submitter} and add it to the {@link Gedcom#submitters} map. Autorepair will make a fake submitter
- * record with a name of "UNSPECIFIED" and add it to the map during validation if validation is turned on, but this
- * submitter record may not be what you want.</li>
- * <li>Specify which Submitter in the submitters map is the primary submitter and set the {@link Header#submitter}
- * reference to that instance. If no primary submitter is specified in the header, auto-repair will select the first
- * value in the submitters map and use that.</li>
+ * <li>Define a {@link Submitter} and add it to the {@link Gedcom#submitters} map. Autorepair will make a fake submitter record with
+ * a name of "UNSPECIFIED" and add it to the map during validation if validation is turned on, but this submitter record may not be
+ * what you want.</li>
+ * <li>Specify which Submitter in the submitters map is the primary submitter and set the {@link Header#getSubmitterReference()} to
+ * that instance. If no primary submitter is specified in the header, auto-repair will select the first value in the submitters map
+ * and use that.</li>
  * <li>Override default values for the Source System and its components in {@link Header#sourceSystem}
  * <ol type="a">
- * <li>Specify, or override the default value of the {@link SourceSystem#systemId} field to an application-specific
- * value. If it is missing or blank, autorepair during validation will set it to the default value of "UNSPECIFIED"
- * which is probably not desirable.</li>
- * <li>If specifying a corporation, specify, or override the default value of the {@link Corporation#businessName} field
- * to an application-specific value (probably your company/org name). If it is missing or blank, autorepair during
- * validation will set it to the default value of "UNSPECIFIED" which is probably not desirable.</li>
+ * <li>Specify, or override the default value of the {@link SourceSystem#systemId} field to an application-specific value. If it is
+ * missing or blank, autorepair during validation will set it to the default value of "UNSPECIFIED" which is probably not
+ * desirable.</li>
+ * <li>If specifying a corporation, specify, or override the default value of the {@link Corporation#businessName} field to an
+ * application-specific value (probably your company/org name). If it is missing or blank, autorepair during validation will set it
+ * to the default value of "UNSPECIFIED" which is probably not desirable.</li>
  * <li>If specifying the source data for the source system, specify, or override the default value of the
- * {@link HeaderSourceData#name} field to an application-specific value. If it is missing or blank, autorepair during
- * validation will set it to the default value of "UNSPECIFIED" which is probably not desirable.</li>
+ * {@link HeaderSourceData#name} field to an application-specific value. If it is missing or blank, autorepair during validation
+ * will set it to the default value of "UNSPECIFIED" which is probably not desirable.</li>
  * </ol>
  * </li>
  * </ol>
  * 
  * @author frizbog1
  */
+@SuppressWarnings("PMD.GodClass")
 public class Gedcom extends AbstractElement {
     /**
      * Serial Version UID
@@ -73,8 +73,32 @@ public class Gedcom extends AbstractElement {
     private static final long serialVersionUID = -2972879346299316334L;
 
     /**
-     * A map of all the families in the GEDCOM file. The map is keyed on family cross-reference numbers, and the
-     * families themselves are in the value set.
+     * A helper class to limit the number of items shown from a collection
+     * 
+     * @param collection
+     *            the collection
+     * @param maxLen
+     *            the max number of items to show from the collection
+     * @return a String representation of the first <tt>maxLen</tt> items in the collection
+     */
+    protected static String toStringLimitCollection(@SuppressWarnings("rawtypes") Collection collection, int maxLen) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        int i = 0;
+        for (@SuppressWarnings("rawtypes")
+        Iterator iterator = collection.iterator(); iterator.hasNext() && i < maxLen; i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(iterator.next());
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
+    /**
+     * A map of all the families in the GEDCOM file. The map is keyed on family cross-reference numbers, and the families themselves
+     * are in the value set.
      */
     private final Map<String, Family> families = new HashMap<>();
 
@@ -84,32 +108,32 @@ public class Gedcom extends AbstractElement {
     private Header header = new Header();
 
     /**
-     * A map of all the individuals in the GEDCOM file. The map is keyed on the individual cross-reference numbers and
-     * the individuals themselves are in the value set.
+     * A map of all the individuals in the GEDCOM file. The map is keyed on the individual cross-reference numbers and the
+     * individuals themselves are in the value set.
      */
     private final Map<String, Individual> individuals = new HashMap<>(0);
 
     /**
-     * A map of all the multimedia items in the GEDCOM file. The map is keyed by the multimedia cross-reference numbers,
-     * and the multimedia items themselves (well, the metadata about them for 5.5.1) are in the value set. Remember,
-     * GEDCOM 5.5.1 multimedia is not embedded in the GEDCOM, but the GEDCOM contains metadata about the multimedia.
+     * A map of all the multimedia items in the GEDCOM file. The map is keyed by the multimedia cross-reference numbers, and the
+     * multimedia items themselves (well, the metadata about them for 5.5.1) are in the value set. Remember, GEDCOM 5.5.1 multimedia
+     * is not embedded in the GEDCOM, but the GEDCOM contains metadata about the multimedia.
      */
     private final Map<String, Multimedia> multimedia = new HashMap<>(0);
 
     /**
      * A map of notes. The map is keyed with cross-reference numbers and the notes themselves are the values.
      */
-    private final Map<String, Note> notes = new HashMap<>(0);
+    private final Map<String, NoteRecord> notes = new HashMap<>(0);
 
     /**
-     * A map of all the source repositories in the GEDCOM file. The map is keyed on the repository cross-reference
-     * numbers, and the repositories themselves are in the value set.
+     * A map of all the source repositories in the GEDCOM file. The map is keyed on the repository cross-reference numbers, and the
+     * repositories themselves are in the value set.
      */
     private final Map<String, Repository> repositories = new HashMap<>(0);
 
     /**
-     * A map of all the sources in the GEDCOM file. The map is keyed on source cross-reference numbers, and the sources
-     * themselves are in the value set.
+     * A map of all the sources in the GEDCOM file. The map is keyed on source cross-reference numbers, and the sources themselves
+     * are in the value set.
      */
     private final Map<String, Source> sources = new HashMap<>(0);
 
@@ -119,8 +143,8 @@ public class Gedcom extends AbstractElement {
     private Submission submission = new Submission("@SUBMISSION@");
 
     /**
-     * A map of the submitters in the GEDCOM file. The map is keyed on submitter cross-reference numbers, and the
-     * submitters themselves are in the value set
+     * A map of the submitters in the GEDCOM file. The map is keyed on submitter cross-reference numbers, and the submitters
+     * themselves are in the value set
      */
     private final Map<String, Submitter> submitters = new HashMap<>(0);
 
@@ -129,6 +153,52 @@ public class Gedcom extends AbstractElement {
      */
     private Trailer trailer = new Trailer();
 
+    /** Default constructor */
+    public Gedcom() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public Gedcom(Gedcom other) {
+        super(other);
+        for (Family f : other.families.values()) {
+            families.put(f.getXref(), new Family(f));
+        }
+        if (other.header != null) {
+            header = new Header(other.header);
+        }
+        for (Individual i : other.individuals.values()) {
+            individuals.put(i.getXref(), new Individual(i));
+        }
+        for (Multimedia m : other.multimedia.values()) {
+            multimedia.put(m.getXref(), new Multimedia(m));
+        }
+        for (NoteRecord n : other.notes.values()) {
+            notes.put(n.getXref(), new NoteRecord(n));
+        }
+        for (Repository r : other.repositories.values()) {
+            repositories.put(r.getXref(), new Repository(r));
+        }
+        for (Source r : other.sources.values()) {
+            sources.put(r.getXref(), new Source(r));
+        }
+        if (other.submission != null) {
+            submission = new Submission(other.submission);
+        }
+        for (Submitter s : other.submitters.values()) {
+            submitters.put(s.getXref(), new Submitter(s));
+        }
+        // All trailers are the same, and it's already initialized
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -137,17 +207,7 @@ public class Gedcom extends AbstractElement {
         if (!super.equals(obj)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
         Gedcom other = (Gedcom) obj;
-        if (families == null) {
-            if (other.families != null) {
-                return false;
-            }
-        } else if (!families.equals(other.families)) {
-            return false;
-        }
         if (header == null) {
             if (other.header != null) {
                 return false;
@@ -155,53 +215,28 @@ public class Gedcom extends AbstractElement {
         } else if (!header.equals(other.header)) {
             return false;
         }
-        if (individuals == null) {
-            if (other.individuals != null) {
-                return false;
-            }
-        } else if (!individuals.equals(other.individuals)) {
+        if (!families.equals(other.families)) {
             return false;
         }
-        if (multimedia == null) {
-            if (other.multimedia != null) {
-                return false;
-            }
-        } else if (!multimedia.equals(other.multimedia)) {
+        if (!individuals.equals(other.individuals)) {
             return false;
         }
-        if (getNotes() == null) {
-            if (other.getNotes() != null) {
-                return false;
-            }
-        } else if (!getNotes().equals(other.getNotes())) {
+        if (!multimedia.equals(other.multimedia)) {
             return false;
         }
-        if (repositories == null) {
-            if (other.repositories != null) {
-                return false;
-            }
-        } else if (!repositories.equals(other.repositories)) {
+        if (!getNotes().equals(other.getNotes())) {
             return false;
         }
-        if (sources == null) {
-            if (other.sources != null) {
-                return false;
-            }
-        } else if (!sources.equals(other.sources)) {
+        if (!repositories.equals(other.repositories)) {
             return false;
         }
-        if (submission == null) {
-            if (other.submission != null) {
-                return false;
-            }
-        } else if (!submission.equals(other.submission)) {
+        if (!sources.equals(other.sources)) {
             return false;
         }
-        if (submitters == null) {
-            if (other.submitters != null) {
-                return false;
-            }
-        } else if (!submitters.equals(other.submitters)) {
+        if (!submission.equals(other.submission)) {
+            return false;
+        }
+        if (!submitters.equals(other.submitters)) {
             return false;
         }
         if (trailer == null) {
@@ -255,7 +290,7 @@ public class Gedcom extends AbstractElement {
      *
      * @return the notes
      */
-    public Map<String, Note> getNotes() {
+    public Map<String, NoteRecord> getNotes() {
         return notes;
     }
 
@@ -304,6 +339,9 @@ public class Gedcom extends AbstractElement {
         return trailer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -359,77 +397,31 @@ public class Gedcom extends AbstractElement {
         final int maxLen = 3;
         StringBuilder builder = new StringBuilder(128);
         builder.append("Gedcom [");
-        if (families != null) {
-            builder.append("families=");
-            builder.append(toStringLimitCollection(families.entrySet(), maxLen));
-            builder.append(", ");
-        }
         if (header != null) {
             builder.append("header=");
             builder.append(header);
             builder.append(", ");
         }
-        if (individuals != null) {
-            builder.append("individuals=");
-            builder.append(toStringLimitCollection(individuals.entrySet(), maxLen));
-            builder.append(", ");
-        }
-        if (multimedia != null) {
-            builder.append("multimedia=");
-            builder.append(toStringLimitCollection(multimedia.entrySet(), maxLen));
-            builder.append(", ");
-        }
-        if (notes != null) {
-            builder.append("notes=");
-            builder.append(toStringLimitCollection(notes.entrySet(), maxLen));
-            builder.append(", ");
-        }
-        if (repositories != null) {
-            builder.append("repositories=");
-            builder.append(toStringLimitCollection(repositories.entrySet(), maxLen));
-            builder.append(", ");
-        }
-        if (sources != null) {
-            builder.append("sources=");
-            builder.append(toStringLimitCollection(sources.entrySet(), maxLen));
-            builder.append(", ");
-        }
-        if (submission != null) {
-            builder.append("submission=");
-            builder.append(submission);
-            builder.append(", ");
-        }
-        if (submitters != null) {
-            builder.append("submitters=");
-            builder.append(toStringLimitCollection(submitters.entrySet(), maxLen));
-            builder.append(", ");
-        }
+        builder.append("families=");
+        builder.append(toStringLimitCollection(families.entrySet(), maxLen));
+        builder.append(", individuals=");
+        builder.append(toStringLimitCollection(individuals.entrySet(), maxLen));
+        builder.append(", multimedia=");
+        builder.append(toStringLimitCollection(multimedia.entrySet(), maxLen));
+        builder.append(", noteStructures=");
+        builder.append(toStringLimitCollection(notes.entrySet(), maxLen));
+        builder.append(", repositories=");
+        builder.append(toStringLimitCollection(repositories.entrySet(), maxLen));
+        builder.append(", sources=");
+        builder.append(toStringLimitCollection(sources.entrySet(), maxLen));
+        builder.append(", submission=");
+        builder.append(submission);
+        builder.append(", submitters=");
+        builder.append(toStringLimitCollection(submitters.entrySet(), maxLen));
+        builder.append(", ");
         if (trailer != null) {
             builder.append("trailer=");
             builder.append(trailer);
-        }
-        builder.append("]");
-        return builder.toString();
-    }
-
-    /**
-     * A helper class to limit the number of items shown from a collection
-     * 
-     * @param collection
-     *            the collection
-     * @param maxLen
-     *            the max number of items to show from the collection
-     * @return a String representation of the first <tt>maxLen</tt> items in the collection
-     */
-    protected static String toStringLimitCollection(Collection<?> collection, int maxLen) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[");
-        int i = 0;
-        for (Iterator<?> iterator = collection.iterator(); iterator.hasNext() && i < maxLen; i++) {
-            if (i > 0) {
-                builder.append(", ");
-            }
-            builder.append(iterator.next());
         }
         builder.append("]");
         return builder.toString();

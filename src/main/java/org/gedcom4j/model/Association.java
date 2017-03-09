@@ -36,7 +36,7 @@ import org.gedcom4j.Options;
  * 
  * @author frizbog1
  */
-public class Association extends AbstractElement implements HasXref {
+public class Association extends AbstractNotesElement {
     /**
      * Serial Version UID
      */
@@ -45,7 +45,7 @@ public class Association extends AbstractElement implements HasXref {
     /**
      * The type of the associated entity
      */
-    private StringWithCustomTags associatedEntityType;
+    private StringWithCustomFacts associatedEntityType;
 
     /**
      * The XREF to the associated entity
@@ -58,15 +58,46 @@ public class Association extends AbstractElement implements HasXref {
     private List<AbstractCitation> citations = getCitations(Options.isCollectionInitializationEnabled());
 
     /**
-     * Notes about this object
-     */
-    private List<Note> notes = getNotes(Options.isCollectionInitializationEnabled());
-
-    /**
      * Relationship description
      */
-    private StringWithCustomTags relationship;
+    private StringWithCustomFacts relationship;
 
+    /** Default constructor */
+    public Association() {
+        // Default constructor does nothing
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param other
+     *            object being copied
+     */
+    public Association(Association other) {
+        super(other);
+        if (other.associatedEntityType != null) {
+            associatedEntityType = new StringWithCustomFacts(other.associatedEntityType);
+        }
+        associatedEntityXref = other.associatedEntityXref;
+        if (other.citations != null) {
+            citations = new ArrayList<>();
+            for (AbstractCitation ac : other.citations) {
+                if (ac instanceof CitationWithoutSource) {
+                    citations.add(new CitationWithoutSource((CitationWithoutSource) ac));
+                } else if (ac instanceof CitationWithSource) {
+                    citations.add(new CitationWithSource((CitationWithSource) ac));
+                }
+            }
+        }
+        if (other.relationship != null) {
+            relationship = new StringWithCustomFacts(other.relationship);
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -100,13 +131,6 @@ public class Association extends AbstractElement implements HasXref {
         } else if (!citations.equals(other.citations)) {
             return false;
         }
-        if (notes == null) {
-            if (other.notes != null) {
-                return false;
-            }
-        } else if (!notes.equals(other.notes)) {
-            return false;
-        }
         if (relationship == null) {
             if (other.relationship != null) {
                 return false;
@@ -122,7 +146,7 @@ public class Association extends AbstractElement implements HasXref {
      *
      * @return the associated entity type
      */
-    public StringWithCustomTags getAssociatedEntityType() {
+    public StringWithCustomFacts getAssociatedEntityType() {
         return associatedEntityType;
     }
 
@@ -165,38 +189,17 @@ public class Association extends AbstractElement implements HasXref {
     }
 
     /**
-     * Gets the notes.
-     *
-     * @return the notes
-     */
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    /**
-     * Get the notes
-     * 
-     * @param initializeIfNeeded
-     *            initialize the collection if needed?
-     * 
-     * @return the notes
-     */
-    public List<Note> getNotes(boolean initializeIfNeeded) {
-        if (initializeIfNeeded && notes == null) {
-            notes = new ArrayList<>(0);
-        }
-        return notes;
-    }
-
-    /**
      * Gets the relationship.
      *
      * @return the relationship
      */
-    public StringWithCustomTags getRelationship() {
+    public StringWithCustomFacts getRelationship() {
         return relationship;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -204,7 +207,6 @@ public class Association extends AbstractElement implements HasXref {
         result = prime * result + (associatedEntityType == null ? 0 : associatedEntityType.hashCode());
         result = prime * result + (associatedEntityXref == null ? 0 : associatedEntityXref.hashCode());
         result = prime * result + (citations == null ? 0 : citations.hashCode());
-        result = prime * result + (notes == null ? 0 : notes.hashCode());
         result = prime * result + (relationship == null ? 0 : relationship.hashCode());
         return result;
     }
@@ -215,7 +217,17 @@ public class Association extends AbstractElement implements HasXref {
      * @param associatedEntityType
      *            the new associated entity type
      */
-    public void setAssociatedEntityType(StringWithCustomTags associatedEntityType) {
+    public void setAssociatedEntityType(String associatedEntityType) {
+        this.associatedEntityType = associatedEntityType == null ? null : new StringWithCustomFacts(associatedEntityType);
+    }
+
+    /**
+     * Sets the associated entity type.
+     *
+     * @param associatedEntityType
+     *            the new associated entity type
+     */
+    public void setAssociatedEntityType(StringWithCustomFacts associatedEntityType) {
         this.associatedEntityType = associatedEntityType;
     }
 
@@ -235,7 +247,17 @@ public class Association extends AbstractElement implements HasXref {
      * @param relationship
      *            the new relationship
      */
-    public void setRelationship(StringWithCustomTags relationship) {
+    public void setRelationship(String relationship) {
+        this.relationship = relationship == null ? null : new StringWithCustomFacts(relationship);
+    }
+
+    /**
+     * Sets the relationship.
+     *
+     * @param relationship
+     *            the new relationship
+     */
+    public void setRelationship(StringWithCustomFacts relationship) {
         this.relationship = relationship;
     }
 
@@ -261,19 +283,14 @@ public class Association extends AbstractElement implements HasXref {
             builder.append(citations);
             builder.append(", ");
         }
-        if (notes != null) {
-            builder.append("notes=");
-            builder.append(notes);
-            builder.append(", ");
-        }
         if (relationship != null) {
             builder.append("relationship=");
             builder.append(relationship);
             builder.append(", ");
         }
-        if (getCustomTags() != null) {
-            builder.append("customTags=");
-            builder.append(getCustomTags());
+        if (getCustomFacts() != null) {
+            builder.append("customFacts=");
+            builder.append(getCustomFacts());
         }
         builder.append("]");
         return builder.toString();

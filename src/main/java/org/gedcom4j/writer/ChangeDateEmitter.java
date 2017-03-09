@@ -51,14 +51,17 @@ class ChangeDateEmitter extends AbstractEmitter<ChangeDate> {
         super(baseWriter, startLevel, writeFrom);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void emit() throws GedcomWriterException {
         if (writeFrom != null) {
             emitTag(startLevel, "CHAN");
             emitTagWithRequiredValue(startLevel + 1, "DATE", writeFrom.getDate());
             emitTagIfValueNotNull(startLevel + 2, "TIME", writeFrom.getTime());
-            new NotesEmitter(baseWriter, startLevel + 1, writeFrom.getNotes()).emit();
-            emitCustomTags(startLevel + 1, writeFrom.getCustomTags());
+            new NoteStructureEmitter(baseWriter, startLevel + 1, writeFrom.getNoteStructures()).emit();
+            emitCustomFacts(startLevel + 1, writeFrom.getCustomFacts());
         }
     }
 

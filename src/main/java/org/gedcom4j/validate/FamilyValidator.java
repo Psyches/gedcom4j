@@ -30,10 +30,12 @@ import java.util.List;
 
 import org.gedcom4j.model.AbstractEvent;
 import org.gedcom4j.model.Family;
-import org.gedcom4j.model.Individual;
+import org.gedcom4j.model.IndividualReference;
 import org.gedcom4j.model.LdsSpouseSealing;
-import org.gedcom4j.model.Multimedia;
+import org.gedcom4j.model.MultimediaReference;
 import org.gedcom4j.model.Submitter;
+import org.gedcom4j.model.SubmitterReference;
+import org.gedcom4j.model.enumerations.RestrictionNoticeType;
 
 /**
  * Validator for {@link Family} objects
@@ -43,6 +45,11 @@ import org.gedcom4j.model.Submitter;
 class FamilyValidator extends AbstractValidator {
 
     /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -2719392556810437421L;
+
+    /**
      * The family being validated
      */
     private final Family family;
@@ -50,14 +57,14 @@ class FamilyValidator extends AbstractValidator {
     /**
      * Validator for {@link Family}
      * 
-     * @param gedcomValidator
-     *            the {@link GedcomValidator} that holds all the findings and settings
+     * @param validator
+     *            the main {@link Validator} that holds all the findings and settings
      * @param f
      *            the family being validated
      */
-    public FamilyValidator(GedcomValidator gedcomValidator, Family f) {
-        super(gedcomValidator);
-        this.family = f;
+    FamilyValidator(Validator validator, Family f) {
+        super(validator);
+        this.f = f;
     }
 
     /**
@@ -65,25 +72,32 @@ class FamilyValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        checkOptionalString(family.getAutomatedRecordId(), "Automated record id", family);
-        checkChangeDate(family.getChangeDate(), family);
+        mustHaveValueOrBeOmitted(f, "automatedRecordId");
+        checkChangeDate(f.getChangeDate(), f);
         checkChildren();
-        if (family.getEvents() != null) {
-            for (AbstractEvent ev : family.getEvents()) {
-                new EventValidator(getRootValidator(), ev).validate();
+        checkCitations(f);
+        checkCustomFacts(f);
+        if (f.getEvents() != null) {
+            for (AbstractEvent ev : f.getEvents()) {
+                new EventValidator(getValidator(), ev).validate();
             }
         }
-        if (family.getHusband() != null) {
-            new IndividualValidator(getRootValidator(), family.getHusband()).validate();
+        if (f.getHusband() != null) {
+            new IndividualValidator(getValidator(), (f.getHusband() == null ? null : f.getHusband().getIndividual())).validate();
         }
-        if (family.getWife() != null) {
-            new IndividualValidator(getRootValidator(), family.getWife()).validate();
+        if (f.getWife() != null) {
+            new IndividualValidator(getValidator(), (f.getWife() == null ? null : f.getWife().getIndividual())).validate();
         }
         checkLdsSpouseSealings();
         checkMultimedia();
-        checkOptionalString(family.getNumChildren(), "number of children", family);
-        checkOptionalString(family.getRecFileNumber(), "record file number", family);
-        checkOptionalString(family.getRestrictionNotice(), "restriction notice", family);
+        new NoteStructureListValidator(getValidator(), f).validate();
+        mustHaveValueOrBeOmitted(f, "numChildren");
+        mustHaveValueOrBeOmitted(f, "recFileNumber");
+        mustHaveValueOrBeOmitted(f, "restrictionNotice");
+        if (f.getRestrictionNotice() != null) {
+            mustBeInEnumIfSpecified(RestrictionNoticeType.class, f, "restrictionNotice");
+        }
+
         checkSubmitters();
         checkUserReferences(family.getUserReferences(), family);
         checkCitations(family);
@@ -95,71 +109,64 @@ class FamilyValidator extends AbstractValidator {
      * Check children.
      */
     private void checkChildren() {
-		// Structure validate, repair, and dedup children on family collection
-		List<Individual> list = checkListStructure("children", true, family, new ListRef<Individual>() {
-			@Override
-			public List<Individual> get(boolean initializeIfNeeded) {
-				return family.getChildren(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-			for (Individual i : list) {
-                if (i == null) {
-                    getRootValidator().addError("Family with xref '" + family.getXref() + "' has a null entry in children collection", family);
-                }
-			}
-		}
+        checkUninitializedCollection(f, "children");
+        List<IndividualReference> children = f.getChildren();
+        if (children != null) {
+            checkListOfModelElementsForDups(f, "children");
+            checkListOfModelElementsForNulls(f, "children");
+            /*
+             * Do not iterate through the children checking the individuals or you will loop infinitely (or until you run out of
+             * stack)
+             */
+        }
     }
 
     /**
      * Check lds spouse sealings.
      */
     private void checkLdsSpouseSealings() {
-		// Structure validate, repair, and dedup citations on event collection
-		List<LdsSpouseSealing> list = checkListStructure("spouse sealings", true, family, new ListRef<LdsSpouseSealing>() {
-			@Override
-			public List<LdsSpouseSealing> get(boolean initializeIfNeeded) {
-				return family.getLdsSpouseSealings(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-			for (LdsSpouseSealing l : list) {
-				new LdsSpouseSealingValidator(getRootValidator(), l).validate();
-			}
-		}
+        checkUninitializedCollection(f, "ldsSpouseSealings");
+        List<LdsSpouseSealing> ldsSpouseSealings = f.getLdsSpouseSealings();
+        if (ldsSpouseSealings != null) {
+            checkListOfModelElementsForDups(f, "ldsSpouseSealings");
+            checkListOfModelElementsForNulls(f, "ldsSpouseSealings");
+            for (LdsSpouseSealing s : ldsSpouseSealings) {
+                new LdsSpouseSealingValidator(getValidator(), s).validate();
+            }
+        }
     }
 
     /**
      * Check multimedia.
      */
     private void checkMultimedia() {
-		List<Multimedia> list = checkListStructure("Multimedia", true, family, new ListRef<Multimedia>() {
-			@Override
-			public List<Multimedia> get(boolean initializeIfNeeded) {
-				return family.getMultimedia(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-			for (Multimedia l : list) {
-				new MultimediaValidator(getRootValidator(), l).validate();
-			}
-		}
+        checkUninitializedCollection(f, "multimedia");
+        List<MultimediaReference> multimedia = f.getMultimedia();
+        if (multimedia != null) {
+            checkListOfModelElementsForDups(f, "multimedia");
+            checkListOfModelElementsForNulls(f, "multimedia");
+            for (MultimediaReference mRef : multimedia) {
+                if (mRef == null) {
+                    continue;
+                }
+                new MultimediaValidator(getValidator(), mRef.getMultimedia()).validate();
+            }
+        }
     }
 
     /**
      * Check submitters.
      */
     private void checkSubmitters() {
-		List<Submitter> list = checkListStructure("Submitter", true, family, new ListRef<Submitter>() {
-			@Override
-			public List<Submitter> get(boolean initializeIfNeeded) {
-				return family.getSubmitters(initializeIfNeeded);
-			}
-		});
-		if (list != null) {
-			for (Submitter l : list) {
-				new SubmitterValidator(getRootValidator(), l).validate();
-			}
-		}
+        checkUninitializedCollection(f, "submitters");
+        List<SubmitterReference> submitters = f.getSubmitters();
+        if (submitters != null) {
+            checkListOfModelElementsForDups(f, "submitters");
+            checkListOfModelElementsForNulls(f, "submitters");
+            for (SubmitterReference sRef : submitters) {
+                Submitter s = sRef.getSubmitter();
+                new SubmitterValidator(getValidator(), s).validate();
+            }
+        }
     }
 }

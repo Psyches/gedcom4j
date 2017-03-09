@@ -42,23 +42,23 @@ import org.gedcom4j.io.event.FileProgressEvent;
 import org.gedcom4j.io.event.FileProgressListener;
 import org.gedcom4j.io.writer.GedcomFileWriter;
 import org.gedcom4j.io.writer.LineTerminator;
+import org.gedcom4j.model.AbstractAddressableElement;
 import org.gedcom4j.model.AbstractEvent;
-import org.gedcom4j.model.Corporation;
 import org.gedcom4j.model.FamilyChild;
 import org.gedcom4j.model.Gedcom;
 import org.gedcom4j.model.GedcomVersion;
 import org.gedcom4j.model.Individual;
 import org.gedcom4j.model.IndividualAttribute;
-import org.gedcom4j.model.IndividualAttributeType;
 import org.gedcom4j.model.Multimedia;
 import org.gedcom4j.model.Repository;
-import org.gedcom4j.model.StringTree;
-import org.gedcom4j.model.StringWithCustomTags;
+import org.gedcom4j.model.StringWithCustomFacts;
 import org.gedcom4j.model.Submitter;
-import org.gedcom4j.model.SupportedVersion;
-import org.gedcom4j.validate.GedcomValidationFinding;
-import org.gedcom4j.validate.GedcomValidator;
+import org.gedcom4j.model.enumerations.IndividualAttributeType;
+import org.gedcom4j.model.enumerations.SupportedVersion;
+import org.gedcom4j.validate.AutoRepairResponder;
 import org.gedcom4j.validate.Severity;
+import org.gedcom4j.validate.Validator;
+import org.gedcom4j.validate.Validator.Finding;
 import org.gedcom4j.writer.event.ConstructProgressEvent;
 import org.gedcom4j.writer.event.ConstructProgressListener;
 
@@ -101,7 +101,7 @@ import org.gedcom4j.writer.event.ConstructProgressListener;
  * @author Mark A Sikes
  *
  */
-@SuppressWarnings({ "PMD.GodClass", "PMD.TooManyMethods" })
+@SuppressWarnings({ "PMD.GodClass", "PMD.TooManyMethods", "PMD.ExcessiveImports" })
 public class GedcomWriter extends AbstractEmitter<Gedcom> {
     /**
      * The text lines of the GEDCOM file we're writing, which will be written using a {@link GedcomFileWriter}. Deliberately
@@ -110,10 +110,9 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     List<String> lines = new ArrayList<>();
 
     /**
-     * Are we suppressing the call to the validator? Deliberately package-private so unit tests can fiddle with it to make testing
-     * easy.
+     * The auto repair responder.
      */
-    boolean validationSuppressed = false;
+    private AutoRepairResponder autoRepairResponder;
 
     /**
      * Has this writer been cancelled?
@@ -128,7 +127,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     /**
      * The list of observers on string construction
      */
-    private final List<WeakReference<ConstructProgressListener>> constructObservers = new CopyOnWriteArrayList<>();
+    final List<WeakReference<ConstructProgressListener>> constructObservers = new CopyOnWriteArrayList<>();
 
     /**
      * Send a notification whenever more than this many lines are written to a file
@@ -138,7 +137,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     /**
      * The list of observers on file operations
      */
-    private final List<WeakReference<FileProgressListener>> fileObservers = new CopyOnWriteArrayList<>();
+    final List<WeakReference<FileProgressListener>> fileObservers = new CopyOnWriteArrayList<>();
 
     /**
      * The number of lines constructed as last reported to the observers
@@ -146,20 +145,24 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     private int lastLineCountNotified = 0;
 
     /**
+     * The line terminator to use
+     */
+    private LineTerminator lineTerminator = LineTerminator.getDefaultLineTerminator();
+
+    /**
      * Whether to use little-endian unicode
      */
     private boolean useLittleEndianForUnicode = true;
 
     /**
-     * A list of things found during validation of the gedcom data prior to writing it. If the data cannot be written due to an
-     * exception caused by failure to validate, this collection will describe the issues encountered.
+     * Are we suppressing the call to the validator?
      */
-    private List<GedcomValidationFinding> validationFindings;
+    private boolean validationSuppressed = false;
 
     /**
-     * The line terminator to use
+     * The validator.
      */
-    private LineTerminator lineTerminator = LineTerminator.getDefaultLineTerminator();
+    private Validator validator;
 
     private boolean autorepair;
     
@@ -180,6 +183,15 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     public void cancel() {
         cancelled = true;
+    }
+
+    /**
+     * Get the autoRepairResponder
+     * 
+     * @return the autoRepairResponder
+     */
+    public AutoRepairResponder getAutoRepairResponder() {
+        return autoRepairResponder;
     }
 
     /**
@@ -210,12 +222,12 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     }
 
     /**
-     * Get the validationFindings
+     * Get the validator
      * 
-     * @return the validationFindings
+     * @return the validator
      */
-    public List<GedcomValidationFinding> getValidationFindings() {
-        return validationFindings;
+    public Validator getValidator() {
+        return validator;
     }
 
     /**
@@ -237,6 +249,15 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     }
 
     /**
+     * Get whether validation is suppressed
+     * 
+     * @return whether validation is suppressed or not
+     */
+    public boolean isValidationSuppressed() {
+        return validationSuppressed;
+    }
+
+    /**
      * Notify all listeners about the file progress
      * 
      * @param e
@@ -247,7 +268,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
         while (i < fileObservers.size()) {
             WeakReference<FileProgressListener> observerRef = fileObservers.get(i);
             if (observerRef == null) {
-                fileObservers.remove(observerRef);
+                fileObservers.remove(i);
             } else {
                 FileProgressListener l = observerRef.get();
                 if (l != null) {
@@ -279,10 +300,13 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     }
 
     /**
-     * @param autorepair whether to auto-repair before writing or not.
+     * Set the autoRepairResponder
+     * 
+     * @param autoRepairResponder
+     *            the autoRepairResponder to set
      */
-    public void setAutorepair(boolean autorepair) {
-    	this.autorepair = autorepair;
+    public void setAutoRepairResponder(AutoRepairResponder autoRepairResponder) {
+        this.autoRepairResponder = autoRepairResponder;
     }
 
     /**
@@ -333,6 +357,16 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
     }
 
     /**
+     * Set whether validation is suppressed or not
+     * 
+     * @param validationSuppressed
+     *            set to true to suppress validation
+     */
+    public void setValidationSuppressed(boolean validationSuppressed) {
+        this.validationSuppressed = validationSuppressed;
+    }
+
+    /**
      * Unregister a observer (listener) to be informed about progress and completion.
      * 
      * @param observer
@@ -348,7 +382,6 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
                 i++;
             }
         }
-        constructObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -367,7 +400,6 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
                 i++;
             }
         }
-        fileObservers.add(new WeakReference<>(observer));
     }
 
     /**
@@ -382,19 +414,21 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     public void write(File file) throws IOException, GedcomWriterException {
         // Automatically replace the contents of the filename in the header
-        writeFrom.getHeader().setFileName(new StringWithCustomTags(file.getName()));
+        if (writeFrom.getHeader().getFileName() != null) {
+            writeFrom.getHeader().getFileName().setValue(file.getName());
+        } else {
+            writeFrom.getHeader().setFileName(new StringWithCustomFacts(file.getName()));
+        }
 
         // If the file doesn't exist yet, we have to create it, otherwise a FileNotFoundException will be thrown
         if (!file.exists() && !file.getCanonicalFile().getParentFile().exists() && !file.getCanonicalFile().getParentFile().mkdirs()
                 && !file.createNewFile()) {
             throw new IOException("Unable to create file " + file.getName());
         }
-        OutputStream o = new FileOutputStream(file);
-        try {
+
+        try (OutputStream o = new FileOutputStream(file);) {
             write(o);
             o.flush();
-        } finally {
-            o.close();
         }
     }
 
@@ -434,22 +468,24 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
         write(f);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void emit() throws GedcomWriterException {
         if (!validationSuppressed) {
-            GedcomValidator gv = new GedcomValidator(writeFrom);
-            gv.setAutorepairEnabled(autorepair);
-            gv.validate();
-            validationFindings = gv.getFindings();
-            int numErrorFindings = 0;
-            for (GedcomValidationFinding f : validationFindings) {
-                if (f.getSeverity() == Severity.ERROR) {
-                    numErrorFindings++;
+            validator = new Validator(writeFrom);
+            validator.setAutoRepairResponder(getAutoRepairResponder());
+            validator.validate();
+            int numUnrepairedErrorFindings = 0;
+            for (Finding f : validator.getResults().getAllFindings()) {
+                if (f.getSeverity() == Severity.ERROR && (f.getRepairs() == null || f.getRepairs().isEmpty())) {
+                    numUnrepairedErrorFindings++;
                 }
             }
-            if (numErrorFindings > 0) {
-                throw new GedcomWriterException("Cannot write file - " + numErrorFindings
-                        + " error(s) found during validation.  Review the validation findings to determine root cause.");
+            if (numUnrepairedErrorFindings > 0) {
+                throw new GedcomWriterException("Cannot write file - " + numUnrepairedErrorFindings
+                        + " error(s) found during validation requiring repair.  Review the validation findings to determine root cause.");
             }
         }
         checkVersionCompatibility();
@@ -462,37 +498,73 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
         } else {
             new Multimedia551Emitter(baseWriter, 0, writeFrom.getMultimedia().values()).emit();
         }
-        new NotesEmitter(baseWriter, 0, writeFrom.getNotes().values()).emit();
+        new NoteRecordEmitter(baseWriter, 0, writeFrom.getNotes().values()).emit();
         new RepositoryEmitter(baseWriter, 0, writeFrom.getRepositories().values()).emit();
         new SourceEmitter(baseWriter, 0, writeFrom.getSources().values()).emit();
         new SubmittersEmitter(this, 0, writeFrom.getSubmitters().values()).emit();
+        emitCustomFacts(0, writeFrom.getCustomFacts());
         emitTrailer();
-        emitCustomTags(1, writeFrom.getCustomTags());
     }
 
     /**
-     * Emit the custom tags
+     * Check that the data is compatible with 5.5 style Gedcom files
      * 
-     * @param customTags
-     *            the custom tags
-     * @param level
-     *            the level at which the custom tags are to be written
+     * @throws GedcomWriterVersionDataMismatchException
+     *             if a data point is detected that is incompatible with the 5.5 standard
      */
-    @Override
-    void emitCustomTags(int level, List<StringTree> customTags) {
-        if (customTags != null) {
-            for (StringTree st : customTags) {
-                StringBuilder line = new StringBuilder(Integer.toString(level));
-                line.append(" ");
-                if (st.getId() != null && st.getId().trim().length() > 0) {
-                    line.append(st.getId()).append(" ");
-                }
-                line.append(st.getTag());
-                if (st.getValue() != null && st.getValue().trim().length() > 0) {
-                    line.append(" ").append(st.getValue());
-                }
-                baseWriter.lines.add(line.toString());
-                emitCustomTags(level + 1, st.getChildren());
+    void checkVersionCompatibility55() throws GedcomWriterVersionDataMismatchException {
+        // Now that we know if we're working with a 5.5.1 file or not, let's
+        // check some data points
+        if (writeFrom.getHeader().getCopyrightData() != null && writeFrom.getHeader().getCopyrightData().size() > 1) {
+            throw new GedcomWriterVersionDataMismatchException(
+                    "Gedcom version is 5.5, but has multi-line copyright data in header");
+        }
+        if (writeFrom.getHeader().getCharacterSet() != null && writeFrom.getHeader().getCharacterSet().getCharacterSetName() != null
+                && "UTF-8".equals(writeFrom.getHeader().getCharacterSet().getCharacterSetName().getValue())) {
+            throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but data is encoded using UTF-8");
+        }
+        if (writeFrom.getHeader().getSourceSystem() != null && writeFrom.getHeader().getSourceSystem().getCorporation() != null) {
+            AbstractAddressableElement c = writeFrom.getHeader().getSourceSystem().getCorporation();
+            if (c.getWwwUrls() != null && !c.getWwwUrls().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException(
+                        "Gedcom version is 5.5, but source system corporation has www urls");
+            }
+            if (c.getFaxNumbers() != null && !c.getFaxNumbers().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException(
+                        "Gedcom version is 5.5, but source system corporation has fax numbers");
+            }
+            if (c.getEmails() != null && !c.getEmails().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException(
+                        "Gedcom version is 5.5, but source system corporation has emails");
+            }
+        }
+        checkVersionCompatibility55Individuals();
+        for (Submitter s : writeFrom.getSubmitters().values()) {
+            if (s.getWwwUrls() != null && !s.getWwwUrls().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Submitter " + s.getXref()
+                        + " has www urls");
+            }
+            if (s.getFaxNumbers() != null && !s.getFaxNumbers().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Submitter " + s.getXref()
+                        + " has fax numbers");
+            }
+            if (s.getEmails() != null && !s.getEmails().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Submitter " + s.getXref()
+                        + " has emails");
+            }
+        }
+        for (Repository r : writeFrom.getRepositories().values()) {
+            if (r.getWwwUrls() != null && !r.getWwwUrls().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Repository " + r.getXref()
+                        + " has www urls");
+            }
+            if (r.getFaxNumbers() != null && !r.getFaxNumbers().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Repository " + r.getXref()
+                        + " has fax numbers");
+            }
+            if (r.getEmails() != null && !r.getEmails().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Repository " + r.getXref()
+                        + " has emails");
             }
         }
     }
@@ -501,7 +573,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      * Notify construct observers if more than 100 lines have been constructed since last time we notified them
      */
     void notifyConstructObserversIfNeeded() {
-        if ((lines.size() - lastLineCountNotified) > constructionNotificationRate) {
+        if (lines.size() - lastLineCountNotified > constructionNotificationRate) {
             notifyConstructObservers(new ConstructProgressEvent(this, lines.size(), true));
         }
     }
@@ -519,46 +591,36 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
             // 5.5.1
             writeFrom.getHeader().setGedcomVersion(new GedcomVersion());
         }
-        if (SupportedVersion.V5_5.equals(writeFrom.getHeader().getGedcomVersion().getVersionNumber())) {
+        if (SupportedVersion.V5_5.toString().equals(writeFrom.getHeader().getGedcomVersion().getVersionNumber().getValue())) {
             checkVersionCompatibility55();
         } else {
             checkVersionCompatibility551();
         }
-
     }
 
     /**
-     * Check that the data is compatible with 5.5 style Gedcom files
+     * Check that the data is compatible with 5.5.1 style Gedcom files
+     * 
+     * @throws GedcomWriterVersionDataMismatchException
+     *             if a data point is detected that is incompatible with the 5.5.1 standard
+     * 
+     */
+    private void checkVersionCompatibility551() throws GedcomWriterVersionDataMismatchException {
+        for (Multimedia m : writeFrom.getMultimedia().values()) {
+            if (m.getBlob() != null && !m.getBlob().isEmpty()) {
+                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5.1, but multimedia item " + m.getXref()
+                        + " contains BLOB data which is unsupported in 5.5.1");
+            }
+        }
+    }
+
+    /**
+     * Check that the data on individuals is compatible with 5.5 style Gedcom files
      * 
      * @throws GedcomWriterVersionDataMismatchException
      *             if a data point is detected that is incompatible with the 5.5 standard
      */
-    private void checkVersionCompatibility55() throws GedcomWriterVersionDataMismatchException {
-        // Now that we know if we're working with a 5.5.1 file or not, let's
-        // check some data points
-        if (writeFrom.getHeader().getCopyrightData() != null && writeFrom.getHeader().getCopyrightData().size() > 1) {
-            throw new GedcomWriterVersionDataMismatchException(
-                    "Gedcom version is 5.5, but has multi-line copyright data in header");
-        }
-        if (writeFrom.getHeader().getCharacterSet() != null && writeFrom.getHeader().getCharacterSet().getCharacterSetName() != null
-                && "UTF-8".equals(writeFrom.getHeader().getCharacterSet().getCharacterSetName().getValue())) {
-            throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but data is encoded using UTF-8");
-        }
-        if (writeFrom.getHeader().getSourceSystem() != null && writeFrom.getHeader().getSourceSystem().getCorporation() != null) {
-            Corporation c = writeFrom.getHeader().getSourceSystem().getCorporation();
-            if (c.getWwwUrls() != null && !c.getWwwUrls().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException(
-                        "Gedcom version is 5.5, but source system corporation has www urls");
-            }
-            if (c.getFaxNumbers() != null && !c.getFaxNumbers().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException(
-                        "Gedcom version is 5.5, but source system corporation has fax numbers");
-            }
-            if (c.getEmails() != null && !c.getEmails().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException(
-                        "Gedcom version is 5.5, but source system corporation has emails");
-            }
-        }
+    private void checkVersionCompatibility55Individuals() throws GedcomWriterVersionDataMismatchException {
         for (Individual i : writeFrom.getIndividuals().values()) {
             if (i.getWwwUrls() != null && !i.getWwwUrls().isEmpty()) {
                 throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Individual " + i.getXref()
@@ -605,50 +667,6 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
                 }
             }
         }
-        for (Submitter s : writeFrom.getSubmitters().values()) {
-            if (s.getWwwUrls() != null && !s.getWwwUrls().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Submitter " + s.getXref()
-                        + " has www urls");
-            }
-            if (s.getFaxNumbers() != null && !s.getFaxNumbers().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Submitter " + s.getXref()
-                        + " has fax numbers");
-            }
-            if (s.getEmails() != null && !s.getEmails().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Submitter " + s.getXref()
-                        + " has emails");
-            }
-        }
-        for (Repository r : writeFrom.getRepositories().values()) {
-            if (r.getWwwUrls() != null && !r.getWwwUrls().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Repository " + r.getXref()
-                        + " has www urls");
-            }
-            if (r.getFaxNumbers() != null && !r.getFaxNumbers().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Repository " + r.getXref()
-                        + " has fax numbers");
-            }
-            if (r.getEmails() != null && !r.getEmails().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5, but Repository " + r.getXref()
-                        + " has emails");
-            }
-        }
-    }
-
-    /**
-     * Check that the data is compatible with 5.5.1 style Gedcom files
-     * 
-     * @throws GedcomWriterVersionDataMismatchException
-     *             if a data point is detected that is incompatible with the 5.5.1 standard
-     * 
-     */
-    private void checkVersionCompatibility551() throws GedcomWriterVersionDataMismatchException {
-        for (Multimedia m : writeFrom.getMultimedia().values()) {
-            if (m.getBlob() != null && !m.getBlob().isEmpty()) {
-                throw new GedcomWriterVersionDataMismatchException("Gedcom version is 5.5.1, but multimedia item " + m.getXref()
-                        + " contains BLOB data which is unsupported in 5.5.1");
-            }
-        }
     }
 
     /**
@@ -671,7 +689,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
         while (i < constructObservers.size()) {
             WeakReference<ConstructProgressListener> observerRef = constructObservers.get(i);
             if (observerRef == null) {
-                constructObservers.remove(observerRef);
+                constructObservers.remove(i);
             } else {
                 ConstructProgressListener l = observerRef.get();
                 if (l != null) {
@@ -681,4 +699,5 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
             }
         }
     }
+
 }

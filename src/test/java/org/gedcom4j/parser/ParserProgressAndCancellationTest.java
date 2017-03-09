@@ -58,6 +58,9 @@ public class ParserProgressAndCancellationTest implements ParseProgressListener 
      */
     private int cancelAfter = 0;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void progressNotification(ParseProgressEvent e) {
         notificationCount++;
@@ -69,8 +72,10 @@ public class ParserProgressAndCancellationTest implements ParseProgressListener 
     /**
      * Test getting notifications and cancelling the parsing of an ascii file
      * 
-     * @throws GedcomParserException if a critical parsing error occurs during the test.
-     * @throws IOException if a critical IO error occurs during the test.
+     * @throws IOException
+     *             if the data cannot be written
+     * @throws GedcomParserException
+     *             if the data cannot be parsed
      */
     @Test(expected = ParserCancelledException.class)
     public void testCancellation() throws IOException, GedcomParserException {
@@ -83,8 +88,10 @@ public class ParserProgressAndCancellationTest implements ParseProgressListener 
     /**
      * Test getting notifications and cancelling the parsing of an ascii file
      * 
-     * @throws GedcomParserException if a critical parsing error occurs during the test.
-     * @throws IOException if a critical IO error occurs during the test.
+     * @throws IOException
+     *             if the data cannot be written
+     * @throws GedcomParserException
+     *             if the data cannot be parsed
      */
     @Test
     public void testNoCancellation() throws IOException, GedcomParserException {

@@ -26,8 +26,6 @@
  */
 package org.gedcom4j.validate;
 
-import java.util.List;
-
 import org.gedcom4j.model.PersonalName;
 import org.gedcom4j.model.PersonalNameVariation;
 
@@ -39,6 +37,11 @@ import org.gedcom4j.model.PersonalNameVariation;
 class PersonalNameValidator extends AbstractValidator {
 
     /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -2718066344479251436L;
+
+    /**
      * The personal name being validated
      */
     private final PersonalName pn;
@@ -46,13 +49,13 @@ class PersonalNameValidator extends AbstractValidator {
     /**
      * Constructor
      * 
-     * @param rootValidator
-     *            the root {@link GedcomValidator} that contains all the findings and options
+     * @param validator
+     *            the {@link Validator} that contains all the findings and options
      * @param pn
      *            the personal name being validated
      */
-    public PersonalNameValidator(GedcomValidator rootValidator, PersonalName pn) {
-        super(rootValidator);
+    PersonalNameValidator(Validator validator, PersonalName pn) {
+        super(validator);
         this.pn = pn;
     }
 
@@ -61,48 +64,64 @@ class PersonalNameValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        if (pn == null) {
-            addError("Personal name was null - cannot validate");
-            return;
-        }
-        checkRequiredString(pn.getBasic(), "basic name", pn);
-        checkOptionalString(pn.getGivenName(), "given name", pn);
-        checkOptionalString(pn.getNickname(), "nickname", pn);
-        checkOptionalString(pn.getPrefix(), "prefix", pn);
-        checkOptionalString(pn.getSuffix(), "suffix", pn);
-        checkOptionalString(pn.getSurname(), "surname", pn);
-        checkOptionalString(pn.getSurnamePrefix(), "surname prefix", pn);
-        checkCustomTags(pn);
+        mustHaveValue(pn, "basic");
         checkCitations(pn);
-        checkNotes(pn);
-        checkPhonetic();
-        checkRomanized();
+        checkCitations(pn);
+        checkCustomFacts(pn);
+        mustHaveValueOrBeOmitted(pn, "givenName");
+        mustHaveValueOrBeOmitted(pn, "nickname");
+        mustHaveValueOrBeOmitted(pn, "prefix");
+        mustHaveValueOrBeOmitted(pn, "suffix");
+        mustHaveValueOrBeOmitted(pn, "surname");
+        mustHaveValueOrBeOmitted(pn, "surnamePrefix");
+
+        if (!getValidator().isV551()) {
+            mustNotHaveValue(pn, "type");
+        } else {
+            mustHaveValueOrBeOmitted(pn, "type");
+        }
+
+        new NoteStructureListValidator(getValidator(), pn).validate();
+
+        checkPhoneticVariations();
+        checkRomanizedVariations();
     }
 
-    private void checkPhonetic() {
-		checkNameVariations("phonetic name variations", new ListRef<PersonalNameVariation>() {
-			@Override
-			public List<PersonalNameVariation> get(boolean initializeIfNeeded) {
-				return pn.getPhonetic(initializeIfNeeded);
-			}
-		});
+    /**
+     * Check the phonetic variations on the place name
+     */
+    private void checkPhoneticVariations() {
+        checkUninitializedCollection(pn, "phonetic");
+        if (pn.getPhonetic() == null) {
+            return;
+        }
+        if (!getValidator().isV551()) {
+            mustNotHaveValue(pn, "phonetic");
+            return;
+        }
+        checkListOfModelElementsForDups(pn, "phonetic");
+        checkListOfModelElementsForNulls(pn, "phonetic");
+        for (PersonalNameVariation nv : pn.getPhonetic()) {
+            new PersonalNameVariationValidator(getValidator(), nv).validate();
+        }
     }
-    
-    private void checkRomanized() {
-		checkNameVariations("romanized name variations", new ListRef<PersonalNameVariation>() {
-			@Override
-			public List<PersonalNameVariation> get(boolean initializeIfNeeded) {
-				return pn.getRomanized(initializeIfNeeded);
-			}
-		});
-    }
-    
-    private void checkNameVariations(String name, ListRef<PersonalNameVariation> handler) {
-		List<PersonalNameVariation> list = checkListStructure(name, true, pn, handler);
-		if (list != null) {
-			for (PersonalNameVariation nv : list) {
-                new PersonalNameVariationValidator(getRootValidator(), nv).validate();
-			}
-		}
+
+    /**
+     * Check the romanized variations on the place name
+     */
+    private void checkRomanizedVariations() {
+        checkUninitializedCollection(pn, "romanized");
+        if (pn.getRomanized() == null) {
+            return;
+        }
+        if (!getValidator().isV551()) {
+            mustNotHaveValue(pn, "romanized");
+            return;
+        }
+        checkListOfModelElementsForDups(pn, "romanized");
+        checkListOfModelElementsForNulls(pn, "romanized");
+        for (PersonalNameVariation nv : pn.getRomanized()) {
+            new PersonalNameVariationValidator(getValidator(), nv).validate();
+        }
     }
 }

@@ -42,19 +42,19 @@ public class SourceSystemTest {
      */
     @Test
     @SuppressWarnings("PMD.EqualsNull")
-	public void testEqualsObject() {
+    public void testEqualsObject() {
         SourceSystem ss1 = new SourceSystem();
         assertEquals(ss1, ss1);
         SourceSystem ss2 = new SourceSystem();
         assertEquals("equals() should be the same for equivalent objects", ss1, ss2);
 
-        ss1.setProductName(new StringWithCustomTags("Frying Pan"));
+        ss1.setProductName("Frying Pan");
         assertFalse("They're not equivalent anymore, so equals should be false", ss1.equals(ss2));
-        ss2.setProductName(new StringWithCustomTags("Frying Pan"));
+        ss2.setProductName("Frying Pan");
         assertEquals("equals() should be the same for equivalent objects", ss1, ss2);
-        ss1.setProductName(null);
+        ss1.setProductName((String) null);
         assertFalse("They're not equivalent anymore, so equals should be false", ss1.equals(ss2));
-        ss2.setProductName(null);
+        ss2.setProductName((String) null);
         assertEquals("equals() should be the same for equivalent objects", ss1, ss2);
 
         ss1.setSystemId("Frying Pan");
@@ -78,9 +78,9 @@ public class SourceSystemTest {
         SourceSystem ss1 = new SourceSystem();
         SourceSystem ss2 = new SourceSystem();
         assertEquals("Hashcodes should be the same for equivalent objects", ss1.hashCode(), ss2.hashCode());
-        ss1.setProductName(new StringWithCustomTags("Frying Pan"));
+        ss1.setProductName("Frying Pan");
         assertFalse("They're not equivalent anymore, so the hashcodes should differ", ss1.hashCode() == ss2.hashCode());
-        ss2.setProductName(new StringWithCustomTags("Frying Pan"));
+        ss2.setProductName("Frying Pan");
 
         assertEquals("Hashcodes should be the same for equivalent objects", ss1.hashCode(), ss2.hashCode());
     }

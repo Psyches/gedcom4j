@@ -29,7 +29,16 @@ package org.gedcom4j.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gedcom4j.model.*;
+import org.gedcom4j.model.AbstractCitation;
+import org.gedcom4j.model.CitationData;
+import org.gedcom4j.model.CitationWithSource;
+import org.gedcom4j.model.CitationWithoutSource;
+import org.gedcom4j.model.MultiStringWithCustomFacts;
+import org.gedcom4j.model.MultimediaReference;
+import org.gedcom4j.model.NoteStructure;
+import org.gedcom4j.model.Source;
+import org.gedcom4j.model.StringTree;
+import org.gedcom4j.model.StringWithCustomFacts;
 
 /**
  * @author frizbog
@@ -65,7 +74,6 @@ class CitationListParser extends AbstractParser<List<AbstractCitation>> {
             loadCitationWithoutSource(stringTree, citation);
         }
         loadInto.add(citation);
-
     }
 
     /**
@@ -80,17 +88,16 @@ class CitationListParser extends AbstractParser<List<AbstractCitation>> {
         if (data.getChildren() != null) {
             for (StringTree ch : data.getChildren()) {
                 if (Tag.DATE.equalsText(ch.getTag())) {
-                    d.setEntryDate(new StringWithCustomTags(ch));
+                    d.setEntryDate(parseStringWithCustomFacts(ch));
                 } else if (Tag.TEXT.equalsText(ch.getTag())) {
-                    List<String> ls = new ArrayList<>();
-                    d.getSourceText(true).add(ls);
-                    loadMultiLinesOfText(ch, ls, d);
+                    MultiStringWithCustomFacts ms = new MultiStringWithCustomFacts();
+                    d.getSourceText(true).add(ms);
+                    loadMultiStringWithCustomFacts(ch, ms);
                 } else {
                     unknownTag(ch, d);
                 }
             }
         }
-
     }
 
     /**
@@ -113,14 +120,20 @@ class CitationListParser extends AbstractParser<List<AbstractCitation>> {
                         cws.getDescription(true).add(ch.getValue());
                     } else {
                         // Append to last value in string list
-                        cws.getDescription().set(cws.getDescription().size() - 1, cws.getDescription().get(cws.getDescription().size() - 1) + ch.getValue());
+                        cws.getDescription().set(cws.getDescription().size() - 1, cws.getDescription().get(cws.getDescription()
+                                .size() - 1) + ch.getValue());
                     }
                 } else if (Tag.TEXT.equalsText(ch.getTag())) {
                     List<String> ls = new ArrayList<>();
                     cws.getTextFromSource(true).add(ls);
                     loadMultiLinesOfText(ch, ls, cws);
                 } else if (Tag.NOTE.equalsText(ch.getTag())) {
-                    new NoteListParser(gedcomParser, ch, cws.getNotes(true)).parse();
+                    new NoteStructureListParser(gedcomParser, ch, cws.getNoteStructures(true)).parse();
+                } else if (Tag.QUALITY.equalsText(ch.getTag())) {
+                    cws.setCertainty(parseStringWithCustomFacts(ch));
+                } else if (Tag.OBJECT_MULTIMEDIA.equalsText(ch.getTag())) {
+                    List<MultimediaReference> multimedia = cws.getMultimedia(true);
+                    new MultimediaLinkParser(gedcomParser, ch, multimedia).parse();
                 } else {
                     unknownTag(ch, citation);
                 }
@@ -146,13 +159,13 @@ class CitationListParser extends AbstractParser<List<AbstractCitation>> {
         if (sour.getChildren() != null) {
             for (StringTree ch : sour.getChildren()) {
                 if (Tag.PAGE.equalsText(ch.getTag())) {
-                    cws.setWhereInSource(new StringWithCustomTags(ch));
+                    cws.setWhereInSource(parseStringWithCustomFacts(ch));
                 } else if (Tag.EVENT.equalsText(ch.getTag())) {
-                    cws.setEventCited(new StringWithCustomTags(ch.getValue()));
+                    cws.setEventCited(new StringWithCustomFacts(ch.getValue()));
                     if (ch.getChildren() != null) {
                         for (StringTree gc : ch.getChildren()) {
                             if (Tag.ROLE.equalsText(gc.getTag())) {
-                                cws.setRoleInEvent(new StringWithCustomTags(gc));
+                                cws.setRoleInEvent(parseStringWithCustomFacts(gc));
                             } else {
                                 unknownTag(gc, cws.getEventCited());
                             }
@@ -163,12 +176,12 @@ class CitationListParser extends AbstractParser<List<AbstractCitation>> {
                     cws.getData(true).add(d);
                     loadCitationData(ch, d);
                 } else if (Tag.QUALITY.equalsText(ch.getTag())) {
-                    cws.setCertainty(new StringWithCustomTags(ch));
+                    cws.setCertainty(parseStringWithCustomFacts(ch));
                 } else if (Tag.NOTE.equalsText(ch.getTag())) {
-                    List<Note> notes = cws.getNotes(true);
-                    new NoteListParser(gedcomParser, ch, notes).parse();
+                    List<NoteStructure> notes = cws.getNoteStructures(true);
+                    new NoteStructureListParser(gedcomParser, ch, notes).parse();
                 } else if (Tag.OBJECT_MULTIMEDIA.equalsText(ch.getTag())) {
-                    List<Multimedia> multimedia = cws.getMultimedia(true);
+                    List<MultimediaReference> multimedia = cws.getMultimedia(true);
                     new MultimediaLinkParser(gedcomParser, ch, multimedia).parse();
                 } else {
                     unknownTag(ch, citation);

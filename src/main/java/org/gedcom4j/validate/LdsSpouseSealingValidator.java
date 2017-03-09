@@ -27,6 +27,7 @@
 package org.gedcom4j.validate;
 
 import org.gedcom4j.model.LdsSpouseSealing;
+import org.gedcom4j.model.enumerations.LdsSpouseSealingDateStatus;
 
 /**
  * Validator for {@link LdsSpouseSealing} objects
@@ -37,6 +38,11 @@ import org.gedcom4j.model.LdsSpouseSealing;
 class LdsSpouseSealingValidator extends AbstractValidator {
 
     /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -7894442750246320800L;
+
+    /**
      * The sealing being validated
      */
     private final LdsSpouseSealing spouseSealing;
@@ -44,14 +50,14 @@ class LdsSpouseSealingValidator extends AbstractValidator {
     /**
      * Constructor
      * 
-     * @param rootValidator
-     *            root {@link GedcomValidator} that contains findings and settings
+     * @param validator
+     *            the {@link Validator} that contains findings and settings
      * @param s
      *            the sealing being validated
      */
-    public LdsSpouseSealingValidator(GedcomValidator rootValidator, LdsSpouseSealing s) {
-        super(rootValidator);
-        this.spouseSealing = s;
+    LdsSpouseSealingValidator(Validator validator, LdsSpouseSealing s) {
+        super(validator);
+        this.s = s;
     }
 
     /**
@@ -59,16 +65,17 @@ class LdsSpouseSealingValidator extends AbstractValidator {
      */
     @Override
     protected void validate() {
-        if (spouseSealing == null) {
-            addError("LDS Spouse Sealing is null and cannot be validated");
-            return;
+        checkCitations(s);
+        checkCustomFacts(s);
+        new NoteStructureListValidator(getValidator(), s).validate();
+        mustHaveValueOrBeOmitted(s, "place");
+        mustBeInEnumIfSpecified(LdsSpouseSealingDateStatus.class, s, "status");
+        if (s.getStatus() != null && isSpecified(s.getStatus().getValue())) {
+            mustHaveValue(s, "date");
+            mustBeDateIfSpecified(s, "date");
+        } else {
+            mustNotHaveValue(s, "date");
         }
-        checkCitations(spouseSealing);
-        checkNotes(spouseSealing);
-        checkCustomTags(spouseSealing);
-        checkOptionalString(spouseSealing.getDate(), "date", spouseSealing);
-        checkOptionalString(spouseSealing.getPlace(), "place", spouseSealing);
-        checkOptionalString(spouseSealing.getStatus(), "status", spouseSealing);
-        checkOptionalString(spouseSealing.getTemple(), "temple", spouseSealing);
+        mustHaveValueOrBeOmitted(s, "temple");
     }
 }

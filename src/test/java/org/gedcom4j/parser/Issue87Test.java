@@ -36,7 +36,7 @@ import java.io.IOException;
 import org.gedcom4j.exception.GedcomParserException;
 import org.gedcom4j.model.Family;
 import org.gedcom4j.model.FamilyEvent;
-import org.gedcom4j.model.FamilyEventType;
+import org.gedcom4j.model.enumerations.FamilyEventType;
 import org.junit.Test;
 
 /**
@@ -47,11 +47,13 @@ import org.junit.Test;
 public class Issue87Test {
 
     /**
-     * Test the scenario for issue 87 where a level number was skipped (a level 3 line immediately following a level 1
-     * line, which is technically malformed).
+     * Test the scenario for issue 87 where a level number was skipped (a level 3 line immediately following a level 1 line, which
+     * is technically malformed).
      * 
-     * @throws GedcomParserException if a critical parsing error occurs during the test.
-     * @throws IOException if a critical IO error occurs during the test.
+     * @throws IOException
+     *             if the data cannot be written
+     * @throws GedcomParserException
+     *             if the data cannot be parsed
      */
     @Test
     public void testIssue87() throws IOException, GedcomParserException {
@@ -70,7 +72,7 @@ public class Issue87Test {
         assertEquals(1, family.getEvents().size());
         FamilyEvent marriage = family.getEvents().get(0);
         assertEquals(FamilyEventType.MARRIAGE, marriage.getType());
-        assertNull(marriage.getNotes());
+        assertNull(marriage.getNoteStructures());
     }
 
 }

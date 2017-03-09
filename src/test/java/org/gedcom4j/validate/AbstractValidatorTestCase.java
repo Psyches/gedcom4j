@@ -26,61 +26,39 @@
  */
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.Gedcom;
-import org.junit.Before;
+import static org.junit.Assert.fail;
 
-import junit.framework.TestCase;
+import java.io.IOException;
+
+import org.gedcom4j.exception.GedcomParserException;
+import org.gedcom4j.model.Gedcom;
+import org.gedcom4j.model.ModelElement;
+import org.gedcom4j.parser.GedcomParser;
+import org.gedcom4j.validate.Validator.Finding;
 
 /**
  * A base class for validator tests with handy helper methods
  * 
  * @author frizbog1
  */
-public abstract class AbstractValidatorTestCase extends TestCase {
+public abstract class AbstractValidatorTestCase {
 
     /**
      * Root validator - test fixture
      */
-    protected GedcomValidator rootValidator;
+    protected Validator validator;
 
     /**
      * The test fixture gedcom structure
      */
-    protected Gedcom gedcom;
-
-    /**
-     * Determines whether to write noise out to System.out. Should ALWAYS default to false, and be turned to true for specific
-     * tests, if needed.
-     */
-    protected boolean verbose = false;
+    protected Gedcom gedcom = new Gedcom();
 
     /**
      * Default constructor
      */
     public AbstractValidatorTestCase() {
-        super();
-    }
-
-    /**
-     * Constructor that takes a test name
-     * 
-     * @param name
-     *            the test name
-     */
-    public AbstractValidatorTestCase(String name) {
-        super(name);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        // Allow key instances to be overridden for special creations during sub-class setUp()
-        if (gedcom == null) gedcom = new Gedcom();
-        if (rootValidator == null) rootValidator = new GedcomValidator(gedcom);
+        gedcom = new Gedcom();
+        validator = new Validator(gedcom);
     }
 
     /**
@@ -88,37 +66,67 @@ public abstract class AbstractValidatorTestCase extends TestCase {
      * given substring
      * 
      * @param severity
-     *            the expected severity
-     * @param substringOfDescription
-     *            substring to look for in the finding's description
+     *            the expected severity. Required and must match exactly.
+     * @param c
+     *            the type (class) of object the finding is expected to be on.
+     * @param code
+     *            code of the expected finding. Required and must match exactly.
+     * @param fieldName
+     *            the name of the file with the problem value. Optional, but if supplied, must match exactly.
      */
-    protected void assertFindingsContain(Severity severity, String... substringOfDescription) {
-        for (GedcomValidationFinding f : rootValidator.getFindings()) {
-            if (f.getSeverity() == severity) {
-                boolean matchAllSoFar = true;
-                for (String substring : substringOfDescription) {
-                    if (!f.getProblemDescription().toLowerCase().contains(substring.toLowerCase())) {
-                        matchAllSoFar = false;
-                    }
-                }
-                if (matchAllSoFar) {
-                    // All the substrings were found, and the severity is right
-                    return;
-                }
+    @SuppressWarnings("checkstyle:WhitespaceAround")
+    protected void assertFindingsContain(Severity severity, Class<? extends ModelElement> c, int code, String fieldName) {
+        for (Finding f : validator.getResults().getAllFindings()) {
+            if (f.getSeverity() == severity && f.getItemOfConcern().getClass().equals(c) && f.getProblemCode() == code
+                    && (fieldName == null || fieldName.equals(f.getFieldNameOfConcern()))) {
+                return;
             }
         }
-        StringBuilder sb = new StringBuilder("Expected to find at least one finding at severity ").append(severity);
-        if (substringOfDescription != null && substringOfDescription.length > 0) {
-            for (int i = 0; i < substringOfDescription.length; i++) {
-                if (i == 0) {
-                    sb.append(" mentioning '");
-                } else {
-                    sb.append(" and '");
-                }
-                sb.append(substringOfDescription[i]).append("'");
+        fail("No finding of severity " + severity + " found on object of type " + c.getName() + " with code " + code + " on field "
+                + fieldName + " as expected.\nFindings contain: " + validator.getResults().getAllFindings());
+    }
+
+    /**
+     * Assert that the findings collection on the root validator contains at least one finding of the specified severity with a
+     * given substring
+     * 
+     * @param severity
+     *            the expected severity. Required and must match exactly.
+     * @param objectWithFinding
+     *            the object the finding is expected to be on. Required and must be the same object, not just one equivalent.
+     * @param code
+     *            code of the expected finding. Required and must match exactly.
+     * @param fieldName
+     *            the name of the file with the problem value. Optional, but if supplied, must match exactly.
+     */
+    protected void assertFindingsContain(Severity severity, ModelElement objectWithFinding, int code, String fieldName) {
+        for (Finding f : validator.getResults().getAllFindings()) {
+            if (f.getSeverity() == severity && f.getItemOfConcern() == objectWithFinding && f.getProblemCode() == code
+                    && (fieldName == null || fieldName.equals(f.getFieldNameOfConcern()))) {
+                return;
             }
         }
-        fail(sb.toString());
+        fail("No finding of severity " + severity + " found on object of type " + objectWithFinding.getClass().getName()
+                + " with code " + code + " on field " + fieldName + " as expected.\nFindings contain: " + validator.getResults()
+                        .getAllFindings());
+    }
+
+    /**
+     * Assert that the findings collection on the root validator contains at least one finding of the specified severity with a
+     * given substring
+     * 
+     * @param severity
+     *            the expected severity. Required and must match exactly.
+     * @param objectWithFinding
+     *            the object the finding is expected to be on. Required and must be the same object, not just one equivalent.
+     * @param code
+     *            enumerated built-in code of the expected finding. Required and must match exactly (on the code value - description
+     *            matching not checked).
+     * @param fieldName
+     *            the name of the file with the problem value. Optional, but if supplied, must match exactly.
+     */
+    protected void assertFindingsContain(Severity severity, ModelElement objectWithFinding, ProblemCode code, String fieldName) {
+        assertFindingsContain(severity, objectWithFinding, code.getCode(), fieldName);
     }
 
     /**
@@ -126,11 +134,33 @@ public abstract class AbstractValidatorTestCase extends TestCase {
      * 
      */
     protected void assertNoIssues() {
-        if (rootValidator.hasErrors() || rootValidator.hasWarnings()) {
-            boolean saveVerbose = verbose;
-            verbose = true;
-            verbose = saveVerbose;
-            fail("There should not be any warnings or errors");
+        if (!validator.getResults().getAllFindings().isEmpty()) {
+            StringBuilder sb = new StringBuilder(100);
+            boolean first = true;
+            for (Finding f : validator.getResults().getAllFindings()) {
+                if (!first) {
+                    sb.append("\n");
+                }
+                sb.append("\t").append(f);
+            }
+            fail("There should not be any warnings or errors, but there were:" + sb.toString());
         }
+    }
+
+    /**
+     * Load a file for the tes
+     *
+     * @param fileName
+     *            the file name
+     * @throws IOException
+     *             if the file cannot be read
+     * @throws GedcomParserException
+     *             if the file cannot be parsed
+     */
+    protected void loadFile(String fileName) throws IOException, GedcomParserException {
+        GedcomParser gp = new GedcomParser();
+        gp.load(fileName);
+        gedcom = gp.getGedcom();
+        validator = new Validator(gedcom);
     }
 }

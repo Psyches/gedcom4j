@@ -29,22 +29,24 @@ package org.gedcom4j.model;
 import java.util.List;
 
 /**
- * This interface defines the contract for a model class that has Citations.
+ * Marks an object that has citations to sources.
  * 
  * @author Mark A Sikes
  */
 public interface HasCitations extends ModelElement {
-	/**
-	 * @return the list (possibly empty) of citations or null if there is no list at all.
-	 */
-	List<AbstractCitation> getCitations();
-	
-	/**
-	 * @param initializeIfNeeded
-	 *            true to create an empty list if the list itself is null.
-	 * 
-	 * @return the list (possibly empty) of citations or null if there is no
-	 *         list and initializeIfNeeded is false.
-	 */
-	List<AbstractCitation> getCitations(boolean initializeIfNeeded);
+    /**
+     * Get the citations on this object
+     * 
+     * @return the citations on this object
+     */
+    List<AbstractCitation> getCitations();
+
+    /**
+     * Get the citations on this object, initializing the collection if needed
+     * 
+     * @param initializeIfNeeded
+     *            set to true if you want the backing collection to be instantiated/initialized if it is currently null
+     * @return the citations on this object, or null if there are none and <tt>initializeIfNeeded</tt> is false
+     */
+    List<AbstractCitation> getCitations(boolean initializeIfNeeded);
 }

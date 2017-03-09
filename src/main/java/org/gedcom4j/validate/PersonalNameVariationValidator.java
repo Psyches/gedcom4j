@@ -26,7 +26,6 @@
  */
 package org.gedcom4j.validate;
 
-import org.gedcom4j.model.AbstractNameVariation;
 import org.gedcom4j.model.PersonalNameVariation;
 
 /**
@@ -37,15 +36,20 @@ import org.gedcom4j.model.PersonalNameVariation;
 class PersonalNameVariationValidator extends NameVariationValidator {
 
     /**
+     * Serial Version UID
+     */
+    private static final long serialVersionUID = -1410145014070374415L;
+
+    /**
      * Constructor
      * 
-     * @param rootValidator
-     *            the root {@link GedcomValidator} that contains the findings and the settings
+     * @param validator
+     *            the {@link Validator} that contains the findings and the settings
      * @param pnv
      *            the personal name variation to be validated
      */
-    public PersonalNameVariationValidator(GedcomValidator rootValidator, PersonalNameVariation pnv) {
-        super(rootValidator, pnv);
+    PersonalNameVariationValidator(Validator validator, PersonalNameVariation pnv) {
+        super(validator, pnv);
     }
 
     /**
@@ -54,21 +58,18 @@ class PersonalNameVariationValidator extends NameVariationValidator {
     @Override
     protected void validate() {
         super.validate();
-        AbstractNameVariation nv = getNameVariation();
-        if (nv == null)
-        	return;
-        if (!(nv instanceof PersonalNameVariation)) {
-            addError("Name variation on person is not a PersonalNameVariation");
+        if (nv == null) {
             return;
         }
         PersonalNameVariation pnv = (PersonalNameVariation) nv;
-        checkOptionalString(pnv.getGivenName(), "given name", pnv);
-        checkOptionalString(pnv.getNickname(), "nickname", pnv);
-        checkOptionalString(pnv.getPrefix(), "prefix", pnv);
-        checkOptionalString(pnv.getSuffix(), "suffix", pnv);
-        checkOptionalString(pnv.getSurname(), "surname", pnv);
-        checkOptionalString(pnv.getSurnamePrefix(), "surname prefix", pnv);
         checkCitations(pnv);
-        checkNotes(pnv);
+        mustHaveValueOrBeOmitted(pnv, "givenName");
+        mustHaveValueOrBeOmitted(pnv, "nickname");
+        mustHaveValueOrBeOmitted(pnv, "prefix");
+        mustHaveValueOrBeOmitted(pnv, "suffix");
+        mustHaveValueOrBeOmitted(pnv, "surname");
+        mustHaveValueOrBeOmitted(pnv, "surnamePrefix");
+        new NoteStructureListValidator(getValidator(), pnv).validate();
     }
+
 }

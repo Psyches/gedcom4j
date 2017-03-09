@@ -34,12 +34,11 @@ import java.io.IOException;
 
 import org.gedcom4j.exception.GedcomParserException;
 import org.gedcom4j.model.Gedcom;
-import org.gedcom4j.model.Note;
+import org.gedcom4j.model.NoteRecord;
 import org.junit.Test;
 
 /**
- * Test situation where a NOTE structure has both an ID definition and cross-reference, which is technically not
- * allowed.
+ * Test situation where a NOTE structure has both an ID definition and cross-reference, which is technically not allowed.
  * 
  * @author frizbog
  */
@@ -69,7 +68,7 @@ public class Issue96Test {
         assertNotNull(g);
         assertNotNull(g.getNotes());
         assertEquals(1, g.getNotes().size());
-        Note note = g.getNotes().values().iterator().next();
+        NoteRecord note = g.getNotes().values().iterator().next();
 
         // Cross-reference (or what looks like one) treated like text?
         assertEquals("@N0@", note.getLines().get(0));
