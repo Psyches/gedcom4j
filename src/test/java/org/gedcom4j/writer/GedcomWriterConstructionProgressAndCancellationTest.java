@@ -48,7 +48,6 @@ import org.junit.Test;
  * 
  * @author frizbog
  */
-@SuppressWarnings("resource")
 public class GedcomWriterConstructionProgressAndCancellationTest implements ConstructProgressListener {
 
     /**
@@ -97,7 +96,8 @@ public class GedcomWriterConstructionProgressAndCancellationTest implements Cons
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
-	@Test(expected = WriterCancelledException.class)
+    @SuppressWarnings("resource")
+    @Test(expected = WriterCancelledException.class)
     public void testCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ascii.ged");
@@ -150,6 +150,7 @@ public class GedcomWriterConstructionProgressAndCancellationTest implements Cons
      * @throws GedcomWriterException
      *             if the file can't be written (or is cancelled)
      */
+    @SuppressWarnings("resource")
     @Test
     public void testNoCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();

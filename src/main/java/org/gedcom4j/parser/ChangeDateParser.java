@@ -57,7 +57,7 @@ class ChangeDateParser extends AbstractParser<ChangeDate> {
      * {@inheritDoc}
      */
     @Override
-    protected void parse() {
+    void parse() {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.DATE.equalsText(ch.getTag())) {

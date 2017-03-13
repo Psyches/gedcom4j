@@ -717,7 +717,7 @@ public class StressFileSpecialCharacterReadTest {
      * @param actual
      *            actual value
      */
-    private static void assertEqualsCharByChar(final String expected, final String actual) {
+    private void assertEqualsCharByChar(String expected, String actual) {
         assertNotNull(expected);
         assertNotNull(actual);
         for (int i = 0; i < Math.min(expected.length(), actual.length()); i++) {

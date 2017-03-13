@@ -164,8 +164,6 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     private Validator validator;
 
-    private boolean autorepair;
-    
     /**
      * Constructor
      * 
@@ -176,6 +174,7 @@ public class GedcomWriter extends AbstractEmitter<Gedcom> {
      */
     public GedcomWriter(Gedcom gedcom) throws WriterCancelledException {
         super(null, 0, gedcom);
+        baseWriter = this;
     }
 
     /**

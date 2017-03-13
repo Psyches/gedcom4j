@@ -56,7 +56,7 @@ class FamilyChildParser extends AbstractParser<FamilyChild> {
     }
 
     @Override
-    protected void parse() {
+    void parse() {
         Family f = getFamily(stringTree.getValue());
         loadInto.setFamily(f);
         if (stringTree.getChildren() != null) {

@@ -35,7 +35,7 @@ import org.gedcom4j.model.Place;
  * @author frizbog1
  * 
  */
-public class PlaceValidator extends AbstractValidator {
+class PlaceValidator extends AbstractValidator {
 
     /**
      * Serial Version UID
@@ -110,30 +110,4 @@ public class PlaceValidator extends AbstractValidator {
         }
     }
 
-    private void checkPhonetic() {
-		checkNameVariations("phonetic name variations", new ListRef<AbstractNameVariation>() {
-			@Override
-			public List<AbstractNameVariation> get(boolean initializeIfNeeded) {
-				return place.getPhonetic(initializeIfNeeded);
-			}
-		});
-    }
-    
-    private void checkRomanized() {
-		checkNameVariations("romanized name variations", new ListRef<AbstractNameVariation>() {
-			@Override
-			public List<AbstractNameVariation> get(boolean initializeIfNeeded) {
-				return place.getRomanized(initializeIfNeeded);
-			}
-		});
-    }
-    
-    private void checkNameVariations(String name, ListRef<AbstractNameVariation> handler) {
-		List<AbstractNameVariation> list = checkListStructure(name, true, place, handler);
-		if (list != null) {
-			for (AbstractNameVariation nv : list) {
-                new NameVariationValidator(getRootValidator(), nv).validate();
-			}
-		}
-    }
 }

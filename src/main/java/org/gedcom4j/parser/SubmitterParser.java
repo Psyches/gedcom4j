@@ -57,7 +57,7 @@ class SubmitterParser extends AbstractParser<Submitter> {
     }
 
     @Override
-    protected void parse() {
+    void parse() {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.NAME.equalsText(ch.getTag())) {

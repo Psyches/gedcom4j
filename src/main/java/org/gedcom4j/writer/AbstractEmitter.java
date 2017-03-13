@@ -55,7 +55,7 @@ abstract class AbstractEmitter<T> {
     /**
      * write starting at this level
      */
-    protected final int startLevel;
+    protected int startLevel;
 
     /**
      * object to write
@@ -65,7 +65,7 @@ abstract class AbstractEmitter<T> {
     /**
      * The base Gedcom writer class this Emitter is partnering with to emit the entire file
      */
-    protected final GedcomWriter baseWriter;
+    protected GedcomWriter baseWriter;
 
     /**
      * Constructor
@@ -80,7 +80,7 @@ abstract class AbstractEmitter<T> {
      *             if cancellation was requested during the operation
      */
     protected AbstractEmitter(GedcomWriter baseWriter, int startLevel, T writeFrom) throws WriterCancelledException {
-        this.baseWriter = (baseWriter == null && this instanceof GedcomWriter) ? (GedcomWriter)this : baseWriter;
+        this.baseWriter = baseWriter;
         this.startLevel = startLevel;
         this.writeFrom = writeFrom;
         if (baseWriter != null) {

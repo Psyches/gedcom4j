@@ -45,7 +45,7 @@ import org.gedcom4j.model.enumerations.RestrictionNoticeType;
  * @author frizbog1
  * 
  */
-public class IndividualValidator extends AbstractValidator {
+class IndividualValidator extends AbstractValidator {
 
     /**
      * Serial Version UID
@@ -161,7 +161,7 @@ public class IndividualValidator extends AbstractValidator {
             for (IndividualAttribute a : individual.getAttributes()) {
                 new IndividualAttributeValidator(getValidator(), a).validate();
             }
-		}
+        }
     }
 
     /**
@@ -210,4 +210,5 @@ public class IndividualValidator extends AbstractValidator {
         }
 
     }
+
 }

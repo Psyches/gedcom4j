@@ -67,6 +67,7 @@ enum FrenchRepublicanMonth {
      *            the gedcom-spec abbreviation for the month
      * @return the enumerated constant value with the supplied abbreviation, or null if no match is found
      */
+    @SuppressWarnings("ucd")
     public static FrenchRepublicanMonth getFromGedcomAbbrev(String gedcomAbbrev) {
         for (FrenchRepublicanMonth frm : values()) {
             if (gedcomAbbrev.equalsIgnoreCase(frm.getGedcomAbbrev())) {
@@ -79,8 +80,7 @@ enum FrenchRepublicanMonth {
     /**
      * The gedcom abbreviation
      */
-    @SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")
-	private final String gedcomAbbrev;
+    private final String gedcomAbbrev;
 
     /**
      * Constructor

@@ -55,7 +55,7 @@ class PersonalNameParser extends AbstractParser<PersonalName> {
     }
 
     @Override
-    protected void parse() {
+    void parse() {
         loadInto.setBasic(stringTree.getValue());
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

@@ -59,7 +59,6 @@ import org.junit.Test;
  * @author frizbog
  * 
  */
-@SuppressWarnings({ "PMD.TooManyMethods", "PMD.SystemPrintln", "PMD.EmptyStatementNotInLoop" })
 public class GedcomWriter551Test {
 
     /**

@@ -58,7 +58,7 @@ class MultimediaLinkParser extends AbstractParser<List<MultimediaReference>> {
      * {@inheritDoc}
      */
     @Override
-    protected void parse() {
+    void parse() {
         Multimedia m;
         MultimediaReference mr;
         if (referencesAnotherNode(stringTree)) {

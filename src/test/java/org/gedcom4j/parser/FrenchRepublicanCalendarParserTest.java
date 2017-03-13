@@ -49,11 +49,6 @@ public class FrenchRepublicanCalendarParserTest {
     private static TimeZone saveTimeZone;
 
     /**
-	 * The class being tested
-	 */
-	private final FrenchRepublicanCalendarParser classUnderTest = new FrenchRepublicanCalendarParser();
-
-	/**
      * Restore the TimeZone
      */
     @AfterClass
@@ -69,6 +64,11 @@ public class FrenchRepublicanCalendarParserTest {
         saveTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
+
+    /**
+     * The class being tested
+     */
+    private final FrenchRepublicanCalendarParser classUnderTest = new FrenchRepublicanCalendarParser();
 
     /**
      * Test {@link FrenchRepublicanCalendarParser#convertFrenchRepublicanDateToGregorian(int, String, int)}
@@ -124,7 +124,7 @@ public class FrenchRepublicanCalendarParserTest {
      *            day
      * @return gregorian date
      */
-    private static Date getDate(int y, int m, int d) {
+    private Date getDate(int y, int m, int d) {
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         c.clear();
         c.set(y, m, d, 0, 0, 0);

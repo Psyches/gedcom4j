@@ -47,7 +47,7 @@ public class IndividualAttributeTest {
      * Test for {@link IndividualAttribute#equals(Object)}
      */
     @Test
-	public void testEqualsObject() {
+    public void testEqualsObject() {
         IndividualAttribute i1 = new IndividualAttribute();
         IndividualAttribute i2 = new IndividualAttribute();
 
@@ -161,7 +161,7 @@ public class IndividualAttributeTest {
      * 
      */
     @Test
-	public void testHashCode() {
+    public void testHashCode() {
         IndividualAttribute i1 = new IndividualAttribute();
         IndividualAttribute i2 = new IndividualAttribute();
 

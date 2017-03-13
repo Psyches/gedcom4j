@@ -45,7 +45,7 @@ import org.gedcom4j.validate.Validator.Finding;
  * @author frizbog1
  * 
  */
-public class HeaderValidator extends AbstractValidator {
+class HeaderValidator extends AbstractValidator {
 
     /**
      * Serial Version UID
@@ -102,7 +102,6 @@ public class HeaderValidator extends AbstractValidator {
      * Check the character set
      */
     private void checkCharacterSet() {
-    	boolean isRepairEnabled = isAutorepairEnabled();
         if (header.getCharacterSet() == null) {
             Finding vf = newFinding(header, Severity.ERROR, ProblemCode.MISSING_REQUIRED_VALUE, "characterSet");
             if (mayRepair(vf)) {
@@ -162,7 +161,6 @@ public class HeaderValidator extends AbstractValidator {
      */
     private void checkSourceSystem() {
         SourceSystem ss = header.getSourceSystem();
-    	boolean isRepairEnabled = isAutorepairEnabled();
         if (ss == null) {
             Finding vf = newFinding(header, Severity.ERROR, ProblemCode.MISSING_REQUIRED_VALUE, "sourceSystem");
             if (mayRepair(vf)) {

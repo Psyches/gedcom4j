@@ -513,7 +513,7 @@ public class GedcomParser extends AbstractParser<Gedcom> {
      * {@link #load(BufferedInputStream)} method.
      */
     @Override
-    protected void parse() {
+    void parse() {
         // Do nothing
     }
 

@@ -159,12 +159,7 @@ public class Association extends AbstractNotesElement {
         return associatedEntityXref;
     }
 
-    @Override
-	public String getXref() {
-		return getAssociatedEntityXref();
-	}
-
-	/**
+    /**
      * Gets the citations.
      *
      * @return the citations
@@ -294,4 +289,5 @@ public class Association extends AbstractNotesElement {
         }
         builder.append("]");
         return builder.toString();
-    }}
+    }
+}

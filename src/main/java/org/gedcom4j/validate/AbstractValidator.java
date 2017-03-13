@@ -289,7 +289,7 @@ abstract class AbstractValidator implements Serializable {
             }
         }
     }
-    
+
     /**
      * Check list of model elements for dups, and removes them if allowed
      *
@@ -327,25 +327,6 @@ abstract class AbstractValidator implements Serializable {
             }
         }
     }
-    
-	/**
-	 * Check custom tags on an object implementing HasCustomTags. If autorepair
-	 * is on, it will reflectively fix this.
-	 * 
-	 * @param element
-	 *            the object being validated
-	 */
-	protected void checkCustomTags(HasCustomTags element) {
-		List<StringTree> customTags = element.getCustomTags();
-		if (customTags == null && Options.isCollectionInitializationEnabled()) {
-			if (isAutorepairEnabled()) {
-				element.getCustomTags(true);
-				getRootValidator().addInfo("Custom tag collection was null - repaired", element);
-			} else {
-				getRootValidator().addError("Custom tag collection is null - must be at least an empty collection", element);
-			}
-		}
-	}
 
     /**
      * Check list of model elements for null values and removes them if allowed.

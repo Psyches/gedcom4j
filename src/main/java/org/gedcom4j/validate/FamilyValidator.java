@@ -52,7 +52,7 @@ class FamilyValidator extends AbstractValidator {
     /**
      * The family being validated
      */
-    private final Family family;
+    private final Family f;
 
     /**
      * Validator for {@link Family}
@@ -99,10 +99,7 @@ class FamilyValidator extends AbstractValidator {
         }
 
         checkSubmitters();
-        checkUserReferences(family.getUserReferences(), family);
-        checkCitations(family);
-        checkNotes(family);
-        checkCustomTags(family);
+        checkUserReferences(f.getUserReferences(), f);
     }
 
     /**
@@ -169,4 +166,5 @@ class FamilyValidator extends AbstractValidator {
             }
         }
     }
+
 }

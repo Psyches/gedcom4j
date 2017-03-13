@@ -56,7 +56,7 @@ class GedcomVersionParser extends AbstractParser<GedcomVersion> {
      * {@inheritDoc}
      */
     @Override
-    protected void parse() {
+    void parse() {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.VERSION.equalsText(ch.getTag())) {

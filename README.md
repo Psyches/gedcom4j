@@ -4,4 +4,4 @@ Full information, including downloadable binaries, examples, a working demo, doc
 
 <img src="https://travis-ci.org/frizbog/gedcom4j.svg?branch=master">Track continuous integration builds at https://travis-ci.org/frizbog/gedcom4j
 
-Having trouble? Log an issue at https://github.com/frizbog/gedcom4j/issues
+Having trouble? Log an issue at https://github.com/Psyches/gedcom4j/issues

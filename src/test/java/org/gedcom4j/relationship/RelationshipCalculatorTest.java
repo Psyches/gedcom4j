@@ -55,7 +55,6 @@ import org.junit.Test;
 /**
  * @author frizbog1
  */
-@SuppressWarnings({ "PMD.SystemPrintln", "PMD.SingularField" })
 public class RelationshipCalculatorTest {
 
     /**
@@ -122,6 +121,7 @@ public class RelationshipCalculatorTest {
         assertNotNull(r.getChain());
         assertEquals("The relationship should be one item long", 1, r.getChain().size());
         assertEquals("The relationship should be an aunt/nephew one", AUNT, r.getChain().get(0).getName());
+
     }
 
     /**

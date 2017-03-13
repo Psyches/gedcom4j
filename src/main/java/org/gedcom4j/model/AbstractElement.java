@@ -171,12 +171,4 @@ public abstract class AbstractElement implements HasCustomFacts {
         return builder.toString();
     }
 
-    /**
-     * Set the custom tags
-     * 
-     * @param theCustomTags the custom tags
-     */
-    protected void setCustomTags(List<StringTree> theCustomTags) {
-    	customTags = theCustomTags;
-    }
 }

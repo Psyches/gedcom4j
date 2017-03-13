@@ -42,7 +42,7 @@ import org.gedcom4j.validate.Validator.Finding;
  * @author frizbog1
  * 
  */
-public class SourceValidator extends AbstractValidator {
+class SourceValidator extends AbstractValidator {
 
     /**
      * Serial Version UID

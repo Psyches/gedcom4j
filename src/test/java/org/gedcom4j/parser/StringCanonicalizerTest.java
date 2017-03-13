@@ -42,7 +42,6 @@ import org.junit.Test;
  * 
  * @author frizbog
  */
-@SuppressWarnings("PMD.AddEmptyString")
 public class StringCanonicalizerTest {
 
     /**

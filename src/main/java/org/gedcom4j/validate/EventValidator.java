@@ -45,7 +45,7 @@ import org.gedcom4j.validate.Validator.Finding;
  * 
  * @author frizbog1
  */
-public class EventValidator extends AbstractValidator {
+class EventValidator extends AbstractValidator {
 
     /**
      * Serial Version UID
@@ -61,7 +61,7 @@ public class EventValidator extends AbstractValidator {
     /**
      * The event being validated
      */
-    private final AbstractEvent event;
+    private final AbstractEvent e;
 
     /**
      * Constructor
@@ -80,6 +80,7 @@ public class EventValidator extends AbstractValidator {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("PMD.ExcessiveMethodLength")
     protected void validate() {
         if (e instanceof IndividualEvent) {
             IndividualEvent ie = (IndividualEvent) e;

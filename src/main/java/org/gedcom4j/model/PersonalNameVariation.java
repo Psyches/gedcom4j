@@ -294,7 +294,7 @@ public class PersonalNameVariation extends AbstractNameVariation implements HasN
         return noteStructures;
     }
 
-	/**
+    /**
      * Gets the prefix.
      *
      * @return the prefix

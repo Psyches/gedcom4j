@@ -57,7 +57,7 @@ class AssociationParser extends AbstractParser<Association> {
      * {@inheritDoc}
      */
     @Override
-	protected void parse() {
+    void parse() {
         loadInto.setAssociatedEntityXref(stringTree.getValue());
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

@@ -63,7 +63,7 @@ class MultimediaParser extends AbstractParser<Multimedia> {
      * {@inheritDoc}
      */
     @Override
-    protected void parse() {
+    void parse() {
         int fileTagCount = 0;
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

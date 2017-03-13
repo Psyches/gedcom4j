@@ -42,7 +42,7 @@ import org.gedcom4j.validate.Validator.Finding;
  * @author frizbog1
  * 
  */
-public class MultimediaValidator extends AbstractValidator {
+class MultimediaValidator extends AbstractValidator {
 
     /**
      * Serial Version UID
@@ -181,10 +181,10 @@ public class MultimediaValidator extends AbstractValidator {
             checkListOfModelElementsForNulls(mm, "fileReferences");
             for (FileReference fr : mm.getFileReferences()) {
                 checkFileReference(fr);
-			}
-		}
+            }
+        }
 
-		// Blobs must be empty in 5.5.1
+        // Blobs must be empty in 5.5.1
         if (mm.getBlob() != null && !mm.getBlob().isEmpty()) {
             Finding vf = newFinding(mm, Severity.ERROR, ProblemCode.NOT_ALLOWED_IN_GEDCOM_551, "blob");
             if (mayRepair(vf)) {
@@ -224,4 +224,5 @@ public class MultimediaValidator extends AbstractValidator {
         checkUninitializedCollection(mm, "blob");
         new NoteStructureListValidator(getValidator(), mm).validate();
     }
+
 }

@@ -50,7 +50,6 @@ class SubmitterValidator extends AbstractValidator {
      * The submitter being validated
      */
     private final Submitter submitter;
-	private int maxLanguagePrefs = 3; // TODO: use extended Options to get a configured default (via Properties?)
 
     /**
      * Constructor

@@ -39,7 +39,6 @@ import org.junit.Test;
  * 
  * @author frizbog1
  */
-@SuppressWarnings("PMD.SingularField")
 public class FamilyValidatorTest extends AbstractValidatorTestCase {
 
     /**

@@ -44,7 +44,7 @@ class NameVariationValidator extends AbstractValidator {
     /**
      * The name variation being validated
      */
-    private final AbstractNameVariation nv;
+    protected AbstractNameVariation nv;
 
     /**
      * Constructor

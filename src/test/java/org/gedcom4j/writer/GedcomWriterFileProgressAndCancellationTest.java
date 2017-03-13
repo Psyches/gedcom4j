@@ -162,7 +162,7 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      *             if the file can't be written (or is cancelled)
      */
     @SuppressWarnings("resource")
-	@Test(expected = WriterCancelledException.class)
+    @Test(expected = WriterCancelledException.class)
     public void testFileCancellation() throws IOException, GedcomParserException, GedcomWriterException {
         GedcomParser gp = new GedcomParser();
         gp.load("sample/willis-ascii.ged");
@@ -639,7 +639,7 @@ public class GedcomWriterFileProgressAndCancellationTest implements ConstructPro
      * @param encoding
      *            the encoding to use when writing
      */
-    private static void cleanUpGedcom(GedcomParser gp, Encoding encoding) {
+    private void cleanUpGedcom(GedcomParser gp, Encoding encoding) {
         CharacterSet characterSet = new CharacterSet();
         characterSet.setCharacterSetName(new StringWithCustomFacts(encoding.getCharacterSetName()));
         gp.getGedcom().getHeader().setCharacterSet(characterSet);

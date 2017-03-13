@@ -41,7 +41,6 @@ import org.junit.Test;
  * 
  * @author frizbog1
  */
-@SuppressWarnings("PMD.SingularField")
 public class LdsSpouseSealingValidatorTest extends AbstractValidatorTestCase {
     /**
      * The family being validated

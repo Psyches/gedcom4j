@@ -56,7 +56,7 @@ class SourceSystemParser extends AbstractParser<SourceSystem> {
      * {@inheritDoc}
      */
     @Override
-    protected void parse() {
+    void parse() {
         loadInto.setSystemId(stringTree.getValue());
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {

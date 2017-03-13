@@ -45,7 +45,7 @@ class LdsSpouseSealingValidator extends AbstractValidator {
     /**
      * The sealing being validated
      */
-    private final LdsSpouseSealing spouseSealing;
+    private final LdsSpouseSealing s;
 
     /**
      * Constructor
@@ -78,4 +78,5 @@ class LdsSpouseSealingValidator extends AbstractValidator {
         }
         mustHaveValueOrBeOmitted(s, "temple");
     }
+
 }

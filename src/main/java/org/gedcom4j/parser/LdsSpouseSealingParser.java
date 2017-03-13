@@ -55,7 +55,7 @@ class LdsSpouseSealingParser extends AbstractParser<LdsSpouseSealing> {
     }
 
     @Override
-    protected void parse() {
+    void parse() {
         if (stringTree.getChildren() != null) {
             for (StringTree ch : stringTree.getChildren()) {
                 if (Tag.DATE.equalsText(ch.getTag())) {

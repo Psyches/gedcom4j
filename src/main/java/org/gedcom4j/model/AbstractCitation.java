@@ -26,6 +26,11 @@
  */
 package org.gedcom4j.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gedcom4j.Options;
+
 /**
  * An abstract base class for other source citations (both with and without source)
  * 
